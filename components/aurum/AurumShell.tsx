@@ -15,6 +15,10 @@ import KnowledgePage from "./pages/KnowledgePage";
 import UpdatesPage from "./pages/UpdatesPage";
 import DashboardPage from "./pages/DashboardPage";
 import DeveloperPage from "./pages/DeveloperPage";
+import { GlobalSearch } from "./GlobalSearch";
+import { KeyboardShortcuts } from "./KeyboardShortcuts";
+import { PomodoroTimer } from "./PomodoroTimer";
+import { PWAInstall } from "./PWAInstall";
 
 interface Props {
   userName?: string;
@@ -27,6 +31,7 @@ export default function AurumShell({ userName, onSignOut, onNavigatePricing, cur
   const [activePage, setActivePage] = useState<PageId>("chat");
   const [orbState, setOrbState] = useState<OrbState>("idle");
   const [muted, setMuted] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
 
   const handleMuteToggle = useCallback(() => {
     setMuted((prev) => {
@@ -88,6 +93,12 @@ export default function AurumShell({ userName, onSignOut, onNavigatePricing, cur
         </div>
         <div className="relative h-full">{renderPage()}</div>
       </main>
+
+      {/* Global overlays */}
+      <GlobalSearch isOpen={showSearch} onClose={() => setShowSearch(false)} onNavigate={(page) => setActivePage(page as PageId)} />
+      <KeyboardShortcuts onSearch={() => setShowSearch(true)} onNavigate={(page) => setActivePage(page as PageId)} />
+      <PomodoroTimer />
+      <PWAInstall />
     </div>
   );
 }

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="100" fill="#050810"/>
+  <circle cx="256" cy="220" r="80" fill="none" stroke="#00d9ff" stroke-width="4" opacity="0.6"/>
+  <circle cx="256" cy="220" r="50" fill="none" stroke="#00d9ff" stroke-width="3" opacity="0.8"/>
+  <circle cx="256" cy="220" r="20" fill="#00d9ff"/>
+  <text x="256" y="380" text-anchor="middle" font-family="system-ui" font-weight="200" font-size="72" fill="#00d9ff" letter-spacing="8">AURUM</text>
+</svg>

@@ -18,6 +18,16 @@ export const metadata: Metadata = {
   description: "Organize tarefas, hábitos, projetos e finanças com comandos de voz. Assistente pessoal com inteligência artificial. Gratuito para sempre.",
   keywords: ["assistente pessoal", "inteligência artificial", "IA", "produtividade", "tarefas", "hábitos", "voz", "aurum"],
   authors: [{ name: "Sestari Digital" }],
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Aurum",
+  },
+  icons: {
+    apple: "/icons/icon-192.png",
+  },
+  themeColor: "#00d9ff",
   openGraph: {
     title: "Aurum - Assistente Pessoal com IA e Voz",
     description: "Organize sua vida com inteligência artificial e comandos de voz. Gratuito.",

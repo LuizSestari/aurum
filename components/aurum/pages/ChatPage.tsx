@@ -145,6 +145,8 @@ export default function ChatPage({ muted, onMuteToggle, orbState, onOrbState, us
   const [showTranscript, setShowTranscript] = useState(false);
   const [continuousMode, setContinuousMode] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   const stopListenRef = useRef<(() => void) | null>(null);
   const spaceDown = useRef(false);
@@ -154,6 +156,7 @@ export default function ChatPage({ muted, onMuteToggle, orbState, onOrbState, us
   const transcriptEndRef = useRef<HTMLDivElement>(null);
   const continuousModeRef = useRef(false);
   const mutedRef = useRef(muted);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => { continuousModeRef.current = continuousMode; }, [continuousMode]);
   useEffect(() => { mutedRef.current = muted; }, [muted]);
@@ -277,9 +280,54 @@ export default function ChatPage({ muted, onMuteToggle, orbState, onOrbState, us
     setPartialTranscript("");
   }, [doStopListen, onOrbState]);
 
+  // ── Image analysis function ──
+  const analyzeImage = useCallback(async (file: File, userMessage?: string) => {
+    if (processingRef.current) return;
+    processingRef.current = true;
+
+    const msg = userMessage || "Analise esta imagem";
+    setTranscript(prev => [...prev, { role: "user", text: `📷 ${msg}`, timestamp: Date.now() }]);
+    addMessage({ role: "user", content: `[imagem] ${msg}`, timestamp: Date.now() });
+    setStatusText("Analisando imagem...");
+    onOrbState("thinking");
+
+    try {
+      const formData = new FormData();
+      formData.append("image", file);
+      formData.append("message", msg);
+
+      const res = await fetch("/api/vision", { method: "POST", body: formData });
+      const data = await res.json();
+
+      if (data.error) throw new Error(data.error);
+
+      const cleanText = executeActions(data.reply);
+      setTranscript(prev => [...prev, { role: "aurum", text: cleanText, timestamp: Date.now() }]);
+      addMessage({ role: "aurum", content: cleanText, timestamp: Date.now() });
+
+      if (!mutedRef.current) {
+        setStatusText("Falando...");
+        onOrbState("speaking");
+        speak(cleanText.replace(/[*#`_\[\]()]/g, ""), {
+          onEnd: () => { setStatusText(""); onOrbState("idle"); processingRef.current = false; },
+        });
+      } else {
+        setStatusText(""); onOrbState("idle"); processingRef.current = false;
+      }
+    } catch (err) {
+      setStatusText(`Erro: ${err instanceof Error ? err.message : "Falha na análise"}`);
+      onOrbState("idle");
+      processingRef.current = false;
+      setTimeout(() => setStatusText(""), 4000);
+    }
+
+    setImageFile(null);
+    setImagePreview(null);
+  }, [onOrbState]);
+
   const sendText = useCallback(() => {
     const t = text.trim();
-    if (!t || processingRef.current) return;
+    if ((!t && !imageFile) || processingRef.current) return;
 
     // Check usage limit before sending
     if (!auth.isWithinUsageLimit("aiMessagesPerMonth")) {
@@ -287,10 +335,18 @@ export default function ChatPage({ muted, onMuteToggle, orbState, onOrbState, us
       return;
     }
 
+    // If there's an image, analyze it
+    if (imageFile) {
+      auth.incrementUsage("aiMessages");
+      analyzeImage(imageFile, t || undefined);
+      setText("");
+      return;
+    }
+
     setText("");
     auth.incrementUsage("aiMessages");
     processMessageDirect(t);
-  }, [text, processMessageDirect, auth]);
+  }, [text, imageFile, processMessageDirect, auth, analyzeImage]);
 
   const toggleContinuous = useCallback(() => {
     if (continuousMode) {
@@ -313,6 +369,38 @@ export default function ChatPage({ muted, onMuteToggle, orbState, onOrbState, us
       }, 100);
     }
   }, [continuousMode, doStopAll, onOrbState, processMessageDirect]);
+
+  // ── Image handling functions ──
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setImageFile(file);
+    const reader = new FileReader();
+    reader.onload = () => setImagePreview(reader.result as string);
+    reader.readAsDataURL(file);
+  };
+
+  const handleImagePaste = useCallback((e: ClipboardEvent) => {
+    const items = e.clipboardData?.items;
+    if (!items) return;
+    for (const item of items) {
+      if (item.type.startsWith("image/")) {
+        const file = item.getAsFile();
+        if (file) {
+          setImageFile(file);
+          const reader = new FileReader();
+          reader.onload = () => setImagePreview(reader.result as string);
+          reader.readAsDataURL(file);
+        }
+      }
+    }
+  }, []);
+
+  // ── Paste event listener for images ──
+  useEffect(() => {
+    document.addEventListener("paste", handleImagePaste);
+    return () => document.removeEventListener("paste", handleImagePaste);
+  }, [handleImagePaste]);
 
   // Keyboard
   useEffect(() => {
@@ -485,6 +573,29 @@ export default function ChatPage({ muted, onMuteToggle, orbState, onOrbState, us
           .control-bar-speaking { border-color: rgba(34, 197, 94, 0.4) !important; box-shadow: 0 0 12px rgba(34, 197, 94, 0.2) inset, 0 0 24px rgba(34, 197, 94, 0.15); }
         `}</style>
         <div className="mx-auto flex max-w-lg flex-col items-center gap-2">
+          {/* Hidden file input */}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            onChange={handleImageSelect}
+            className="hidden"
+          />
+
+          {/* Image preview (above the control bar) */}
+          {imagePreview && (
+            <div className="absolute bottom-full mb-2 left-4 right-4">
+              <div className="inline-flex items-center gap-2 rounded-xl bg-white/5 border border-white/10 p-2 backdrop-blur-xl">
+                <img src={imagePreview} alt="Preview" className="h-16 w-16 rounded-lg object-cover" />
+                <div className="text-xs text-white/50">
+                  <p>{imageFile?.name}</p>
+                  <p className="text-white/30">{((imageFile?.size ?? 0) / 1024).toFixed(0)} KB</p>
+                </div>
+                <button onClick={() => { setImageFile(null); setImagePreview(null); }} className="ml-2 text-white/30 hover:text-red-400">✕</button>
+              </div>
+            </div>
+          )}
+
           <div className={[
             "flex w-full items-center gap-2 rounded-2xl border transition-all duration-300",
             "bg-white/[0.08] backdrop-blur-3xl",
@@ -511,6 +622,18 @@ export default function ChatPage({ muted, onMuteToggle, orbState, onOrbState, us
               ) : (
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
               )}
+            </button>
+
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              className="flex h-7 w-7 items-center justify-center rounded-lg text-white/30 hover:text-white/45 transition-all"
+              title="Enviar imagem"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                <circle cx="8.5" cy="8.5" r="1.5"/>
+                <polyline points="21 15 16 10 5 21"/>
+              </svg>
             </button>
 
             <button

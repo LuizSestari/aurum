@@ -1,0 +1,27 @@
+{
+  "name": "Aurum - Assistente Pessoal IA",
+  "short_name": "Aurum",
+  "description": "Seu assistente pessoal de elite com voz, powered by IA",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#050810",
+  "theme_color": "#00d9ff",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["productivity", "utilities"],
+  "lang": "pt-BR",
+  "dir": "ltr"
+}
