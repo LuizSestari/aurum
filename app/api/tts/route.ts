@@ -10,14 +10,14 @@ import { NextRequest } from "next/server";
  * 4. Web Speech API (client-side fallback)
  */
 
-// ElevenLabs voices — multilingual v2 model supports pt-BR natively
+// ElevenLabs voices — JARVIS-style deep male voice
 const ELEVENLABS_VOICES: Record<string, string> = {
-  // Brian — fast, clear, natural male voice (optimized for speed)
-  "pt-BR": "nPczCjzI2devNBz1zQrb",
-  // Adam — deep, conversational male
+  // Adam — deep, authoritative, confident male voice (JARVIS-style)
+  "pt-BR": "pNInz6obpgDQGcFmaJgB",
+  // Adam for male explicit request too
   "pt-BR-male": "pNInz6obpgDQGcFmaJgB",
-  // Bella — soft, natural female
-  "en-US": "EXAVITQu4vr4xnSDxMaL",
+  // Antoni — calm, mature male (alternative JARVIS)
+  "en-US": "ErXwobaYiN019PkySvjV",
 };
 
 const SE_VOICE_MAP: Record<string, string> = {
@@ -125,12 +125,11 @@ async function elevenLabsTTS(text: string, lang: string, apiKey: string): Promis
     },
     body: JSON.stringify({
       text,
-      model_id: "eleven_turbo_v2_5",
-      optimize_streaming_latency: 3,
+      model_id: "eleven_multilingual_v2",
       voice_settings: {
-        stability: 0.35,
-        similarity_boost: 0.85,
-        style: 0.55,
+        stability: 0.65,
+        similarity_boost: 0.80,
+        style: 0.30,
         use_speaker_boost: true,
       },
     }),

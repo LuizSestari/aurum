@@ -161,7 +161,7 @@ function speakEdgeTTS(text: string, opts?: SpeakOptions): void {
         speakWebSpeech(text, opts);
       };
 
-      audio.playbackRate = 1.15;
+      audio.playbackRate = 1.2;
       audio.play().catch(() => {
         // Autoplay blocked — fallback
         ttsEngine = "web";
