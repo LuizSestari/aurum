@@ -29,6 +29,7 @@ export default function TasksPage() {
   const [sortBy, setSortBy] = useState<"prioridade" | "data">("prioridade");
   const [showModal, setShowModal] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [selectedTasks, setSelectedTasks] = useState<Set<string>>(new Set());
 
   // Form state
   const [fTitle, setFTitle] = useState("");
@@ -150,7 +151,7 @@ export default function TasksPage() {
             { icon: "⚠️", label: "Atrasadas", value: overdue, color: "#ef4444" },
           ]} />
 
-          {/* Filter bar */}
+          {/* Filter bar + Bulk actions */}
           <div className="mt-4 flex flex-wrap items-center gap-2">
             <span className="text-xs text-white/40">🏷 Filtrar:</span>
             {(["all", "pendente", "em_andamento", "concluída"] as const).map((f) => (
@@ -165,6 +166,28 @@ export default function TasksPage() {
               <button onClick={() => setSortBy("data")} className={`text-xs ${sortBy === "data" ? "text-cyan-400" : "text-white/40"}`}>Data</button>
             </div>
           </div>
+
+          {/* Bulk actions bar */}
+          {selectedTasks.size > 0 && (
+            <div className="mt-3 flex items-center gap-2 rounded-lg border border-cyan-500/30 bg-cyan-500/10 px-3 py-2">
+              <span className="text-xs text-cyan-300">{selectedTasks.size} selecionada(s)</span>
+              <div className="ml-auto flex gap-2">
+                <button onClick={() => {
+                  selectedTasks.forEach(id => {
+                    const t = tasks.find(t => t.id === id);
+                    if (t) updateTask(id, { status: "concluída" });
+                  });
+                  setSelectedTasks(new Set());
+                  reload();
+                }} className="rounded px-2 py-1 text-xs bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30">✅ Concluir</button>
+                <button onClick={() => {
+                  selectedTasks.forEach(id => deleteTask(id));
+                  setSelectedTasks(new Set());
+                  reload();
+                }} className="rounded px-2 py-1 text-xs bg-red-500/20 text-red-300 hover:bg-red-500/30">🗑 Deletar</button>
+              </div>
+            </div>
+          )}
 
           <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-[1fr_1fr]">
             <MiniCalendar accentColor="#3b82f6" />
@@ -193,8 +216,14 @@ export default function TasksPage() {
                 <div className="max-h-[400px] space-y-2 overflow-y-auto">
                   {displayed.map((t) => {
                     const priColor = PRIORITIES.find((p) => p.value === t.priority)?.color ?? "#fff";
+                    const isOverdue = t.status !== "concluída" && t.dueDate && t.dueDate < today;
+                    const isToday = t.dueDate === today;
+                    const isFuture = t.dueDate && t.dueDate > today;
+                    const dueDateColor = isOverdue ? "#ef4444" : isToday ? "#eab308" : isFuture ? "#22c55e" : "#fff";
                     return (
-                      <div key={t.id} className="group flex items-start gap-3 rounded-lg border border-white/6 bg-white/[0.02] px-3 py-2.5 transition-all duration-200 hover:bg-white/[0.08] hover:border-white/10 hover:translate-x-1">
+                      <div key={t.id} className="group flex items-start gap-3 rounded-lg border border-white/6 bg-white/[0.02] px-3 py-2.5 transition-all duration-200 hover:bg-white/[0.08] hover:border-white/10 hover:translate-x-1 cursor-grab active:cursor-grabbing"
+                        onClick={(e) => { if ((e.target as HTMLElement).closest("button")) return; const newSet = new Set(selectedTasks); if (newSet.has(t.id)) newSet.delete(t.id); else newSet.add(t.id); setSelectedTasks(newSet); }}>
+                        <span className="mt-0.5 text-white/30 cursor-grab">☰</span>
                         <button onClick={() => handleToggleDone(t)}
                           className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md border transition-all duration-300 ${
                             t.status === "concluída" ? "scale-100 border-emerald-500 bg-emerald-500/30 text-emerald-300" : "border-white/20 hover:border-emerald-500/60 hover:scale-110"}`}>
@@ -209,7 +238,9 @@ export default function TasksPage() {
                               <span className="rounded px-1.5 py-0.5 text-[10px] font-medium" style={{ background: `${priColor}20`, color: priColor }}>{t.priority}</span>
                             </div>
                             {t.dueDate && (
-                              <span className={`text-[10px] ${t.dueDate < today && t.status !== "concluída" ? "text-red-400" : "text-white/30"}`}>
+                              <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${
+                                isOverdue ? "bg-red-500/20 text-red-400" : isToday ? "bg-yellow-500/20 text-yellow-400" : isFuture ? "bg-green-500/20 text-green-400" : "text-white/30"
+                              }`}>
                                 📅 {new Date(t.dueDate + "T12:00:00").toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })}
                               </span>
                             )}

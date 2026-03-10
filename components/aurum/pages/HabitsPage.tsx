@@ -36,6 +36,8 @@ export default function HabitsPage() {
 
   const totalHabits = habits.length;
   const bestStreak = habits.reduce((max, h) => Math.max(max, h.bestStreak), 0);
+  const prevBestStreak = habits.reduce((max, h) => h.bestStreak === bestStreak ? Math.max(max, h.streak) : max, 0);
+  const justBeatRecord = habits.some(h => h.bestStreak === h.streak && h.streak > 0 && h.completedDates.includes(today));
   const doneToday = habits.filter((h) => h.completedDates.includes(today)).length;
   const monthRate = totalHabits > 0 ? Math.round((doneToday / totalHabits) * 100) : 0;
 
@@ -86,6 +88,16 @@ export default function HabitsPage() {
 
   return (
     <div className="h-full overflow-y-auto px-6 pb-24">
+      <style>{`
+        @keyframes celebrate {
+          0% { transform: scale(0) rotate(-45deg); opacity: 0; }
+          50% { opacity: 1; }
+          100% { transform: scale(1.2) rotate(0deg); opacity: 0; }
+        }
+        .animate-celebrate {
+          animation: celebrate 0.8s ease-out;
+        }
+      `}</style>
       <PageHeader icon="🎯" iconBg="#22c55e" title="Hábitos" subtitle="Construa hábitos saudáveis e acompanhe seu progresso diário"
         tabs={[{ id: "habits", label: "Hábitos" }, { id: "analysis", label: "Análise" }]} activeTab={tab} onTabChange={setTab} />
 
@@ -96,7 +108,17 @@ export default function HabitsPage() {
         { icon: "📈", label: "Taxa do Dia", value: `${monthRate}%`, color: "#a78bfa" },
       ]} />
 
-      {bestStreak > 0 && (
+      {justBeatRecord && (
+        <div className="mt-4 rounded-xl border border-amber-500/30 bg-gradient-to-r from-amber-500/15 to-yellow-500/10 px-4 py-3 relative overflow-hidden">
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <span className="text-4xl animate-celebrate">🎉</span>
+          </div>
+          <div className="text-sm font-bold text-amber-300">Novo Recorde! Parabéns pela sequência!</div>
+          <div className="text-xs text-amber-200/70">Você ultrapassou seu melhor desempenho anterior!</div>
+        </div>
+      )}
+
+      {bestStreak > 0 && !justBeatRecord && (
         <div className="mt-4 rounded-xl border border-orange-500/20 bg-orange-500/8 px-4 py-3">
           <div className="text-sm font-medium">{getMotivationalMessage()}</div>
         </div>
@@ -141,11 +163,12 @@ export default function HabitsPage() {
                   {last7.map((d) => {
                     const done = h.completedDates.includes(d);
                     const isToday = d === today;
+                    const heatIntensity = done ? 0.6 : 0.15;
                     return (
                       <button key={d} onClick={() => { if (isToday) handleToggle(h.id); }} disabled={!isToday}
                         className={`mx-auto flex h-7 w-7 items-center justify-center rounded-md text-xs font-medium transition-all duration-300 ${
                           done ? "scale-100 text-white shadow-lg animate-check-complete" : isToday ? "border-2 border-dashed border-white/30 hover:border-white/60 hover:scale-105 hover:bg-white/5" : "border border-white/10 opacity-60"}`}
-                        style={done ? { background: `${h.color}40`, color: h.color, boxShadow: `0 0 12px ${h.color}40` } : {}}>{done ? "✓" : ""}</button>
+                        style={done ? { background: `${h.color}${Math.round(heatIntensity * 255).toString(16).padStart(2, '0')}`, color: h.color, boxShadow: `0 0 12px ${h.color}60` } : { background: `${h.color}${Math.round(0.08 * 255).toString(16).padStart(2, '0')}` }}>{done ? "✓" : ""}</button>
                     );
                   })}
                   <button onClick={() => handleDelete(h.id)}

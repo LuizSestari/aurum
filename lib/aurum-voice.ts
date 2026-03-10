@@ -20,7 +20,7 @@ export interface VoiceConfig {
 
 const DEFAULT_CONFIG: VoiceConfig = {
   language: "pt-BR",
-  ttsRate: 1.05, // Slightly faster for more natural feel
+  ttsRate: 1.15, // Noticeably faster but still natural
   ttsPitch: 1.0,
   vadSensitivity: 0.5,
   sttEngine: "web",
@@ -161,6 +161,7 @@ function speakEdgeTTS(text: string, opts?: SpeakOptions): void {
         speakWebSpeech(text, opts);
       };
 
+      audio.playbackRate = 1.15;
       audio.play().catch(() => {
         // Autoplay blocked — fallback
         ttsEngine = "web";

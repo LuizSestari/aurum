@@ -19,7 +19,7 @@ import {
   generateReport,
   type N8nWorkflow,
 } from "@/lib/aurum-automation";
-import { loadData } from "@/lib/aurum-store";
+import { loadData, todayISO, type Reminder, type Habit } from "@/lib/aurum-store";
 import AurumOrb from "../shared/AurumOrb";
 
 interface Props {
@@ -39,6 +39,8 @@ const TIPS = [
 
 export default function DashboardPage({ orbState, userName }: Props) {
   const [activeSection, setActiveSection] = useState<"overview" | "ai" | "voice" | "memory" | "automations">("overview");
+  const [showQuickAdd, setShowQuickAdd] = useState(false);
+  const [quickAddType, setQuickAddType] = useState<"task" | "habit" | "reminder">("task");
 
   // Get time-of-day greeting
   const getGreeting = () => {
@@ -261,6 +263,60 @@ export default function DashboardPage({ orbState, userName }: Props) {
               </button>
             )}
           </div>
+
+          {/* Upcoming reminders in next 24h */}
+          {(() => {
+            const data = loadData();
+            const now = new Date().toISOString();
+            const nextDay = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+            const upcoming = data.reminders.filter((r: Reminder) => !r.done && r.dateTime >= now && r.dateTime <= nextDay).slice(0, 3);
+            if (upcoming.length === 0) return null;
+            return (
+              <div className="rounded-xl border border-blue-500/20 bg-blue-500/8 p-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="text-lg">🔔</span>
+                  <span className="text-sm font-semibold">Próximos Lembretes (24h)</span>
+                  <span className="rounded-full px-2 py-0.5 text-[10px] font-bold bg-blue-500/30 text-blue-300 ml-auto">{upcoming.length}</span>
+                </div>
+                <div className="space-y-2">
+                  {upcoming.map((r: Reminder) => (
+                    <div key={r.id} className="flex items-start gap-2 text-sm">
+                      <span>📌</span>
+                      <div className="flex-1 min-w-0">
+                        <div className="font-medium text-white/80 truncate">{r.title}</div>
+                        <div className="text-[10px] text-white/50">{new Date(r.dateTime).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })()}
+
+          {/* Today's habit completion progress */}
+          {(() => {
+            const data = loadData();
+            const today = todayISO();
+            const completedToday = data.habits.filter((h: Habit) => h.completedDates.includes(today)).length;
+            const totalHabits = data.habits.length;
+            const completionRate = totalHabits > 0 ? Math.round((completedToday / totalHabits) * 100) : 0;
+            if (totalHabits === 0) return null;
+            return (
+              <div className="rounded-xl border border-green-500/20 bg-green-500/8 p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg">🎯</span>
+                    <span className="text-sm font-semibold">Hábitos de Hoje</span>
+                  </div>
+                  <span className="text-sm font-bold text-green-400">{completedToday}/{totalHabits}</span>
+                </div>
+                <div className="h-2 rounded-full bg-white/5 overflow-hidden">
+                  <div className="h-full rounded-full bg-gradient-to-r from-green-500 to-emerald-500 transition-all" style={{ width: `${completionRate}%` }} />
+                </div>
+                <div className="text-xs text-white/50 mt-2">{completionRate}% concluído</div>
+              </div>
+            );
+          })()}
 
           {/* Quick stats */}
           <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
@@ -526,6 +582,34 @@ export default function DashboardPage({ orbState, userName }: Props) {
         </div>
       )}
       </div>
+
+      {/* Quick Add Floating Button */}
+      {activeSection === "overview" && (
+        <>
+          <button onClick={() => setShowQuickAdd(!showQuickAdd)}
+            className="fixed bottom-6 right-6 z-20 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-cyan-500 to-blue-500 text-2xl text-white shadow-lg shadow-cyan-500/20 hover:shadow-cyan-500/40 transition-all">
+            +
+          </button>
+
+          {/* Quick Add Menu */}
+          {showQuickAdd && (
+            <div className="fixed bottom-24 right-6 z-20 flex flex-col gap-2">
+              <button onClick={() => { setQuickAddType("task"); setShowQuickAdd(false); }}
+                className="flex items-center gap-2 rounded-lg bg-blue-500/20 px-4 py-2 text-xs text-blue-300 hover:bg-blue-500/30 transition-colors">
+                <span>✅</span> Nova Tarefa
+              </button>
+              <button onClick={() => { setQuickAddType("habit"); setShowQuickAdd(false); }}
+                className="flex items-center gap-2 rounded-lg bg-green-500/20 px-4 py-2 text-xs text-green-300 hover:bg-green-500/30 transition-colors">
+                <span>🎯</span> Novo Hábito
+              </button>
+              <button onClick={() => { setQuickAddType("reminder"); setShowQuickAdd(false); }}
+                className="flex items-center gap-2 rounded-lg bg-yellow-500/20 px-4 py-2 text-xs text-yellow-300 hover:bg-yellow-500/30 transition-colors">
+                <span>🔔</span> Novo Lembrete
+              </button>
+            </div>
+          )}
+        </>
+      )}
     </>
   );
 }

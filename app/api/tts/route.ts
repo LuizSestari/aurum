@@ -12,8 +12,8 @@ import { NextRequest } from "next/server";
 
 // ElevenLabs voices — multilingual v2 model supports pt-BR natively
 const ELEVENLABS_VOICES: Record<string, string> = {
-  // Rachel — warm, calm female voice (great for pt-BR)
-  "pt-BR": "21m00Tcm4TlvDq8ikWAM",
+  // Brian — fast, clear, natural male voice (optimized for speed)
+  "pt-BR": "nPczCjzI2devNBz1zQrb",
   // Adam — deep, conversational male
   "pt-BR-male": "pNInz6obpgDQGcFmaJgB",
   // Bella — soft, natural female
@@ -125,11 +125,12 @@ async function elevenLabsTTS(text: string, lang: string, apiKey: string): Promis
     },
     body: JSON.stringify({
       text,
-      model_id: "eleven_multilingual_v2",
+      model_id: "eleven_turbo_v2_5",
+      optimize_streaming_latency: 3,
       voice_settings: {
-        stability: 0.5,
-        similarity_boost: 0.75,
-        style: 0.4,
+        stability: 0.35,
+        similarity_boost: 0.85,
+        style: 0.55,
         use_speaker_boost: true,
       },
     }),
@@ -240,7 +241,7 @@ export async function GET() {
   return new Response(
     JSON.stringify({
       engines: [
-        { name: "elevenlabs", description: "Ultra-realistic Neural (Rachel pt-BR)", priority: 1, requiresKey: true },
+        { name: "elevenlabs", description: "Ultra-realistic Neural (Brian pt-BR - fast & natural)", priority: 1, requiresKey: true },
         { name: "streamelements", description: "Neural voices (Joana pt-BR)", priority: 2 },
         { name: "google-translate", description: "Google Translate TTS", priority: 3 },
         { name: "web-speech", description: "Browser built-in (client fallback)", priority: 4 },

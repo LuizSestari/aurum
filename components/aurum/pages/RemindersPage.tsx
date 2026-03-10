@@ -18,9 +18,42 @@ export default function RemindersPage() {
   const [fTime, setFTime] = useState("09:00");
   const [fPriority, setFPriority] = useState<Reminder["priority"]>("média");
   const [fRecurring, setFRecurring] = useState<Reminder["recurring"]>("nunca");
+  const [countdownTime, setCountdownTime] = useState("");
 
   const reload = useCallback(() => { setReminders(loadData().reminders); }, []);
   useEffect(() => { reload(); }, [reload]);
+
+  const snoozeReminder = (id: string, minutesOrHours: string) => {
+    const r = reminders.find(rem => rem.id === id);
+    if (!r) return;
+    const now = new Date(r.dateTime);
+    if (minutesOrHours === "1h") now.setHours(now.getHours() + 1);
+    else if (minutesOrHours === "1d") now.setDate(now.getDate() + 1);
+    const newDateTime = now.toISOString().slice(0, 16) + ":00";
+    updateReminder(id, { dateTime: newDateTime });
+    reload();
+  };
+
+  // Countdown timer for nearest reminder
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const active = reminders.filter((r) => !r.done).sort((a, b) => a.dateTime.localeCompare(b.dateTime));
+      if (active.length > 0) {
+        const nearest = new Date(active[0].dateTime);
+        const now = new Date();
+        const diff = nearest.getTime() - now.getTime();
+        if (diff > 0) {
+          const hours = Math.floor(diff / (1000 * 60 * 60));
+          const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+          const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+          setCountdownTime(`${hours}h ${minutes}m ${seconds}s`);
+        } else {
+          setCountdownTime("Agora!");
+        }
+      }
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [reminders]);
 
   const now = new Date().toISOString();
   const todayStr = now.slice(0, 10);
@@ -53,6 +86,22 @@ export default function RemindersPage() {
 
   const active = reminders.filter((r) => !r.done).sort((a, b) => a.dateTime.localeCompare(b.dateTime));
   const done = reminders.filter((r) => r.done);
+
+  // Group reminders by time period
+  const groupRemindersByPeriod = (rems: Reminder[]) => {
+    const today = new Date().toISOString().slice(0, 10);
+    const tomorrow = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+    const weekEnd = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+
+    const groups: { label: string; emoji: string; items: Reminder[] }[] = [
+      { label: "Hoje", emoji: "📅", items: rems.filter(r => r.dateTime.startsWith(today)) },
+      { label: "Amanhã", emoji: "📆", items: rems.filter(r => r.dateTime.startsWith(tomorrow)) },
+      { label: "Esta Semana", emoji: "📊", items: rems.filter(r => r.dateTime > tomorrow && r.dateTime < weekEnd) },
+      { label: "Futuro", emoji: "⏳", items: rems.filter(r => r.dateTime >= weekEnd) },
+    ];
+    return groups.filter(g => g.items.length > 0);
+  };
+
   const displayed = tab === "reminders" ? active : done;
 
   // Upcoming reminders within 24h
@@ -85,6 +134,7 @@ export default function RemindersPage() {
             <span className="text-lg">⚡</span>
             <span className="text-sm font-semibold text-white">Próximos Lembretes (próximas 24h)</span>
             <span className="rounded-full px-2 py-0.5 text-xs font-bold bg-yellow-500/30 text-yellow-300">{upcomingInDay.length}</span>
+            {countdownTime && <span className="ml-auto text-xs font-mono text-yellow-400">⏱ {countdownTime}</span>}
           </div>
           <div className="space-y-2">
             {upcomingInDay.map((r) => (
@@ -114,8 +164,13 @@ export default function RemindersPage() {
           {displayed.length === 0 ? (
             <div className="py-8 text-center text-xs text-white/30">Nenhum lembrete{tab === "done" ? " concluído" : ""}.</div>
           ) : (
-            <div className="max-h-[400px] space-y-2 overflow-y-auto">
-              {displayed.map((r) => {
+            <div className="max-h-[400px] space-y-4 overflow-y-auto">
+              {tab === "reminders" ? (
+                groupRemindersByPeriod(displayed).map((group) => (
+                  <div key={group.label}>
+                    <div className="text-xs font-semibold text-white/40 mb-2">{group.emoji} {group.label}</div>
+                    <div className="space-y-2">
+                      {group.items.map((r) => {
                 const { isOverdue, isToday } = getDateStatus(r.dateTime);
                 const bgColor = !r.done && isOverdue ? "bg-red-500/10 border-red-500/20" : !r.done && isToday ? "bg-yellow-500/10 border-yellow-500/20" : "bg-white/[0.02] border-white/6";
                 const dateColor = !r.done && isOverdue ? "text-red-400" : !r.done && isToday ? "text-yellow-400" : "text-white/30";
@@ -138,12 +193,48 @@ export default function RemindersPage() {
                       </div>
                     </div>
                     <div className="flex shrink-0 gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                      {!r.done && (
+                        <>
+                          <button onClick={() => snoozeReminder(r.id, "1h")} className="rounded px-1.5 py-0.5 text-[10px] text-white/40 hover:bg-blue-500/20 hover:text-blue-300">+1h</button>
+                          <button onClick={() => snoozeReminder(r.id, "1d")} className="rounded px-1.5 py-0.5 text-[10px] text-white/40 hover:bg-purple-500/20 hover:text-purple-300">+1d</button>
+                        </>
+                      )}
                       <button onClick={() => openEdit(r)} className="rounded p-1 text-xs text-white/30 hover:text-white/60">✏️</button>
                       <button onClick={() => handleDelete(r.id)} className="rounded p-1 text-xs text-white/30 hover:text-red-400">🗑</button>
                     </div>
                   </div>
                 );
-              })}
+                      })}
+                    </div>
+                  </div>
+                ))
+              ) : (
+                displayed.map((r) => {
+                  const { isOverdue, isToday } = getDateStatus(r.dateTime);
+                  const bgColor = !r.done && isOverdue ? "bg-red-500/10 border-red-500/20" : !r.done && isToday ? "bg-yellow-500/10 border-yellow-500/20" : "bg-white/[0.02] border-white/6";
+                  const dateColor = !r.done && isOverdue ? "text-red-400" : !r.done && isToday ? "text-yellow-400" : "text-white/30";
+                  return (
+                    <div key={r.id} className={`group flex items-start gap-3 rounded-lg border ${bgColor} px-3 py-2.5 transition-all hover:bg-white/[0.08]`}>
+                      <button onClick={() => handleToggle(r)}
+                        className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md border transition-colors ${
+                          r.done ? "border-emerald-500 bg-emerald-500/30 text-emerald-300" : "border-white/20 hover:border-white/40"}`}>
+                        {r.done && <span className="text-xs">✓</span>}
+                      </button>
+                      <div className="min-w-0 flex-1">
+                        <div className={`text-sm font-medium ${r.done ? "text-white/40 line-through" : ""}`}>{r.title}</div>
+                        {r.description && <div className="mt-0.5 truncate text-xs text-white/40">{r.description}</div>}
+                        <div className="mt-1 flex items-center gap-2 text-[10px] flex-wrap">
+                          <span className={dateColor}>
+                            🕐 {new Date(r.dateTime).toLocaleString("pt-BR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}
+                          </span>
+                          <span className="rounded px-1.5 py-0.5 font-medium" style={{ background: `${priorityColor(r.priority)}25`, color: priorityColor(r.priority) }}>{r.priority}</span>
+                          {r.recurring !== "nunca" && <span className="rounded-md px-2 py-0.5 font-semibold text-xs" style={{ background: `${priorityColor(r.priority)}15`, color: priorityColor(r.priority) }}>🔄 {r.recurring}</span>}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
             </div>
           )}
         </div>

@@ -14,6 +14,17 @@ import AurumOrb from "../shared/AurumOrb";
 import { useAuth } from "@/lib/aurum-auth";
 import { UpgradeModal } from "../UpgradeModal";
 import { UsageBar } from "../UsageBar";
+import {
+  addTask,
+  addHabit,
+  addProject,
+  addReminder,
+  addTransaction,
+  loadData,
+  saveData,
+  deleteTask,
+  updateTask,
+} from "@/lib/aurum-store";
 
 interface Props {
   muted: boolean;
@@ -27,6 +38,99 @@ interface TranscriptEntry {
   role: "user" | "aurum";
   text: string;
   timestamp: number;
+}
+
+// ── Execute AI action blocks (e.g., create tasks, habits, etc) ──
+function executeActions(text: string): string {
+  const actionRegex = /:::action\s*\n?([\s\S]*?)\n?:::/g;
+  let match;
+  const actions: Array<{ type: string; data: any }> = [];
+
+  while ((match = actionRegex.exec(text)) !== null) {
+    try {
+      const action = JSON.parse(match[1].trim());
+      actions.push(action);
+    } catch (e) {
+      console.warn("[Aurum] Failed to parse action:", e);
+    }
+  }
+
+  for (const action of actions) {
+    try {
+      switch (action.type) {
+        case "add_task":
+          addTask({
+            ...action.data,
+            status: "pendente",
+            completedAt: null,
+          });
+          break;
+
+        case "add_habit":
+          const habits = loadData().habits || [];
+          habits.push({
+            id: `h_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`,
+            ...action.data,
+            streak: 0,
+            bestStreak: 0,
+            completedDates: [],
+            createdAt: new Date().toISOString(),
+          });
+          saveData({ ...loadData(), habits });
+          break;
+
+        case "add_reminder":
+          addReminder({
+            ...action.data,
+            done: false,
+          });
+          break;
+
+        case "add_transaction":
+          addTransaction({
+            ...action.data,
+            title: action.data.title || action.data.description,
+          });
+          break;
+
+        case "add_project":
+          const projects = loadData().projects || [];
+          projects.push({
+            id: `p_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`,
+            ...action.data,
+            progress: 0,
+            createdAt: new Date().toISOString(),
+          });
+          saveData({ ...loadData(), projects });
+          break;
+
+        case "complete_task":
+          const data = loadData();
+          const task = data.tasks?.find((t) =>
+            t.title.toLowerCase().includes(action.data.title.toLowerCase())
+          );
+          if (task) {
+            updateTask(task.id, { status: "concluída" });
+          }
+          break;
+
+        case "delete_task":
+          const allData = loadData();
+          const taskIdx = allData.tasks?.findIndex((t) =>
+            t.title.toLowerCase().includes(action.data.title.toLowerCase())
+          );
+          if (taskIdx !== undefined && taskIdx >= 0) {
+            deleteTask(allData.tasks[taskIdx].id);
+          }
+          break;
+      }
+    } catch (e) {
+      console.warn("[Aurum] Error executing action:", action.type, e);
+    }
+  }
+
+  // Return text without action blocks (clean display)
+  return text.replace(/:::action\s*\n?[\s\S]*?\n?:::/g, "").trim();
 }
 
 export default function ChatPage({ muted, onMuteToggle, orbState, onOrbState, userName }: Props) {
@@ -106,14 +210,17 @@ export default function ChatPage({ muted, onMuteToggle, orbState, onOrbState, us
         setStatusText(streamRef.current.slice(-100));
       },
       onComplete: (fullText) => {
+        // Execute any action blocks in the response
+        const cleanText = executeActions(fullText);
+
         setAiPartial("");
-        setTranscript((prev) => [...prev, { role: "aurum", text: fullText, timestamp: Date.now() }]);
-        addMessage({ role: "aurum", content: fullText, timestamp: Date.now() });
+        setTranscript((prev) => [...prev, { role: "aurum", text: cleanText, timestamp: Date.now() }]);
+        addMessage({ role: "aurum", content: cleanText, timestamp: Date.now() });
 
         if (!mutedRef.current) {
           setStatusText("Falando...");
           onOrbState("speaking");
-          speak(fullText.replace(/[*#`_\[\]()]/g, ""), {
+          speak(cleanText.replace(/[*#`_\[\]()]/g, ""), {
             onEnd: () => {
               setStatusText("");
               onOrbState("idle");
@@ -274,20 +381,41 @@ export default function ChatPage({ muted, onMuteToggle, orbState, onOrbState, us
             <button onClick={() => setShowTranscript(false)} className="text-white/25 hover:text-white/50">✕</button>
           </div>
           <div className="h-[calc(100%-48px)] overflow-y-auto p-4 space-y-3">
-            {transcript.map((entry, i) => (
-              <div key={i} className={entry.role === "user" ? "text-right" : "text-left"}>
-                <div className={[
-                  "inline-block max-w-[90%] rounded-xl px-3 py-2 text-xs leading-relaxed",
-                  entry.role === "user" ? "bg-cyan-500/10 text-white/70" : "bg-white/5 text-white/50",
-                ].join(" ")}>
-                  {entry.text}
+            {transcript.map((entry, i) => {
+              const time = new Date(entry.timestamp).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+              return (
+                <div key={i} className={entry.role === "user" ? "text-right" : "text-left"}>
+                  <div className={[
+                    "inline-block max-w-[90%] rounded-xl px-3 py-2 text-xs leading-relaxed group relative",
+                    entry.role === "user" ? "bg-cyan-500/10 text-white/70" : "bg-white/5 text-white/50",
+                  ].join(" ")}>
+                    <div>{entry.text}</div>
+                    <div className="text-[10px] text-white/30 mt-0.5">{time}</div>
+                    {entry.role === "aurum" && (
+                      <button onClick={() => { navigator.clipboard.writeText(entry.text); }}
+                        className="absolute -right-7 top-1 opacity-0 group-hover:opacity-100 rounded px-1.5 py-0.5 bg-white/10 hover:bg-white/20 text-[10px] transition-opacity">
+                        📋
+                      </button>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
             {aiPartial && (
               <div className="text-left">
                 <div className="inline-block max-w-[90%] rounded-xl bg-white/5 px-3 py-2 text-xs text-white/30">
                   {aiPartial}<span className="ml-1 inline-block h-3 w-0.5 animate-pulse bg-cyan-400/50" />
+                </div>
+              </div>
+            )}
+            {orbState === "thinking" && !aiPartial && (
+              <div className="text-left">
+                <div className="inline-block rounded-xl bg-white/5 px-3 py-2">
+                  <span className="inline-flex items-center gap-1">
+                    <span className="h-2 w-2 rounded-full bg-violet-400/70 animate-bounce" style={{ animationDelay: "0ms" }} />
+                    <span className="h-2 w-2 rounded-full bg-violet-400/70 animate-bounce" style={{ animationDelay: "150ms" }} />
+                    <span className="h-2 w-2 rounded-full bg-violet-400/70 animate-bounce" style={{ animationDelay: "300ms" }} />
+                  </span>
                 </div>
               </div>
             )}
@@ -366,13 +494,15 @@ export default function ChatPage({ muted, onMuteToggle, orbState, onOrbState, us
             "border-white/[0.15]",
             "px-4 py-2.5"
           ].join(" ")}>
-            <input
-              ref={inputRef}
+            <textarea
+              ref={inputRef as any}
               value={text}
               onChange={(e) => setText(e.target.value)}
               onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendText(); } }}
-              className="flex-1 bg-transparent text-sm outline-none placeholder:text-white/15 text-white/85"
+              className="flex-1 bg-transparent text-sm outline-none placeholder:text-white/15 text-white/85 resize-none max-h-24"
               placeholder="Ou digite aqui..."
+              rows={1}
+              style={{ minHeight: "24px" }}
             />
 
             <button onClick={onMuteToggle} className={`flex h-7 w-7 items-center justify-center rounded-lg transition-all ${muted ? "text-white/15" : "text-white/30 hover:text-white/45"}`}>
