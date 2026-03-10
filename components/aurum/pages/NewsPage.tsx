@@ -310,7 +310,7 @@ export function NewsPage() {
 
                     <p className="text-gray-300 mb-2">{item.description}</p>
 
-                    {item.details && (
+                    {'details' in item && item.details && (
                       <p className="text-sm text-gray-400 mb-3">{item.details}</p>
                     )}
 

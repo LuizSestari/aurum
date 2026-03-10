@@ -1,5 +1,14 @@
-import { SkillManager } from './skills/skill-manager.js';
-import { AurumCoreV2 } from './aurum-core-v2.js';
+import { AurumCoreV2 } from './aurum-core-v2';
+
+// Stub SkillManager until skills module is created
+class SkillManager {
+  async executeSkill(name: string, params: Record<string, unknown>) {
+    return { success: false, message: `Skill ${name} not yet implemented`, params };
+  }
+  listSkills() {
+    return [] as string[];
+  }
+}
 
 export interface CoordinatorTask {
   id: string;
