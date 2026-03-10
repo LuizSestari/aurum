@@ -1,0 +1,93 @@
+"use client";
+
+import { useCallback, useState } from "react";
+import type { OrbState } from "@/lib/aurum-voice";
+import { stopSpeak } from "@/lib/aurum-voice";
+import Sidebar, { type PageId } from "./Sidebar";
+import ChatPage from "./pages/ChatPage";
+import VisionPage from "./pages/VisionPage";
+import TasksPage from "./pages/TasksPage";
+import HabitsPage from "./pages/HabitsPage";
+import ProjectsPage from "./pages/ProjectsPage";
+import RemindersPage from "./pages/RemindersPage";
+import FinancePage from "./pages/FinancePage";
+import KnowledgePage from "./pages/KnowledgePage";
+import UpdatesPage from "./pages/UpdatesPage";
+import DashboardPage from "./pages/DashboardPage";
+import DeveloperPage from "./pages/DeveloperPage";
+
+interface Props {
+  userName?: string;
+  onSignOut?: () => void;
+  onNavigatePricing?: () => void;
+  currentPlan?: string;
+}
+
+export default function AurumShell({ userName, onSignOut, onNavigatePricing, currentPlan }: Props) {
+  const [activePage, setActivePage] = useState<PageId>("chat");
+  const [orbState, setOrbState] = useState<OrbState>("idle");
+  const [muted, setMuted] = useState(false);
+
+  const handleMuteToggle = useCallback(() => {
+    setMuted((prev) => {
+      const next = !prev;
+      if (next) {
+        stopSpeak();
+        setOrbState("muted");
+      } else {
+        setOrbState("idle");
+      }
+      return next;
+    });
+  }, []);
+
+  const handleOrbState = useCallback((s: OrbState) => {
+    setOrbState(s);
+  }, []);
+
+  function renderPage() {
+    switch (activePage) {
+      case "chat":
+        return (
+          <ChatPage muted={muted} onMuteToggle={handleMuteToggle} orbState={orbState} onOrbState={handleOrbState} userName={userName} />
+        );
+      case "vision":
+        return <VisionPage />;
+      case "tasks":
+        return <TasksPage />;
+      case "habits":
+        return <HabitsPage />;
+      case "projects":
+        return <ProjectsPage />;
+      case "reminders":
+        return <RemindersPage />;
+      case "finance":
+        return <FinancePage />;
+      case "knowledge":
+        return <KnowledgePage />;
+      case "updates":
+        return <UpdatesPage />;
+      case "dashboard":
+        return <DashboardPage orbState={orbState} userName={userName} />;
+      case "developer":
+        return <DeveloperPage />;
+      default:
+        return (
+          <ChatPage muted={muted} onMuteToggle={handleMuteToggle} orbState={orbState} onOrbState={handleOrbState} userName={userName} />
+        );
+    }
+  }
+
+  return (
+    <div className="flex h-screen w-full bg-[#070A0F] text-white">
+      <Sidebar activePage={activePage} onNavigate={setActivePage} onSignOut={onSignOut} onNavigatePricing={onNavigatePricing} />
+      <main className="relative flex-1 overflow-hidden">
+        <div className="pointer-events-none absolute inset-0 overflow-hidden">
+          <div className="absolute -top-40 left-1/3 h-[400px] w-[400px] rounded-full bg-cyan-500/5 blur-[100px]" />
+          <div className="absolute -bottom-40 right-0 h-[400px] w-[400px] rounded-full bg-indigo-500/5 blur-[100px]" />
+        </div>
+        <div className="relative h-full">{renderPage()}</div>
+      </main>
+    </div>
+  );
+}
