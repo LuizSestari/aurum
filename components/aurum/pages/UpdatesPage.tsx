@@ -5,8 +5,32 @@ import Modal from "../shared/Modal";
 
 const UPDATES = [
   {
-    title: "IA Multimodal com Visão",
+    title: "Página de Configurações",
     tags: ["Funcionalidade", "Mais recente"],
+    content: "Nova página de configurações com perfil do usuário, preferências (voz, idioma, tema), gerenciamento de dados, backup e exportação.",
+    date: "2026-03-11",
+  },
+  {
+    title: "Página de Voz dedicada",
+    tags: ["Funcionalidade", "Mais recente"],
+    content: "Nova página de Voz (🎤) no sidebar com interface completa de conversação por voz, métricas de latência e Coordinator Agent.",
+    date: "2026-03-11",
+  },
+  {
+    title: "Página de Notícias (NewsPage)",
+    tags: ["Funcionalidade", "Mais recente"],
+    content: "Nova aba Notícias com sistema inteligente de updates e sugestões personalizadas baseadas no seu uso do Aurum.",
+    date: "2026-03-11",
+  },
+  {
+    title: "Checkup completo de features",
+    tags: ["Melhoria", "Mais recente"],
+    content: "Auditoria e correção de todas as funcionalidades. Todas as páginas conectadas no sidebar, botões do menu funcionais, props corretas entre componentes.",
+    date: "2026-03-11",
+  },
+  {
+    title: "IA Multimodal com Visão",
+    tags: ["Funcionalidade"],
     content: "Envie imagens no chat! Aurum analisa fotos usando Gemini 2.0 Flash, GPT-4o-mini e Groq Vision. Cole (Ctrl+V), arraste ou clique no ícone de câmera. Ideal para analisar recibos, documentos e fotos.",
     date: "2026-03-11",
   },
@@ -235,7 +259,7 @@ export default function UpdatesPage() {
           <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
             <div className="text-sm font-semibold">Versão Atual</div>
             <div className="mt-2 text-xs text-white/50">
-              <div>Aurum v3.0.0</div>
+              <div>Aurum v3.1.0</div>
               <div className="mt-1 text-white/30">Next.js 16 · React 19 · TypeScript</div>
             </div>
           </div>

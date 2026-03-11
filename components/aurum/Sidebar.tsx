@@ -5,12 +5,14 @@ import { useState, useRef, useEffect } from "react";
 export type PageId =
   | "chat"
   | "vision"
+  | "voice"
   | "tasks"
   | "habits"
   | "projects"
   | "reminders"
   | "finance"
   | "knowledge"
+  | "news"
   | "updates"
   | "dashboard"
   | "settings"
@@ -26,12 +28,14 @@ interface NavItem {
 const NAV_ITEMS: NavItem[] = [
   { id: "chat",      icon: "💬", label: "Chat",          color: "#22d3ee" },
   { id: "vision",    icon: "👁", label: "Visão",         color: "#a78bfa" },
+  { id: "voice",     icon: "🎤", label: "Voz",           color: "#f472b6" },
   { id: "tasks",     icon: "✅", label: "Tarefas",       color: "#60a5fa" },
   { id: "habits",    icon: "🎯", label: "Hábitos",       color: "#34d399" },
   { id: "projects",  icon: "📁", label: "Projetos",      color: "#f97316" },
   { id: "reminders", icon: "🔔", label: "Lembretes",     color: "#facc15" },
   { id: "finance",   icon: "💲", label: "Finanças",      color: "#22c55e" },
   { id: "knowledge", icon: "📚", label: "Conhecimento",  color: "#22d3ee" },
+  { id: "news",      icon: "📰", label: "Notícias",      color: "#fb923c" },
   { id: "updates",   icon: "✨", label: "Novidades",     color: "#c084fc" },
   { id: "dashboard", icon: "📊", label: "Dashboard",     color: "#06b6d4" },
 ];
@@ -204,7 +208,13 @@ export default function Sidebar({ activePage, onNavigate, onSignOut, onNavigateP
               >
                 📊 Dashboard
               </button>
-              <button className="flex w-full items-center gap-3 px-4 py-2 text-sm text-white/70 hover:bg-gradient-to-r hover:from-white/10 hover:to-transparent hover:text-white transition-all">
+              <button
+                onClick={() => {
+                  onNavigate("settings");
+                  setSettingsOpen(false);
+                }}
+                className="flex w-full items-center gap-3 px-4 py-2 text-sm text-white/70 hover:bg-gradient-to-r hover:from-white/10 hover:to-transparent hover:text-white transition-all"
+              >
                 👤 Meu Perfil
               </button>
               {onNavigatePricing && (
@@ -218,7 +228,13 @@ export default function Sidebar({ activePage, onNavigate, onSignOut, onNavigateP
                   💎 Planos
                 </button>
               )}
-              <button className="flex w-full items-center gap-3 px-4 py-2 text-sm text-white/70 hover:bg-gradient-to-r hover:from-white/10 hover:to-transparent hover:text-white transition-all">
+              <button
+                onClick={() => {
+                  window.open("mailto:luizsestari2004@gmail.com?subject=Aurum%20Suporte", "_blank");
+                  setSettingsOpen(false);
+                }}
+                className="flex w-full items-center gap-3 px-4 py-2 text-sm text-white/70 hover:bg-gradient-to-r hover:from-white/10 hover:to-transparent hover:text-white transition-all"
+              >
                 💡 Suporte
               </button>
               <div className="my-2 h-px bg-gradient-to-r from-white/10 to-transparent" />

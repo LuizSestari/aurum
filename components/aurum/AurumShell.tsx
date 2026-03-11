@@ -15,6 +15,9 @@ import KnowledgePage from "./pages/KnowledgePage";
 import UpdatesPage from "./pages/UpdatesPage";
 import DashboardPage from "./pages/DashboardPage";
 import DeveloperPage from "./pages/DeveloperPage";
+import VoicePage from "./pages/VoicePage";
+import { NewsPage } from "./pages/NewsPage";
+import SettingsPage from "./pages/SettingsPage";
 import { GlobalSearch } from "./GlobalSearch";
 import { KeyboardShortcuts } from "./KeyboardShortcuts";
 import { PomodoroTimer } from "./PomodoroTimer";
@@ -74,8 +77,14 @@ export default function AurumShell({ userName, onSignOut, onNavigatePricing, cur
         return <UpdatesPage />;
       case "dashboard":
         return <DashboardPage orbState={orbState} userName={userName} />;
+      case "voice":
+        return <VoicePage />;
+      case "news":
+        return <NewsPage />;
       case "developer":
         return <DeveloperPage />;
+      case "settings":
+        return <SettingsPage userName={userName} currentPlan={currentPlan} onNavigatePricing={onNavigatePricing} />;
       default:
         return (
           <ChatPage muted={muted} onMuteToggle={handleMuteToggle} orbState={orbState} onOrbState={handleOrbState} userName={userName} />
