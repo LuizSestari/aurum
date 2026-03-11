@@ -7,49 +7,37 @@ export default function AuthCallback() {
   const [status, setStatus] = useState("Autenticando...");
 
   useEffect(() => {
-    const handleAuth = async () => {
-      try {
-        // Handle PKCE flow (code in query params)
-        const params = new URLSearchParams(window.location.search);
-        const code = params.get("code");
+    // With implicit flow, Supabase auto-detects tokens from URL hash
+    // (#access_token=...&refresh_token=...) and establishes the session.
+    // We just listen for the auth state change.
+    const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "SIGNED_IN" && session) {
+        // Session established — redirect to app
+        window.location.href = "/";
+      }
+    });
 
-        if (code) {
-          const { error } = await supabase.auth.exchangeCodeForSession(code);
-          if (error) {
-            console.error("OAuth code exchange error:", error.message);
-            setStatus("Erro na autenticacao. Redirecionando...");
-          }
-        }
+    // Fallback: if tokens were already processed before listener attached
+    const checkExisting = async () => {
+      // Give Supabase a moment to process the hash
+      await new Promise((r) => setTimeout(r, 500));
 
-        // For implicit flow, Supabase detects hash fragments automatically
-        // on client init. Just need to get the session.
-        const { data } = await supabase.auth.getSession();
+      const { data } = await supabase.auth.getSession();
+      if (data.session) {
+        window.location.href = "/";
+        return;
+      }
 
-        if (data.session) {
-          window.location.href = "/";
-          return;
-        }
-
-        // Wait for Supabase to process hash fragment (implicit flow)
-        await new Promise((r) => setTimeout(r, 2000));
-
-        const { data: retry } = await supabase.auth.getSession();
-        if (retry.session) {
-          window.location.href = "/";
-          return;
-        }
-
-        // Still no session — redirect home anyway
+      // Final fallback after 4 seconds
+      setTimeout(() => {
         setStatus("Redirecionando...");
         window.location.href = "/";
-      } catch (err) {
-        console.error("Auth callback error:", err);
-        setStatus("Erro. Redirecionando...");
-        setTimeout(() => { window.location.href = "/"; }, 1500);
-      }
+      }, 4000);
     };
 
-    handleAuth();
+    checkExisting();
+
+    return () => { listener.subscription.unsubscribe(); };
   }, []);
 
   return (
