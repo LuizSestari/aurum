@@ -310,8 +310,8 @@ export function NewsPage() {
 
                     <p className="text-gray-300 mb-2">{item.description}</p>
 
-                    {'details' in item && item.details && (
-                      <p className="text-sm text-gray-400 mb-3">{item.details}</p>
+                    {'details' in item && (item as Update).details && (
+                      <p className="text-sm text-gray-400 mb-3">{(item as Update).details}</p>
                     )}
 
                     {'reason' in item && (
