@@ -42,7 +42,7 @@ export default function PricingPage({ currentPlan, onSelectPlan, onBack }: Props
     {
       id: "api",
       question: "Qual plano inclui acesso à API?",
-      answer: "Os planos Max e Teams incluem acesso completo à API. O plano Pro inclui documentação e exemplos de integração.",
+      answer: "O plano Max inclui acesso completo à API. Para necessidades corporativas, entre em contato com nosso time de vendas.",
     },
   ];
 
@@ -394,12 +394,12 @@ export default function PricingPage({ currentPlan, onSelectPlan, onBack }: Props
             <p className="text-gray-300 mb-8">
               Oferecemos soluções empresariais personalizadas com suporte dedicado, integração customizada, white-label, e muito mais. Entre em contato com nossa equipe.
             </p>
-            <button
-              onClick={() => onSelectPlan("max")}
-              className="px-8 py-3 bg-gradient-to-r from-cyan-500 to-indigo-600 text-white font-semibold rounded-lg hover:from-cyan-400 hover:to-indigo-500 transition-all shadow-lg shadow-cyan-500/50"
+            <a
+              href="mailto:luizsestari2004@gmail.com?subject=Aurum%20Enterprise"
+              className="inline-block px-8 py-3 bg-gradient-to-r from-cyan-500 to-indigo-600 text-white font-semibold rounded-lg hover:from-cyan-400 hover:to-indigo-500 transition-all shadow-lg shadow-cyan-500/50"
             >
               Contatar Vendas
-            </button>
+            </a>
           </div>
         </div>
 

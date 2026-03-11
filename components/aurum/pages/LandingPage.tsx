@@ -369,9 +369,18 @@ export default function LandingPage({ onGetStarted, onViewPricing }: LandingPage
               })}
             </div>
 
-            {/* Enterprise CTA */}
-            <div className="mt-12 text-center">
-              <p className="text-white/30 text-sm">Precisa de mais? <button onClick={onGetStarted} className="text-cyan-400 hover:text-cyan-300 font-medium transition">Fale com vendas</button></p>
+            {/* Enterprise / Teams — contact only */}
+            <div className="mt-10 rounded-2xl border border-white/10 bg-white/[0.02] p-8 md:p-10 flex flex-col md:flex-row items-center justify-between gap-6">
+              <div>
+                <div className="flex items-center gap-3 mb-2">
+                  <span className="text-lg font-bold text-white">Enterprise / Teams</span>
+                  <span className="rounded-full bg-white/10 px-3 py-0.5 text-[10px] font-bold text-white/50 uppercase tracking-wider">Sob consulta</span>
+                </div>
+                <p className="text-sm text-white/40 max-w-lg">SSO, white-label, membros ilimitados, SLA dedicado e customizacoes. Para empresas que precisam de escala e controle total.</p>
+              </div>
+              <a href="mailto:luizsestari2004@gmail.com?subject=Aurum%20Enterprise" className="flex-shrink-0 rounded-xl border border-white/10 bg-white/5 px-8 py-3 text-sm font-bold text-white hover:bg-white/10 transition whitespace-nowrap">
+                Falar com vendas
+              </a>
             </div>
           </div>
         </section>
