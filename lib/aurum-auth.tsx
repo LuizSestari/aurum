@@ -174,10 +174,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [fetchProfile, fetchUsage]);
 
   const signInWithGoogle = async () => {
-    await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: { redirectTo: `${window.location.origin}/auth/callback` },
-    });
+    try {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: { redirectTo: `${window.location.origin}/auth/callback` },
+      });
+      if (error) {
+        console.error("Google OAuth error:", error.message);
+        alert(`Erro ao conectar com Google: ${error.message}`);
+      }
+    } catch (err) {
+      console.error("Google OAuth exception:", err);
+      alert("Erro inesperado ao conectar com Google. Verifique o console.");
+    }
   };
 
   const signInWithEmail = async (email: string, password: string) => {
