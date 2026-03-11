@@ -42,16 +42,16 @@ export function UpgradeModal({
   // Plan-specific gradient and colors
   const gradientMap: Record<PlanTier, string> = {
     free: "from-slate-600 to-slate-700",
+    starter: "from-amber-500 to-orange-500",
     pro: "from-cyan-500 to-blue-500",
     max: "from-purple-500 to-pink-500",
-    teams: "from-amber-500 to-orange-500",
   };
 
   const accentMap: Record<PlanTier, string> = {
     free: "cyan",
+    starter: "amber",
     pro: "cyan",
     max: "pink",
-    teams: "amber",
   };
 
   const gradient = gradientMap[requiredPlan];

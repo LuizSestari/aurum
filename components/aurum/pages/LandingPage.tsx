@@ -1,14 +1,18 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-// Icons as inline SVG components to avoid lucide-react dependency
+import { PLANS, formatPrice } from "@/lib/aurum-plans";
+import type { PlanTier } from "@/lib/aurum-plans";
+
+const Check = ({ className = "" }: { className?: string }) => (
+  <svg className={className} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+);
 const ChevronDown = ({ className = "" }: { className?: string }) => (
   <svg className={className} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
 );
-const Check = ({ className = "" }: { className?: string }) => (
-  <svg className={className} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+const ArrowRight = ({ className = "" }: { className?: string }) => (
+  <svg className={className} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
 );
-import { PLANS, formatPrice } from "@/lib/aurum-plans";
 
 interface LandingPageProps {
   onGetStarted: () => void;
@@ -16,15 +20,10 @@ interface LandingPageProps {
   currentPlan?: string;
 }
 
-interface FAQItem {
-  question: string;
-  answer: string;
-}
-
-export default function LandingPage({ onGetStarted, onViewPricing, currentPlan }: LandingPageProps) {
-  const [isVisible, setIsVisible] = useState<Record<string, boolean>>({});
+export default function LandingPage({ onGetStarted, onViewPricing }: LandingPageProps) {
   const [expandedFAQ, setExpandedFAQ] = useState<number | null>(null);
-  const [billingPeriod, setBillingPeriod] = useState<"monthly" | "yearly">("monthly");
+  const [billingPeriod, setBillingPeriod] = useState<"monthly" | "yearly">("yearly");
+  const [isVisible, setIsVisible] = useState<Record<string, boolean>>({});
   const observerRef = useRef<IntersectionObserver | null>(null);
 
   useEffect(() => {
@@ -32,447 +31,336 @@ export default function LandingPage({ onGetStarted, onViewPricing, currentPlan }
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            setIsVisible((prev) => ({
-              ...prev,
-              [entry.target.id]: true,
-            }));
+            setIsVisible((prev) => ({ ...prev, [entry.target.id]: true }));
           }
         });
       },
       { threshold: 0.1 }
     );
-
     const elements = document.querySelectorAll("[data-animate]");
     elements.forEach((el) => observerRef.current?.observe(el));
-
     return () => observerRef.current?.disconnect();
   }, []);
 
-  const faqs: FAQItem[] = [
-    {
-      question: "O que é o Aurum?",
-      answer: "Aurum é um assistente pessoal com IA que funciona por voz. Você pode organizar tarefas, hábitos, projetos e finanças simplesmente falando. É como ter um assistente executivo no seu bolso.",
-    },
-    {
-      question: "Preciso pagar algo?",
-      answer: "Não! O Aurum tem um plano Free permanente e gratuito. Você tem acesso a todas as funcionalidades básicas sem pagar nada. Os planos pagos desbloqueiam limites maiores e recursos avançados.",
-    },
-    {
-      question: "Meus dados são seguros?",
-      answer: "Sim, seus dados são protegidos com criptografia de ponta a ponta. Nunca vendemos dados de usuários. Você tem controle total sobre suas informações e pode exportar tudo a qualquer momento.",
-    },
-    {
-      question: "Como funciona o reconhecimento de voz?",
-      answer: "Usamos tecnologia de ponta em processamento de linguagem natural. Você fala naturalmente e o Aurum compreende o contexto, intenção e até mesmo corrige pequenos erros. Funciona em português e em vários outros idiomas.",
-    },
-    {
-      question: "Posso usar em múltiplos dispositivos?",
-      answer: "Sim! Sua conta sincroniza automaticamente em todos seus dispositivos - celular, tablet e desktop. Tudo sempre atualizado em tempo real.",
-    },
-    {
-      question: "Há uma versão para equipes?",
-      answer: "Sim! O plano Teams foi desenvolvido especialmente para empresas. Suporta até 50 membros, SSO, auditorias e muito mais. Perfeito para times que precisam colaborar.",
-    },
-  ];
-
   const features = [
-    {
-      icon: "🎙️",
-      title: "Conversa por Voz",
-      description: "Fale naturalmente com IA avançada",
-    },
-    {
-      icon: "✅",
-      title: "Tarefas Inteligentes",
-      description: "Organize com prioridades e lembretes",
-    },
-    {
-      icon: "📊",
-      title: "Dashboard Pessoal",
-      description: "Visão completa da sua vida",
-    },
-    {
-      icon: "💰",
-      title: "Controle Financeiro",
-      description: "Receitas, despesas e análises",
-    },
-    {
-      icon: "🎯",
-      title: "Hábitos & Metas",
-      description: "Rastreie streaks e progresso",
-    },
-    {
-      icon: "🔮",
-      title: "Vision Board",
-      description: "Visualize seus objetivos",
-    },
+    { icon: "🎙️", title: "Comando por Voz", desc: "Fale naturalmente em portugues. JARVIS-like voice com ElevenLabs premium, reconhecimento de intencao e execucao automatica." },
+    { icon: "🧠", title: "IA Multi-Modelo", desc: "Groq, Gemini, GPT-4o e Anthropic em cascata inteligente. Sempre a melhor resposta, automaticamente." },
+    { icon: "📸", title: "Visao Multimodal", desc: "Envie fotos e imagens. Aurum analisa documentos, recibos, graficos e qualquer conteudo visual com IA." },
+    { icon: "✅", title: "Gestao Completa", desc: "Tarefas, habitos, projetos, lembretes e financas. Tudo integrado, com streaks, Kanban e prioridades." },
+    { icon: "📊", title: "Dashboard Inteligente", desc: "Visao 360 da sua produtividade. Graficos, metricas de habitos, resumo financeiro e insights da IA." },
+    { icon: "🔒", title: "Seguro & Privado", desc: "Dados criptografados, autenticacao Google OAuth, backup automatico e controle total dos seus dados." },
   ];
 
-  const stats = [
-    { label: "50K+", description: "Mensagens Processadas" },
-    { label: "10K+", description: "Tarefas Criadas" },
-    { label: "99.9%", description: "Uptime Garantido" },
+  const testimonials = [
+    { name: "Mariana S.", role: "Product Manager", text: "Aurum substituiu 5 apps que eu usava. Organizo tudo por voz enquanto dirijo.", avatar: "MS" },
+    { name: "Rafael T.", role: "Desenvolvedor", text: "O modo JARVIS e absurdo. Falo 'cria tarefa deploy sexta' e pronto. Sem friccao.", avatar: "RT" },
+    { name: "Juliana C.", role: "Empreendedora", text: "Controle financeiro + habitos + projetos num lugar so. Vale cada centavo do Pro.", avatar: "JC" },
   ];
 
-  const steps = [
-    {
-      number: 1,
-      title: "Crie sua conta grátis",
-      description: "Cadastro simples em menos de 2 minutos",
-    },
-    {
-      number: 2,
-      title: "Fale ou digite seus comandos",
-      description: "Use voz natural para organizar tudo",
-    },
-    {
-      number: 3,
-      title: "Aurum organiza tudo para você",
-      description: "IA trabalha 24/7 mantendo você produtivo",
-    },
+  const faqs = [
+    { q: "Aurum e gratuito?", a: "Sim! O plano Free e permanente e gratuito, com 30 mensagens/dia, tarefas e habitos. Os planos pagos desbloqueiam IA avancada, voz premium e limites maiores." },
+    { q: "Como funciona a voz?", a: "Usamos ElevenLabs para voz ultra-realista e reconhecimento de fala nativo do navegador. Voce fala naturalmente e o Aurum entende contexto, intencao e executa acoes." },
+    { q: "Meus dados sao seguros?", a: "Totalmente. Autenticacao via Supabase com Google OAuth, dados criptografados e voce pode exportar ou deletar tudo a qualquer momento." },
+    { q: "Funciona no celular?", a: "Sim! Aurum e um PWA — instale como app nativo no celular ou desktop. Funciona offline, com notificacoes push e tela cheia." },
+    { q: "Posso cancelar a qualquer momento?", a: "Claro. Sem contratos, sem multas. Cancele quando quiser pelo portal de billing do Stripe. Seus dados permanecem acessiveis." },
+    { q: "Qual IA o Aurum usa?", a: "Cascata inteligente: Groq (ultra-rapido), Gemini 2.0 Flash, GPT-4o-mini e fallbacks. Sempre a resposta mais rapida e precisa disponivel." },
   ];
+
+  const planOrder: PlanTier[] = ["free", "starter", "pro", "max"];
+
+  const planColors: Record<PlanTier, { border: string; glow: string; badge: string; btn: string }> = {
+    free: { border: "border-white/10", glow: "", badge: "bg-white/10 text-white/60", btn: "bg-white/10 hover:bg-white/15 text-white border border-white/10" },
+    starter: { border: "border-amber-500/30", glow: "", badge: "bg-amber-500/10 text-amber-400", btn: "bg-amber-500 hover:bg-amber-400 text-white" },
+    pro: { border: "border-cyan-500/40", glow: "shadow-[0_0_40px_rgba(0,217,255,0.15)]", badge: "bg-cyan-500/10 text-cyan-400", btn: "bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-white" },
+    max: { border: "border-purple-500/30", glow: "", badge: "bg-purple-500/10 text-purple-400", btn: "bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-400 hover:to-pink-400 text-white" },
+  };
 
   return (
-    <div className="relative w-full min-h-screen bg-[#050810] text-white overflow-hidden">
-      {/* Animated background */}
+    <div className="relative min-h-screen bg-[#050810] text-white overflow-x-hidden">
       <style>{`
-        @keyframes gradientShift {
-          0%, 100% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-        }
+        @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+        @keyframes glow-pulse { 0%,100%{box-shadow:0 0 20px rgba(0,217,255,0.3)} 50%{box-shadow:0 0 50px rgba(0,217,255,0.5)} }
+        @keyframes slide-up { from{opacity:0;transform:translateY(40px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes fade-in { from{opacity:0} to{opacity:1} }
+        @keyframes gradient-x { 0%,100%{background-position:0% 50%} 50%{background-position:100% 50%} }
+        @keyframes orbit { 0%{transform:rotate(0deg) translateX(120px) rotate(0deg)} 100%{transform:rotate(360deg) translateX(120px) rotate(-360deg)} }
+        @keyframes shimmer { 0%{background-position:-200% 0} 100%{background-position:200% 0} }
+        .anim-slide-up { animation: slide-up 0.8s ease-out forwards; opacity:0; }
+        .anim-fade { animation: fade-in 0.6s ease-out forwards; opacity:0; }
+        .glow-btn { animation: glow-pulse 2.5s ease-in-out infinite; }
+        .gradient-text { background:linear-gradient(135deg,#ffd700 0%,#00d9ff 40%,#a78bfa 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+        .gradient-text-cyan { background:linear-gradient(135deg,#00d9ff 0%,#a78bfa 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+        .glass { background:rgba(255,255,255,0.03); backdrop-filter:blur(12px); border:1px solid rgba(255,255,255,0.06); }
+        .glass-hover { transition:all 0.4s cubic-bezier(0.4,0,0.2,1); }
+        .glass-hover:hover { background:rgba(255,255,255,0.06); border-color:rgba(0,217,255,0.2); transform:translateY(-4px); box-shadow:0 20px 40px rgba(0,0,0,0.3),0 0 30px rgba(0,217,255,0.08); }
+        .shimmer-border { background:linear-gradient(90deg,transparent,rgba(0,217,255,0.3),transparent); background-size:200% 100%; animation:shimmer 3s linear infinite; }
+      `}</style>
 
-        @keyframes float {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(20px); }
-        }
-
-        @keyframes pulse-glow {
-          0%, 100% { opacity: 0.3; }
-          50% { opacity: 0.8; }
-        }
-
-        @keyframes glow-pulse {
-          0%, 100% {
-            box-shadow: 0 0 20px rgba(0, 217, 255, 0.3);
-          }
-          50% {
-            box-shadow: 0 0 40px rgba(0, 217, 255, 0.6);
-          }
-        }
-
-        @keyframes scan-line {
-          0% { transform: translateY(-100%); }
-          100% { transform: translateY(100%); }
-        }
-
-        @keyframes slide-up {
-          from {
-            opacity: 0;
-            transform: translateY(30px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        @keyframes fade-in {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-
-        @keyframes shimmer {
-          0% { background-position: -1000px 0; }
-          100% { background-position: 1000px 0; }
-        }
-
-        .animate-slide-up {
-          animation: slide-up 0.8s ease-out forwards;
-          opacity: 0;
-        }
-
-        .animate-fade-in {
-          animation: fade-in 0.6s ease-out forwards;
-          opacity: 0;
-        }
-
-        .glow-button {
-          animation: glow-pulse 2s ease-in-out infinite;
-        }
-
-        .gradient-text {
-          background: linear-gradient(135deg, #ffd700 0%, #00d9ff 50%, #a78bfa 100%);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-        }
-
-        .glass-card {
-          background: rgba(255, 255, 255, 0.05);
-          backdrop-filter: blur(10px);
-          border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .glass-card-hover {
-          transition: all 0.3s ease;
-        }
-
-        .glass-card-hover:hover {
-          background: rgba(255, 255, 255, 0.08);
-          border-color: rgba(0, 217, 255, 0.3);
-          transform: translateY(-5px);
-          box-shadow: 0 20px 40px rgba(0, 217, 255, 0.1);
-        }
-
-        .feature-icon {
-          font-size: 3rem;
-          animation: float 3s ease-in-out infinite;
-        }
-
-        .gradient-bg {
-          background: linear-gradient(135deg, rgba(0, 217, 255, 0.1) 0%, rgba(167, 139, 250, 0.1) 100%);
-        }
-
-        .pricing-card-popular {
-          border-color: #00d9ff;
-          box-shadow: 0 0 30px rgba(0, 217, 255, 0.2);
-        }
-      `}
-      </style>
-
-      {/* Animated particles background */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-cyan-500/5 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute top-1/3 right-1/4 w-80 h-80 bg-purple-500/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: "1s" }} />
-        <div className="absolute bottom-0 left-1/3 w-96 h-96 bg-amber-500/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: "2s" }} />
+      {/* Background effects */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] bg-cyan-500/[0.03] rounded-full blur-[120px]" />
+        <div className="absolute top-[30%] right-[-15%] w-[500px] h-[500px] bg-purple-500/[0.03] rounded-full blur-[120px]" />
+        <div className="absolute bottom-[-10%] left-[20%] w-[400px] h-[400px] bg-amber-500/[0.02] rounded-full blur-[100px]" />
+        {/* Grid pattern */}
+        <div className="absolute inset-0 opacity-[0.02]" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)', backgroundSize: '60px 60px' }} />
       </div>
 
       <div className="relative z-10">
-        {/* HERO SECTION */}
-        <section id="hero" className="min-h-screen flex items-center justify-center pt-20 pb-20 px-4 md:px-8">
-          <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-6xl md:text-8xl font-black mb-6 tracking-tight gradient-text animate-slide-up">
-              AURUM
+
+        {/* ═══════════ NAVBAR ═══════════ */}
+        <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/5 bg-[#050810]/80 backdrop-blur-xl">
+          <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+            <div className="flex items-center gap-3">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-cyan-500 to-indigo-600 text-sm font-bold">A</div>
+              <span className="text-lg font-bold tracking-tight">Aurum</span>
+            </div>
+            <div className="hidden md:flex items-center gap-8 text-sm text-white/50">
+              <a href="#features" className="hover:text-white transition">Recursos</a>
+              <a href="#pricing" className="hover:text-white transition">Precos</a>
+              <a href="#faq" className="hover:text-white transition">FAQ</a>
+            </div>
+            <button onClick={onGetStarted} className="rounded-lg bg-white/10 px-5 py-2 text-sm font-medium text-white hover:bg-white/15 transition border border-white/10">
+              Entrar
+            </button>
+          </div>
+        </nav>
+
+        {/* ═══════════ HERO ═══════════ */}
+        <section className="relative min-h-screen flex items-center justify-center px-6 pt-24 pb-20">
+          {/* Orb decoration */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] pointer-events-none">
+            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-cyan-500/10 to-purple-500/10 blur-[80px]" />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 rounded-full bg-gradient-to-br from-cyan-500/20 to-indigo-500/20 blur-xl" style={{ animation: 'float 4s ease-in-out infinite' }} />
+          </div>
+
+          <div className="relative max-w-5xl mx-auto text-center">
+            {/* Badge */}
+            <div className="anim-slide-up mb-8 inline-flex items-center gap-2 rounded-full border border-cyan-500/20 bg-cyan-500/5 px-4 py-2 text-sm text-cyan-400">
+              <span className="h-2 w-2 rounded-full bg-cyan-400 animate-pulse" />
+              Powered by AI Multi-Model
+            </div>
+
+            <h1 className="anim-slide-up text-5xl sm:text-7xl md:text-8xl font-black tracking-tight leading-[0.95] mb-8" style={{ animationDelay: '0.1s' }}>
+              <span className="gradient-text">Seu assistente</span>
+              <br />
+              <span className="text-white">pessoal com IA</span>
             </h1>
 
-            <p className="text-xl md:text-2xl text-white/80 mb-4 animate-slide-up" style={{ animationDelay: "0.1s" }}>
-              Seu assistente pessoal com inteligência artificial e voz
+            <p className="anim-slide-up max-w-2xl mx-auto text-lg md:text-xl text-white/50 mb-12 leading-relaxed" style={{ animationDelay: '0.2s' }}>
+              Organize tarefas, habitos, projetos e financas com comandos de voz.
+              IA multi-modelo que entende voce e age automaticamente.
             </p>
 
-            <p className="text-lg md:text-xl text-white/60 mb-12 max-w-2xl mx-auto animate-slide-up" style={{ animationDelay: "0.2s" }}>
-              Organize tarefas, hábitos, projetos e finanças com comandos de voz. Gratuito para sempre.
-            </p>
-
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12 animate-slide-up" style={{ animationDelay: "0.3s" }}>
-              <button
-                onClick={onGetStarted}
-                className="px-8 py-4 bg-cyan-500 hover:bg-cyan-400 text-white font-bold rounded-lg transition-all duration-300 glow-button text-lg"
-              >
-                Começar Grátis
+            <div className="anim-slide-up flex flex-col sm:flex-row gap-4 justify-center mb-16" style={{ animationDelay: '0.3s' }}>
+              <button onClick={onGetStarted} className="group flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 px-8 py-4 text-lg font-bold text-white transition-all hover:from-cyan-400 hover:to-blue-400 glow-btn">
+                Comecar Gratis
+                <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
               </button>
-              <button
-                onClick={onViewPricing}
-                className="px-8 py-4 glass-card text-white font-bold rounded-lg transition-all duration-300 hover:bg-white/10 border border-white/20 text-lg"
-              >
+              <button onClick={onViewPricing} className="rounded-xl border border-white/10 bg-white/5 px-8 py-4 text-lg font-medium text-white transition-all hover:bg-white/10 hover:border-white/20">
                 Ver Planos
               </button>
             </div>
 
-            <div className="animate-slide-up" style={{ animationDelay: "0.4s" }}>
-              <p className="text-white/40 mb-4">Você sempre terá acesso grátis ao plano Free</p>
-              <div className="flex justify-center">
-                <ChevronDown className="w-8 h-8 text-cyan-400 animate-bounce" />
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* FEATURES SECTION */}
-        <section id="features" data-animate className="py-24 px-4 md:px-8 bg-gradient-to-b from-transparent via-cyan-500/5 to-transparent">
-          <div className="max-w-6xl mx-auto">
-            <h2 className="text-5xl md:text-6xl font-black text-center mb-4 text-white">
-              Recursos Poderosos
-            </h2>
-            <p className="text-center text-white/60 text-lg mb-16 max-w-2xl mx-auto">
-              Tudo que você precisa para organizar sua vida, em um único lugar
-            </p>
-
-            <div className="grid md:grid-cols-3 gap-8">
-              {features.map((feature, idx) => (
-                <div
-                  key={idx}
-                  className="glass-card glass-card-hover p-8 rounded-xl group"
-                  style={{
-                    animation: isVisible["features"] ? `slide-up 0.6s ease-out forwards` : "none",
-                    animationDelay: `${idx * 0.1}s`,
-                  }}
-                >
-                  <div className="text-5xl mb-4 feature-icon">{feature.icon}</div>
-                  <h3 className="text-xl font-bold mb-3 group-hover:text-cyan-400 transition-colors">
-                    {feature.title}
-                  </h3>
-                  <p className="text-white/70">{feature.description}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* SOCIAL PROOF / STATS SECTION */}
-        <section id="stats" data-animate className="py-20 px-4 md:px-8">
-          <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-3xl md:text-4xl font-bold mb-16 text-white">
-              Mais de 50 mil pessoas já usam o Aurum
-            </h2>
-
-            <div className="grid md:grid-cols-3 gap-8">
-              {stats.map((stat, idx) => (
-                <div
-                  key={idx}
-                  className="glass-card p-8 rounded-xl"
-                  style={{
-                    animation: isVisible["stats"] ? `slide-up 0.6s ease-out forwards` : "none",
-                    animationDelay: `${idx * 0.1}s`,
-                  }}
-                >
-                  <p className="text-4xl md:text-5xl font-black text-cyan-400 mb-2">
-                    {stat.label}
-                  </p>
-                  <p className="text-white/70">{stat.description}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* HOW IT WORKS SECTION */}
-        <section id="how-it-works" data-animate className="py-24 px-4 md:px-8 bg-gradient-to-b from-transparent via-purple-500/5 to-transparent">
-          <div className="max-w-5xl mx-auto">
-            <h2 className="text-5xl md:text-6xl font-black text-center mb-4 text-white">
-              Como Funciona
-            </h2>
-            <p className="text-center text-white/60 text-lg mb-16">
-              Comece em 3 passos simples
-            </p>
-
-            <div className="grid md:grid-cols-3 gap-8 md:gap-4">
-              {steps.map((step, idx) => (
-                <div
-                  key={idx}
-                  className="flex flex-col items-center text-center"
-                  style={{
-                    animation: isVisible["how-it-works"] ? `slide-up 0.6s ease-out forwards` : "none",
-                    animationDelay: `${idx * 0.15}s`,
-                  }}
-                >
-                  <div className="relative mb-6">
-                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-cyan-500 to-purple-500 flex items-center justify-center text-2xl font-black">
-                      {step.number}
-                    </div>
-                    {idx < steps.length - 1 && (
-                      <div className="hidden md:block absolute left-full top-1/2 -translate-y-1/2 w-8 h-1 bg-gradient-to-r from-cyan-500/50 to-transparent" />
-                    )}
+            {/* Mini stats */}
+            <div className="anim-slide-up flex flex-wrap justify-center gap-8 md:gap-16 text-sm" style={{ animationDelay: '0.4s' }}>
+              {[["Multi-AI", "Groq + Gemini + GPT"], ["PWA", "Instale como app"], ["Gratis", "Para sempre"]].map(([label, desc]) => (
+                <div key={label} className="flex items-center gap-3">
+                  <div className="h-2 w-2 rounded-full bg-cyan-400" />
+                  <div>
+                    <span className="font-semibold text-white">{label}</span>
+                    <span className="text-white/40 ml-2">{desc}</span>
                   </div>
-                  <h3 className="text-xl font-bold mb-2 text-white">{step.title}</h3>
-                  <p className="text-white/60">{step.description}</p>
                 </div>
               ))}
             </div>
           </div>
         </section>
 
-        {/* PRICING SECTION */}
-        <section id="pricing" data-animate className="py-24 px-4 md:px-8">
-          <div className="max-w-6xl mx-auto">
-            <h2 className="text-5xl md:text-6xl font-black text-center mb-4 text-white">
-              Planos para Todos
-            </h2>
-            <p className="text-center text-white/60 text-lg mb-12">
-              Escolha o plano perfeito para suas necessidades
-            </p>
+        {/* ═══════════ LOGOS / TRUST BAR ═══════════ */}
+        <section className="py-12 border-y border-white/5">
+          <div className="max-w-5xl mx-auto px-6 flex flex-wrap justify-center items-center gap-8 md:gap-16 text-white/20 text-sm font-medium tracking-wider uppercase">
+            {["Supabase", "Stripe", "ElevenLabs", "Groq", "Gemini", "Vercel"].map((brand) => (
+              <span key={brand} className="hover:text-white/40 transition">{brand}</span>
+            ))}
+          </div>
+        </section>
 
-            {/* Billing Toggle */}
-            <div className="flex justify-center mb-12">
-              <div className="glass-card p-2 rounded-lg flex gap-2 w-fit">
+        {/* ═══════════ FEATURES ═══════════ */}
+        <section id="features" data-animate className="py-28 px-6">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-20">
+              <p className="text-cyan-400 text-sm font-semibold tracking-wider uppercase mb-4">Recursos</p>
+              <h2 className="text-4xl md:text-5xl font-black text-white mb-4">Tudo que voce precisa.</h2>
+              <h2 className="text-4xl md:text-5xl font-black gradient-text-cyan">Nada que voce nao precisa.</h2>
+            </div>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {features.map((f, i) => (
+                <div
+                  key={i}
+                  className="glass glass-hover rounded-2xl p-8 group"
+                  style={{
+                    animation: isVisible["features"] ? `slide-up 0.6s ease-out ${i * 0.08}s forwards` : "none",
+                    opacity: isVisible["features"] ? undefined : 0,
+                  }}
+                >
+                  <div className="text-4xl mb-5" style={{ animation: 'float 3s ease-in-out infinite', animationDelay: `${i * 0.3}s` }}>{f.icon}</div>
+                  <h3 className="text-lg font-bold mb-2 text-white group-hover:text-cyan-400 transition">{f.title}</h3>
+                  <p className="text-sm text-white/45 leading-relaxed">{f.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ═══════════ HOW IT WORKS ═══════════ */}
+        <section id="how" data-animate className="py-28 px-6 relative">
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-cyan-500/[0.02] to-transparent pointer-events-none" />
+          <div className="max-w-5xl mx-auto relative">
+            <div className="text-center mb-20">
+              <p className="text-cyan-400 text-sm font-semibold tracking-wider uppercase mb-4">Como funciona</p>
+              <h2 className="text-4xl md:text-5xl font-black text-white">3 passos. Zero friccao.</h2>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-8">
+              {[
+                { n: "01", title: "Crie sua conta", desc: "Cadastro em 10 segundos com Google ou email. Sem cartao de credito." },
+                { n: "02", title: "Fale ou digite", desc: "Use voz natural: 'cria tarefa estudar amanha' — Aurum entende e executa." },
+                { n: "03", title: "Aurum organiza", desc: "IA trabalha 24/7. Tarefas, habitos, financas — tudo sincronizado." },
+              ].map((step, i) => (
+                <div
+                  key={i}
+                  className="relative"
+                  style={{
+                    animation: isVisible["how"] ? `slide-up 0.6s ease-out ${i * 0.15}s forwards` : "none",
+                    opacity: isVisible["how"] ? undefined : 0,
+                  }}
+                >
+                  <div className="text-6xl font-black text-white/[0.04] mb-4">{step.n}</div>
+                  <h3 className="text-xl font-bold mb-3 text-white">{step.title}</h3>
+                  <p className="text-white/45 text-sm leading-relaxed">{step.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ═══════════ TESTIMONIALS ═══════════ */}
+        <section id="social" data-animate className="py-28 px-6">
+          <div className="max-w-5xl mx-auto">
+            <div className="text-center mb-16">
+              <p className="text-cyan-400 text-sm font-semibold tracking-wider uppercase mb-4">Depoimentos</p>
+              <h2 className="text-4xl md:text-5xl font-black text-white">Amado por profissionais.</h2>
+            </div>
+            <div className="grid md:grid-cols-3 gap-6">
+              {testimonials.map((t, i) => (
+                <div
+                  key={i}
+                  className="glass rounded-2xl p-8"
+                  style={{
+                    animation: isVisible["social"] ? `slide-up 0.6s ease-out ${i * 0.1}s forwards` : "none",
+                    opacity: isVisible["social"] ? undefined : 0,
+                  }}
+                >
+                  <p className="text-white/60 text-sm leading-relaxed mb-6">&ldquo;{t.text}&rdquo;</p>
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-full bg-gradient-to-br from-cyan-500/30 to-purple-500/30 flex items-center justify-center text-xs font-bold text-white/70">{t.avatar}</div>
+                    <div>
+                      <p className="text-sm font-semibold text-white">{t.name}</p>
+                      <p className="text-xs text-white/40">{t.role}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ═══════════ PRICING ═══════════ */}
+        <section id="pricing" data-animate className="py-28 px-6 relative">
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-purple-500/[0.02] to-transparent pointer-events-none" />
+          <div className="max-w-7xl mx-auto relative">
+            <div className="text-center mb-16">
+              <p className="text-cyan-400 text-sm font-semibold tracking-wider uppercase mb-4">Precos</p>
+              <h2 className="text-4xl md:text-5xl font-black text-white mb-4">Simples e transparente.</h2>
+              <p className="text-white/45 text-lg max-w-xl mx-auto">Comece gratis. Escale quando precisar.</p>
+            </div>
+
+            {/* Billing toggle */}
+            <div className="flex justify-center mb-14">
+              <div className="flex items-center gap-1 rounded-xl border border-white/10 bg-white/[0.03] p-1">
                 <button
                   onClick={() => setBillingPeriod("monthly")}
-                  className={`px-6 py-2 rounded-lg font-semibold transition-all ${
-                    billingPeriod === "monthly"
-                      ? "bg-cyan-500 text-white"
-                      : "text-white/60 hover:text-white"
-                  }`}
+                  className={`rounded-lg px-5 py-2.5 text-sm font-medium transition-all ${billingPeriod === "monthly" ? "bg-white/10 text-white" : "text-white/40 hover:text-white/60"}`}
                 >
                   Mensal
                 </button>
                 <button
                   onClick={() => setBillingPeriod("yearly")}
-                  className={`px-6 py-2 rounded-lg font-semibold transition-all ${
-                    billingPeriod === "yearly"
-                      ? "bg-cyan-500 text-white"
-                      : "text-white/60 hover:text-white"
-                  }`}
+                  className={`rounded-lg px-5 py-2.5 text-sm font-medium transition-all flex items-center gap-2 ${billingPeriod === "yearly" ? "bg-white/10 text-white" : "text-white/40 hover:text-white/60"}`}
                 >
-                  Anual (Save 33%)
+                  Anual
+                  <span className="rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10px] font-bold text-emerald-400">-20%</span>
                 </button>
               </div>
             </div>
 
-            {/* Pricing Cards */}
-            <div className="grid md:grid-cols-4 gap-6">
-              {Object.values(PLANS).map((plan, idx) => {
-                const price =
-                  billingPeriod === "monthly" ? plan.priceMonthly : plan.priceYearly;
+            {/* Pricing cards */}
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {planOrder.map((tier, idx) => {
+                const plan = PLANS[tier];
+                const price = billingPeriod === "monthly" ? plan.priceMonthly : plan.priceYearly;
+                const colors = planColors[tier];
+                const isPopular = plan.popular;
+
                 return (
                   <div
-                    key={plan.id}
-                    className={`glass-card glass-card-hover p-8 rounded-xl flex flex-col ${
-                      plan.popular ? "pricing-card-popular relative border-2" : "border border-white/10"
-                    }`}
+                    key={tier}
+                    className={`relative rounded-2xl border ${colors.border} ${colors.glow} bg-white/[0.02] p-8 flex flex-col transition-all hover:bg-white/[0.04]`}
                     style={{
-                      animation: isVisible["pricing"] ? `slide-up 0.6s ease-out forwards` : "none",
-                      animationDelay: `${idx * 0.1}s`,
+                      animation: isVisible["pricing"] ? `slide-up 0.6s ease-out ${idx * 0.1}s forwards` : "none",
+                      opacity: isVisible["pricing"] ? undefined : 0,
                     }}
                   >
-                    {plan.popular && (
-                      <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-cyan-500 to-purple-500 px-4 py-1 rounded-full text-sm font-bold text-white whitespace-nowrap">
-                        Mais Popular
+                    {isPopular && (
+                      <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                        <div className="rounded-full bg-gradient-to-r from-cyan-500 to-blue-500 px-4 py-1 text-xs font-bold text-white whitespace-nowrap">
+                          Mais Popular
+                        </div>
                       </div>
                     )}
 
-                    <h3 className="text-2xl font-bold mb-2 text-white">{plan.name}</h3>
-                    <p className="text-white/60 text-sm mb-6">{plan.description}</p>
+                    <div className={`inline-flex w-fit rounded-lg px-3 py-1 text-xs font-semibold mb-4 ${colors.badge}`}>
+                      {plan.name}
+                    </div>
 
                     <div className="mb-6">
                       {plan.priceMonthly === 0 ? (
-                        <p className="text-4xl font-black text-cyan-400">Grátis</p>
+                        <div className="flex items-baseline gap-1">
+                          <span className="text-4xl font-black text-white">R$0</span>
+                          <span className="text-white/30 text-sm">/mes</span>
+                        </div>
                       ) : (
-                        <>
-                          <p className="text-4xl font-black text-cyan-400">
-                            {formatPrice(price)}
-                          </p>
-                          <p className="text-white/60 text-sm">
-                            por mês {billingPeriod === "yearly" && "(anual)"}
-                          </p>
-                        </>
+                        <div className="flex items-baseline gap-1">
+                          <span className="text-4xl font-black text-white">{formatPrice(price)}</span>
+                          <span className="text-white/30 text-sm">/mes</span>
+                        </div>
                       )}
+                      <p className="text-xs text-white/30 mt-2">{plan.description}</p>
                     </div>
 
                     <button
                       onClick={onGetStarted}
-                      className={`w-full py-3 rounded-lg font-bold transition-all mb-6 ${
-                        plan.popular
-                          ? "bg-cyan-500 hover:bg-cyan-400 text-white"
-                          : "glass-card hover:bg-white/10 text-white border border-white/20"
-                      }`}
+                      className={`w-full rounded-xl py-3 text-sm font-bold transition-all mb-8 ${colors.btn}`}
                     >
-                      Começar
+                      {plan.priceMonthly === 0 ? "Comecar Gratis" : "Assinar Agora"}
                     </button>
 
-                    <div className="space-y-4 flex-1">
-                      {plan.highlights.map((highlight, hIdx) => (
-                        <div key={hIdx} className="flex gap-3 items-start">
-                          <Check className="w-5 h-5 text-cyan-400 flex-shrink-0 mt-0.5" />
-                          <span className="text-white/80 text-sm">{highlight}</span>
+                    <div className="space-y-3 flex-1">
+                      {plan.highlights.map((h, hIdx) => (
+                        <div key={hIdx} className="flex items-start gap-3">
+                          <Check className="w-4 h-4 text-cyan-400/60 flex-shrink-0 mt-0.5" />
+                          <span className="text-sm text-white/50">{h}</span>
                         </div>
                       ))}
                     </div>
@@ -480,44 +368,42 @@ export default function LandingPage({ onGetStarted, onViewPricing, currentPlan }
                 );
               })}
             </div>
+
+            {/* Enterprise CTA */}
+            <div className="mt-12 text-center">
+              <p className="text-white/30 text-sm">Precisa de mais? <button onClick={onGetStarted} className="text-cyan-400 hover:text-cyan-300 font-medium transition">Fale com vendas</button></p>
+            </div>
           </div>
         </section>
 
-        {/* FAQ SECTION */}
-        <section id="faq" data-animate className="py-24 px-4 md:px-8 bg-gradient-to-b from-transparent via-amber-500/5 to-transparent">
+        {/* ═══════════ FAQ ═══════════ */}
+        <section id="faq" data-animate className="py-28 px-6">
           <div className="max-w-3xl mx-auto">
-            <h2 className="text-5xl md:text-6xl font-black text-center mb-4 text-white">
-              Perguntas Frequentes
-            </h2>
-            <p className="text-center text-white/60 text-lg mb-12">
-              Tem dúvidas? Aqui estão as respostas mais comuns
-            </p>
+            <div className="text-center mb-16">
+              <p className="text-cyan-400 text-sm font-semibold tracking-wider uppercase mb-4">FAQ</p>
+              <h2 className="text-4xl md:text-5xl font-black text-white">Perguntas frequentes</h2>
+            </div>
 
-            <div className="space-y-4">
-              {faqs.map((faq, idx) => (
+            <div className="space-y-3">
+              {faqs.map((faq, i) => (
                 <div
-                  key={idx}
-                  className="glass-card rounded-xl overflow-hidden"
+                  key={i}
+                  className="glass rounded-xl overflow-hidden"
                   style={{
-                    animation: isVisible["faq"] ? `slide-up 0.6s ease-out forwards` : "none",
-                    animationDelay: `${idx * 0.05}s`,
+                    animation: isVisible["faq"] ? `slide-up 0.5s ease-out ${i * 0.05}s forwards` : "none",
+                    opacity: isVisible["faq"] ? undefined : 0,
                   }}
                 >
                   <button
-                    onClick={() => setExpandedFAQ(expandedFAQ === idx ? null : idx)}
-                    className="w-full p-6 flex items-center justify-between hover:bg-white/5 transition-colors text-left"
+                    onClick={() => setExpandedFAQ(expandedFAQ === i ? null : i)}
+                    className="w-full flex items-center justify-between p-6 text-left hover:bg-white/[0.02] transition"
                   >
-                    <h3 className="text-lg font-bold text-white">{faq.question}</h3>
-                    <ChevronDown
-                      className={`w-5 h-5 text-cyan-400 transition-transform flex-shrink-0 ${
-                        expandedFAQ === idx ? "rotate-180" : ""
-                      }`}
-                    />
+                    <span className="font-semibold text-white pr-4">{faq.q}</span>
+                    <ChevronDown className={`w-5 h-5 text-white/30 flex-shrink-0 transition-transform ${expandedFAQ === i ? "rotate-180" : ""}`} />
                   </button>
-
-                  {expandedFAQ === idx && (
-                    <div className="px-6 pb-6 text-white/70 border-t border-white/10 pt-4">
-                      {faq.answer}
+                  {expandedFAQ === i && (
+                    <div className="px-6 pb-6 text-sm text-white/45 leading-relaxed border-t border-white/5 pt-4">
+                      {faq.a}
                     </div>
                   )}
                 </div>
@@ -526,81 +412,55 @@ export default function LandingPage({ onGetStarted, onViewPricing, currentPlan }
           </div>
         </section>
 
-        {/* CTA SECTION */}
-        <section id="cta" data-animate className="py-24 px-4 md:px-8">
-          <div className="max-w-2xl mx-auto glass-card rounded-2xl p-12 text-center border-2 border-cyan-500/50">
-            <h2 className="text-4xl md:text-5xl font-black mb-4 text-white">
-              Pronto para organizar sua vida?
+        {/* ═══════════ FINAL CTA ═══════════ */}
+        <section className="py-28 px-6">
+          <div className="max-w-3xl mx-auto text-center">
+            <h2 className="text-4xl md:text-6xl font-black text-white mb-6">
+              Pronto para ter seu <span className="gradient-text">assistente pessoal?</span>
             </h2>
-            <p className="text-white/70 mb-8 text-lg">
-              Junte-se a milhares de usuários que transformaram sua produtividade com o Aurum
+            <p className="text-white/40 text-lg mb-10 max-w-xl mx-auto">
+              Junte-se a profissionais que ja transformaram sua produtividade com o Aurum.
             </p>
-            <button
-              onClick={onGetStarted}
-              className="px-10 py-4 bg-cyan-500 hover:bg-cyan-400 text-white font-bold rounded-lg transition-all duration-300 glow-button text-lg"
-            >
-              Começar Grátis Agora
+            <button onClick={onGetStarted} className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 px-10 py-5 text-lg font-bold text-white transition-all hover:from-cyan-400 hover:to-blue-400 glow-btn">
+              Comecar Gratis Agora
+              <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
             </button>
+            <p className="text-white/25 text-sm mt-6">Sem cartao de credito. Cancele quando quiser.</p>
           </div>
         </section>
 
-        {/* FOOTER */}
-        <footer className="border-t border-white/10 py-12 px-4 md:px-8 mt-12">
+        {/* ═══════════ FOOTER ═══════════ */}
+        <footer className="border-t border-white/5 py-16 px-6">
           <div className="max-w-6xl mx-auto">
-            <div className="grid md:grid-cols-4 gap-8 mb-12">
-              {/* Brand */}
+            <div className="grid md:grid-cols-4 gap-12 mb-12">
               <div>
-                <h3 className="text-2xl font-black gradient-text mb-2">Aurum</h3>
-                <p className="text-white/60 text-sm">
-                  Seu assistente pessoal com IA e voz
-                </p>
-              </div>
-
-              {/* Links */}
-              <div>
-                <h4 className="font-bold mb-4 text-white">Produto</h4>
-                <ul className="space-y-2 text-white/60 text-sm">
-                  <li><button className="hover:text-cyan-400 transition">Recursos</button></li>
-                  <li><button className="hover:text-cyan-400 transition">Preços</button></li>
-                  <li><button className="hover:text-cyan-400 transition">Blog</button></li>
-                </ul>
-              </div>
-
-              <div>
-                <h4 className="font-bold mb-4 text-white">Legal</h4>
-                <ul className="space-y-2 text-white/60 text-sm">
-                  <li><button className="hover:text-cyan-400 transition">Termos</button></li>
-                  <li><button className="hover:text-cyan-400 transition">Privacidade</button></li>
-                  <li><button className="hover:text-cyan-400 transition">Contato</button></li>
-                </ul>
-              </div>
-
-              <div>
-                <h4 className="font-bold mb-4 text-white">Suporte</h4>
-                <ul className="space-y-2 text-white/60 text-sm">
-                  <li><button className="hover:text-cyan-400 transition">Ajuda</button></li>
-                  <li><button className="hover:text-cyan-400 transition">Status</button></li>
-                  <li><button className="hover:text-cyan-400 transition">Comunidade</button></li>
-                </ul>
-              </div>
-            </div>
-
-            <div className="border-t border-white/10 pt-8">
-              <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-                <p className="text-white/40 text-sm">
-                  Feito com ❤️ por Sestari Digital
-                </p>
-                <div className="flex gap-6">
-                  <button className="text-white/40 hover:text-cyan-400 transition text-sm">
-                    Twitter
-                  </button>
-                  <button className="text-white/40 hover:text-cyan-400 transition text-sm">
-                    LinkedIn
-                  </button>
-                  <button className="text-white/40 hover:text-cyan-400 transition text-sm">
-                    GitHub
-                  </button>
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-cyan-500 to-indigo-600 text-xs font-bold">A</div>
+                  <span className="font-bold">Aurum</span>
                 </div>
+                <p className="text-sm text-white/30 leading-relaxed">Assistente pessoal com IA e voz. Organiza sua vida automaticamente.</p>
+              </div>
+              {[
+                { title: "Produto", links: ["Recursos", "Precos", "Changelog"] },
+                { title: "Legal", links: ["Termos de Uso", "Privacidade", "Cookies"] },
+                { title: "Suporte", links: ["Contato", "Status", "Documentacao"] },
+              ].map((col) => (
+                <div key={col.title}>
+                  <h4 className="text-sm font-semibold text-white/60 mb-4">{col.title}</h4>
+                  <ul className="space-y-3">
+                    {col.links.map((link) => (
+                      <li key={link}><button className="text-sm text-white/30 hover:text-white/60 transition">{link}</button></li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+            <div className="border-t border-white/5 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+              <p className="text-xs text-white/20">&copy; 2026 Sestari Digital. Todos os direitos reservados.</p>
+              <div className="flex gap-6">
+                {["Twitter", "LinkedIn", "GitHub"].map((s) => (
+                  <button key={s} className="text-xs text-white/20 hover:text-white/40 transition">{s}</button>
+                ))}
               </div>
             </div>
           </div>

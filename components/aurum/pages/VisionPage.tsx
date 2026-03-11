@@ -46,8 +46,8 @@ export default function VisionPage() {
   const [visionError, setVisionError] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState(false);
 
-  // Check if visionBoard feature is available
-  const hasVisionBoardAccess = auth.canUseFeature("visionBoard");
+  // Check if visionAI feature is available
+  const hasVisionBoardAccess = auth.canUseFeature("visionAI");
 
   // Vision AI handlers
   const handleImageUpload = useCallback((file: File) => {

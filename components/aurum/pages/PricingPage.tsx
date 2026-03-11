@@ -54,7 +54,7 @@ export default function PricingPage({ currentPlan, onSelectPlan, onBack }: Props
     { label: "Voz ElevenLabs realista", key: "elevenlabsVoice" },
     { label: "Vozes personalizadas", key: "customVoices" },
     { label: "Múltiplos modelos IA", key: "aiModels" },
-    { label: "Visão (Vision Board)", key: "visionBoard" },
+    { label: "IA Multimodal (Visão)", key: "visionAI" },
     { label: "Kanban inteligente", key: "kanbanBoard" },
     { label: "Análise financeira", key: "financeAnalysis" },
     { label: "Análise avançada", key: "advancedAnalytics" },
@@ -68,7 +68,7 @@ export default function PricingPage({ currentPlan, onSelectPlan, onBack }: Props
     { label: "Gerente de conta dedicado", key: "dedicatedAccount" },
   ];
 
-  const planOrder: PlanTier[] = ["free", "pro", "max", "teams"];
+  const planOrder: PlanTier[] = ["free", "starter", "pro", "max"];
 
   const getPrice = (planId: PlanTier) => {
     const plan = PLANS[planId];
@@ -293,7 +293,7 @@ export default function PricingPage({ currentPlan, onSelectPlan, onBack }: Props
                       : "bg-white/10 border border-white/20 text-white hover:bg-white/20"
                   }`}
                 >
-                  {isCurrent ? "Seu plano atual" : planId === "free" ? "Começar Grátis" : planId === "teams" ? "Falar com Vendas" : `Assinar ${plan.name}`}
+                  {isCurrent ? "Seu plano atual" : planId === "free" ? "Começar Grátis" : `Assinar ${plan.name}`}
                 </button>
 
                 {/* Highlights */}
@@ -333,7 +333,7 @@ export default function PricingPage({ currentPlan, onSelectPlan, onBack }: Props
                     <td className="py-4 px-4 text-gray-300">{feature.label}</td>
                     {planOrder.map((planId) => {
                       const plan = PLANS[planId];
-                      const value = (plan as any)[feature.key === "aiModels" ? "features" : feature.key === "continuousMode" || feature.key === "customVoices" || feature.key === "visionBoard" || feature.key === "kanbanBoard" || feature.key === "financeAnalysis" || feature.key === "advancedAnalytics" || feature.key === "n8nAutomations" || feature.key === "apiAccess" || feature.key === "dataExport" || feature.key === "prioritySupport" || feature.key === "sso" || feature.key === "auditLogs" || feature.key === "customBranding" || feature.key === "dedicatedAccount" ? "features" : "limits"];
+                      const value = (plan as any)[feature.key === "aiModels" ? "features" : feature.key === "continuousMode" || feature.key === "elevenlabsVoice" || feature.key === "customVoices" || feature.key === "visionAI" || feature.key === "kanbanBoard" || feature.key === "financeAnalysis" || feature.key === "advancedAnalytics" || feature.key === "n8nAutomations" || feature.key === "apiAccess" || feature.key === "dataExport" || feature.key === "prioritySupport" || feature.key === "sso" || feature.key === "auditLogs" || feature.key === "customBranding" || feature.key === "dedicatedAccount" ? "features" : "limits"];
 
                       let displayValue: React.ReactNode = "-";
 
@@ -347,8 +347,9 @@ export default function PricingPage({ currentPlan, onSelectPlan, onBack }: Props
                         displayValue = plan.limits.voiceMinutesPerMonth === -1 ? "Ilimitado" : plan.limits.voiceMinutesPerMonth;
                       } else if (
                         feature.key === "continuousMode" ||
+                        feature.key === "elevenlabsVoice" ||
                         feature.key === "customVoices" ||
-                        feature.key === "visionBoard" ||
+                        feature.key === "visionAI" ||
                         feature.key === "kanbanBoard" ||
                         feature.key === "financeAnalysis" ||
                         feature.key === "advancedAnalytics" ||
@@ -394,7 +395,7 @@ export default function PricingPage({ currentPlan, onSelectPlan, onBack }: Props
               Oferecemos soluções empresariais personalizadas com suporte dedicado, integração customizada, white-label, e muito mais. Entre em contato com nossa equipe.
             </p>
             <button
-              onClick={() => onSelectPlan("teams")}
+              onClick={() => onSelectPlan("max")}
               className="px-8 py-3 bg-gradient-to-r from-cyan-500 to-indigo-600 text-white font-semibold rounded-lg hover:from-cyan-400 hover:to-indigo-500 transition-all shadow-lg shadow-cyan-500/50"
             >
               Contatar Vendas

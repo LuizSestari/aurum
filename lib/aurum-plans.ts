@@ -1,9 +1,9 @@
 // ─────────────────────────────────────────────
 // Aurum Plan System
-// Defines Free, Pro, Max, Teams tiers
+// Free, Starter (R$49.90), Pro (R$99.90), Max (R$499.90)
 // ─────────────────────────────────────────────
 
-export type PlanTier = "free" | "pro" | "max" | "teams";
+export type PlanTier = "free" | "starter" | "pro" | "max";
 
 export interface PlanLimits {
   aiMessagesPerMonth: number;       // -1 = unlimited
@@ -22,8 +22,8 @@ export interface PlanFeatures {
   continuousMode: boolean;
   elevenlabsVoice: boolean;
   customVoices: boolean;
-  aiModels: string[];               // which AI models available
-  visionBoard: boolean;
+  aiModels: string[];
+  visionAI: boolean;
   kanbanBoard: boolean;
   financeAnalysis: boolean;
   advancedAnalytics: boolean;
@@ -47,25 +47,25 @@ export interface PlanDefinition {
   popular?: boolean;
   limits: PlanLimits;
   features: PlanFeatures;
-  highlights: string[];           // marketing bullets
+  highlights: string[];
 }
 
 export const PLANS: Record<PlanTier, PlanDefinition> = {
   free: {
     id: "free",
     name: "Free",
-    description: "Para conhecer o Aurum",
+    description: "Para experimentar o Aurum",
     priceMonthly: 0,
     priceYearly: 0,
     limits: {
-      aiMessagesPerMonth: 50,
-      ttsCharactersPerMonth: 5000,
-      voiceMinutesPerMonth: 10,
-      maxTasks: 20,
-      maxProjects: 3,
-      maxHabits: 5,
-      maxNotebooks: 5,
-      storageGB: 0.1,
+      aiMessagesPerMonth: 30,
+      ttsCharactersPerMonth: 3000,
+      voiceMinutesPerMonth: 5,
+      maxTasks: 10,
+      maxProjects: 2,
+      maxHabits: 3,
+      maxNotebooks: 3,
+      storageGB: 0.05,
       teamMembers: 0,
     },
     features: {
@@ -74,7 +74,7 @@ export const PLANS: Record<PlanTier, PlanDefinition> = {
       elevenlabsVoice: false,
       customVoices: false,
       aiModels: ["groq"],
-      visionBoard: false,
+      visionAI: false,
       kanbanBoard: false,
       financeAnalysis: false,
       advancedAnalytics: false,
@@ -89,40 +89,40 @@ export const PLANS: Record<PlanTier, PlanDefinition> = {
       whiteLabel: false,
     },
     highlights: [
-      "50 mensagens IA/mês",
+      "30 mensagens IA/mês",
       "Voz básica (Google TTS)",
-      "20 tarefas, 5 hábitos",
-      "3 projetos",
+      "10 tarefas, 3 hábitos",
+      "2 projetos",
+      "Chat com IA (Groq)",
     ],
   },
-  pro: {
-    id: "pro",
-    name: "Pro",
-    description: "Para uso pessoal avançado",
-    priceMonthly: 29.90,
-    priceYearly: 19.90,
-    popular: true,
+  starter: {
+    id: "starter",
+    name: "Starter",
+    description: "Para quem quer mais do Aurum",
+    priceMonthly: 49.90,
+    priceYearly: 39.90,
     limits: {
-      aiMessagesPerMonth: 1000,
-      ttsCharactersPerMonth: 100000,
-      voiceMinutesPerMonth: 120,
-      maxTasks: -1,
-      maxProjects: -1,
-      maxHabits: -1,
-      maxNotebooks: -1,
-      storageGB: 5,
+      aiMessagesPerMonth: 500,
+      ttsCharactersPerMonth: 50000,
+      voiceMinutesPerMonth: 60,
+      maxTasks: 100,
+      maxProjects: 10,
+      maxHabits: 15,
+      maxNotebooks: 20,
+      storageGB: 2,
       teamMembers: 0,
     },
     features: {
       voiceConversation: true,
       continuousMode: true,
-      elevenlabsVoice: true,
+      elevenlabsVoice: false,
       customVoices: false,
-      aiModels: ["groq", "anthropic", "gemini"],
-      visionBoard: true,
+      aiModels: ["groq", "gemini"],
+      visionAI: false,
       kanbanBoard: true,
       financeAnalysis: true,
-      advancedAnalytics: true,
+      advancedAnalytics: false,
       n8nAutomations: false,
       apiAccess: false,
       customBranding: false,
@@ -134,43 +134,44 @@ export const PLANS: Record<PlanTier, PlanDefinition> = {
       whiteLabel: false,
     },
     highlights: [
-      "1.000 mensagens IA/mês",
-      "Voz ElevenLabs realista",
+      "500 mensagens IA/mês",
       "Modo contínuo de conversa",
-      "Tarefas, hábitos e projetos ilimitados",
-      "Visão, Kanban e análise financeira",
-      "Exportação de dados",
+      "100 tarefas, 15 hábitos, 10 projetos",
+      "Controle financeiro completo",
+      "Kanban e exportação de dados",
+      "2 GB de armazenamento",
     ],
   },
-  max: {
-    id: "max",
-    name: "Max",
-    description: "Sem limites, máximo poder",
-    priceMonthly: 79.90,
-    priceYearly: 59.90,
+  pro: {
+    id: "pro",
+    name: "Pro",
+    description: "Para produtividade máxima",
+    priceMonthly: 99.90,
+    priceYearly: 79.90,
+    popular: true,
     limits: {
-      aiMessagesPerMonth: -1,
-      ttsCharactersPerMonth: -1,
-      voiceMinutesPerMonth: -1,
+      aiMessagesPerMonth: 3000,
+      ttsCharactersPerMonth: 300000,
+      voiceMinutesPerMonth: 300,
       maxTasks: -1,
       maxProjects: -1,
       maxHabits: -1,
       maxNotebooks: -1,
-      storageGB: 50,
-      teamMembers: 0,
+      storageGB: 20,
+      teamMembers: 5,
     },
     features: {
       voiceConversation: true,
       continuousMode: true,
       elevenlabsVoice: true,
-      customVoices: true,
-      aiModels: ["groq", "anthropic", "gemini", "openai", "ollama"],
-      visionBoard: true,
+      customVoices: false,
+      aiModels: ["groq", "anthropic", "gemini", "openai"],
+      visionAI: true,
       kanbanBoard: true,
       financeAnalysis: true,
       advancedAnalytics: true,
       n8nAutomations: true,
-      apiAccess: true,
+      apiAccess: false,
       customBranding: false,
       prioritySupport: true,
       dedicatedAccount: false,
@@ -180,21 +181,22 @@ export const PLANS: Record<PlanTier, PlanDefinition> = {
       whiteLabel: false,
     },
     highlights: [
-      "Mensagens IA ilimitadas",
-      "Voz ilimitada com vozes personalizadas",
-      "Todos os modelos de IA",
+      "3.000 mensagens IA/mês",
+      "Voz JARVIS (ElevenLabs)",
+      "IA Multimodal com Visão",
+      "Todos os modelos de IA premium",
+      "Tudo ilimitado (tarefas, hábitos, projetos)",
       "Automações n8n integradas",
-      "Acesso à API",
+      "Analytics avançado",
       "Suporte prioritário",
-      "50 GB de armazenamento",
     ],
   },
-  teams: {
-    id: "teams",
-    name: "Teams",
-    description: "Para equipes e empresas",
-    priceMonthly: 49.90,  // per seat
-    priceYearly: 39.90,
+  max: {
+    id: "max",
+    name: "Max",
+    description: "Sem limites. Poder absoluto.",
+    priceMonthly: 499.90,
+    priceYearly: 399.90,
     limits: {
       aiMessagesPerMonth: -1,
       ttsCharactersPerMonth: -1,
@@ -203,7 +205,7 @@ export const PLANS: Record<PlanTier, PlanDefinition> = {
       maxProjects: -1,
       maxHabits: -1,
       maxNotebooks: -1,
-      storageGB: 100,
+      storageGB: 500,
       teamMembers: 50,
     },
     features: {
@@ -212,7 +214,7 @@ export const PLANS: Record<PlanTier, PlanDefinition> = {
       elevenlabsVoice: true,
       customVoices: true,
       aiModels: ["groq", "anthropic", "gemini", "openai", "ollama"],
-      visionBoard: true,
+      visionAI: true,
       kanbanBoard: true,
       financeAnalysis: true,
       advancedAnalytics: true,
@@ -224,17 +226,18 @@ export const PLANS: Record<PlanTier, PlanDefinition> = {
       sso: true,
       auditLogs: true,
       dataExport: true,
-      whiteLabel: false,
+      whiteLabel: true,
     },
     highlights: [
-      "Tudo do Max + colaboração",
-      "Até 50 membros por time",
-      "SSO / SAML",
-      "Logs de auditoria",
-      "Branding personalizado",
+      "TUDO ilimitado",
+      "Vozes personalizadas e clonagem",
+      "API externa para desenvolvedores",
+      "White-label e branding",
+      "SSO / SAML empresarial",
       "Gerente de conta dedicado",
-      "100 GB armazenamento",
-      "R$49,90/membro/mês",
+      "Logs de auditoria",
+      "500 GB armazenamento",
+      "Até 50 membros por time",
     ],
   },
 };
@@ -254,7 +257,7 @@ export function isWithinLimit(
 ): boolean {
   const limit = PLANS[plan]?.limits?.[limitKey];
   if (limit === undefined) return false;
-  if (limit === -1) return true; // unlimited
+  if (limit === -1) return true;
   return currentUsage < limit;
 }
 
@@ -264,9 +267,9 @@ export function formatPrice(value: number): string {
   return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
 
-// Get upgrade suggestion based on what feature/limit was hit
-export function getUpgradeSuggestion(currentPlan: PlanTier, blockedFeature?: string): PlanTier | null {
-  const order: PlanTier[] = ["free", "pro", "max", "teams"];
+// Get upgrade suggestion
+export function getUpgradeSuggestion(currentPlan: PlanTier): PlanTier | null {
+  const order: PlanTier[] = ["free", "starter", "pro", "max"];
   const idx = order.indexOf(currentPlan);
   if (idx < order.length - 1) return order[idx + 1];
   return null;

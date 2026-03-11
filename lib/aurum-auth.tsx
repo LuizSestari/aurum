@@ -129,12 +129,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!hasSupabaseConfig) {
-      // No Supabase — set a mock profile with "max" plan for development
+      // No Supabase — set a mock profile for development
       setProfile({
         id: "local",
         fullName: "Luiz",
         avatarUrl: "",
-        plan: "max",
+        plan: "free",
         planStartedAt: null,
         planExpiresAt: null,
         teamId: null,
