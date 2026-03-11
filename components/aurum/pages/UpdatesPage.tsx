@@ -5,14 +5,80 @@ import Modal from "../shared/Modal";
 
 const UPDATES = [
   {
-    title: "Voz ultra-realista com ElevenLabs",
+    title: "IA Multimodal com Visão",
     tags: ["Funcionalidade", "Mais recente"],
+    content: "Envie imagens no chat! Aurum analisa fotos usando Gemini 2.0 Flash, GPT-4o-mini e Groq Vision. Cole (Ctrl+V), arraste ou clique no ícone de câmera. Ideal para analisar recibos, documentos e fotos.",
+    date: "2026-03-11",
+  },
+  {
+    title: "PWA - Instale como App",
+    tags: ["Funcionalidade", "Mais recente"],
+    content: "Aurum agora funciona como app nativo! Instale no celular ou desktop para acesso offline, notificações push e experiência fullscreen. Funciona sem internet.",
+    date: "2026-03-11",
+  },
+  {
+    title: "Busca Global (⌘K)",
+    tags: ["Funcionalidade", "Mais recente"],
+    content: "Pressione ⌘K para buscar em tudo: tarefas, hábitos, projetos, lembretes, finanças. Navegação instantânea com teclado.",
+    date: "2026-03-11",
+  },
+  {
+    title: "Pomodoro Timer integrado",
+    tags: ["Funcionalidade"],
+    content: "Timer Pomodoro flutuante com modos Foco (25min), Pausa (5min) e Pausa Longa (15min). Notificações automáticas quando o timer acaba.",
+    date: "2026-03-11",
+  },
+  {
+    title: "Atalhos de Teclado",
+    tags: ["Funcionalidade"],
+    content: "⌘1-7 para navegar entre páginas, ⌘K para busca, ? para ver atalhos. Produtividade máxima sem mouse.",
+    date: "2026-03-11",
+  },
+  {
+    title: "Feedback IA com Self-Learning",
+    tags: ["Funcionalidade"],
+    content: "Avalie respostas da IA com 👍/👎. Seus feedbacks ajudam o Aurum a aprender e melhorar as respostas ao longo do tempo.",
+    date: "2026-03-11",
+  },
+  {
+    title: "Developer Console Premium",
+    tags: ["Melhoria"],
+    content: "Console de desenvolvedor redesenhado com API Playground, teste de Vision, gráfico de latência em tempo real e mais ferramentas de debug.",
+    date: "2026-03-11",
+  },
+  {
+    title: "Voz JARVIS com ElevenLabs",
+    tags: ["Melhoria"],
+    content: "Nova voz 'Adam' (deep, authoritative) com modelo eleven_multilingual_v2 para pt-BR premium. Velocidade 1.2x para respostas mais dinâmicas.",
+    date: "2026-03-10",
+  },
+  {
+    title: "IA executa ações automaticamente",
+    tags: ["Melhoria"],
+    content: "Diga 'adiciona tarefa estudar amanhã' e o Aurum cria imediatamente. Sem perguntas desnecessárias - estilo JARVIS.",
+    date: "2026-03-10",
+  },
+  {
+    title: "Stripe + Planos + Landing Page",
+    tags: ["Funcionalidade"],
+    content: "Sistema completo de monetização: Free/Pro/Max/Teams. Checkout Stripe, portal de billing, landing page com pricing e feature gating visual.",
+    date: "2026-03-10",
+  },
+  {
+    title: "Autenticação Google OAuth",
+    tags: ["Funcionalidade"],
+    content: "Login com Google OAuth via Supabase. Também suporta email/senha. Perfis salvos na nuvem.",
+    date: "2026-03-10",
+  },
+  {
+    title: "Voz ultra-realista com ElevenLabs",
+    tags: ["Funcionalidade"],
     content: "Integração com ElevenLabs para voz Neural ultra-realista em português. Fallback automático para StreamElements e Google TTS.",
     date: "2026-03-10",
   },
   {
     title: "Orb gravitacional fullscreen",
-    tags: ["Alteração", "Mais recente"],
+    tags: ["Alteração"],
     content: "Novo campo de partículas gravitacional que preenche toda a tela. 4000 partículas em 5 camadas reagem ao estado da conversa.",
     date: "2026-03-09",
   },
@@ -55,11 +121,14 @@ const UPDATES = [
 ];
 
 const PREDICTIONS = [
-  { title: "Integração com Spotify", tags: ["Em Estudo"], content: "Controle músicas e playlists por voz." },
-  { title: "Agentes autônomos", tags: ["Planejado"], content: "Agentes que executam tarefas complexas automaticamente." },
-  { title: "Integração com Google Calendar", tags: ["Planejado"], content: "Sincronize seus eventos e lembretes com Google Calendar." },
-  { title: "Modo offline completo", tags: ["Planejado"], content: "Funcione sem internet usando modelos locais de IA." },
-  { title: "Automação de workflows", tags: ["Em Estudo"], content: "Crie fluxos automáticos entre tarefas, lembretes e projetos." },
+  { title: "Agentes Autônomos v2", tags: ["Em Desenvolvimento"], content: "Agentes que executam tarefas complexas: pesquisar mercado, gerar relatórios, enviar emails automaticamente." },
+  { title: "Integração WhatsApp Business", tags: ["Planejado"], content: "Converse com Aurum diretamente pelo WhatsApp. Crie tarefas, hábitos e lembretes por mensagem." },
+  { title: "Voice Cloning Personalizado", tags: ["Em Estudo"], content: "Clone sua própria voz ou escolha entre vozes regionais: gaúcho, carioca, paulista." },
+  { title: "Google Calendar Sync", tags: ["Planejado"], content: "Sincronize eventos e lembretes com Google Calendar automaticamente." },
+  { title: "Vertical: AurumAdvogado", tags: ["Em Estudo"], content: "Versão especializada para advocacia: prazos OAB, gestão de processos, atendimento voice." },
+  { title: "Vertical: AurumMédico", tags: ["Em Estudo"], content: "Versão para saúde: agendamento voice, prontuários, lembretes de pacientes." },
+  { title: "API Externa para Desenvolvedores", tags: ["Planejado"], content: "Embed Aurum no seu produto. API REST completa com webhooks." },
+  { title: "Expansão LATAM", tags: ["Futuro"], content: "Suporte PT-BR/ES com voices regionais para México, Colômbia e Argentina." },
 ];
 
 export default function UpdatesPage() {
@@ -166,7 +235,7 @@ export default function UpdatesPage() {
           <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
             <div className="text-sm font-semibold">Versão Atual</div>
             <div className="mt-2 text-xs text-white/50">
-              <div>Aurum v2.1.0</div>
+              <div>Aurum v3.0.0</div>
               <div className="mt-1 text-white/30">Next.js 16 · React 19 · TypeScript</div>
             </div>
           </div>
