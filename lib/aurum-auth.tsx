@@ -240,12 +240,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signUpWithEmail = async (email: string, password: string, name: string) => {
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { full_name: name } },
+      options: {
+        data: { full_name: name },
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
+      },
     });
-    return { error: error?.message ?? null };
+    if (error) return { error: error.message };
+    // If user already exists but unconfirmed, Supabase returns a fake user with no identities
+    if (data.user && data.user.identities?.length === 0) {
+      return { error: "Este email já está cadastrado. Tente fazer login." };
+    }
+    // If email confirmation is required
+    if (data.user && !data.session) {
+      return { error: null }; // success — will show confirmation message in UI
+    }
+    return { error: null };
   };
 
   const signOut = async () => {
@@ -253,6 +265,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (hasSupabaseConfig) await supabase.auth.signOut();
     setSession(null);
     setProfile(null);
+    setUsage({ aiMessages: 0, ttsCharacters: 0, voiceMinutes: 0, storageMb: 0, apiCalls: 0 });
   };
 
   const canUseFeature = (feature: string) => {

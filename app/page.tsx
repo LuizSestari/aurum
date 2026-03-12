@@ -65,6 +65,7 @@ export default function Home() {
           onSignInEmail={signInWithEmail}
           onSignUpEmail={signUpWithEmail}
           onNavigatePricing={() => setView("pricing")}
+          onBack={() => setView("landing")}
         />
       );
     }
