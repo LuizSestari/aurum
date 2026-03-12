@@ -20,6 +20,10 @@ export interface UserProfile {
   isTeamAdmin: boolean;
   language: string;
   onboardingCompleted: boolean;
+  stripeCustomerId: string | null;
+  stripeSubscriptionId: string | null;
+  subscriptionActive: boolean;
+  billingPeriod: string | null;
 }
 
 export interface UsageData {
@@ -113,6 +117,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             isTeamAdmin: created.is_team_admin ?? false,
             language: created.language ?? "pt-BR",
             onboardingCompleted: created.onboarding_completed ?? false,
+            stripeCustomerId: created.stripe_customer_id ?? null,
+            stripeSubscriptionId: created.stripe_subscription_id ?? null,
+            subscriptionActive: created.subscription_active ?? false,
+            billingPeriod: created.billing_period ?? null,
           };
           setProfile(p);
           return p;
@@ -132,6 +140,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isTeamAdmin: data.is_team_admin ?? false,
         language: data.language ?? "pt-BR",
         onboardingCompleted: data.onboarding_completed ?? false,
+        stripeCustomerId: data.stripe_customer_id ?? null,
+        stripeSubscriptionId: data.stripe_subscription_id ?? null,
+        subscriptionActive: data.subscription_active ?? false,
+        billingPeriod: data.billing_period ?? null,
       };
       setProfile(p);
       return p;
@@ -186,6 +198,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isTeamAdmin: false,
         language: "pt-BR",
         onboardingCompleted: true,
+        stripeCustomerId: null,
+        stripeSubscriptionId: null,
+        subscriptionActive: false,
+        billingPeriod: null,
       });
       setLoading(false);
       return;

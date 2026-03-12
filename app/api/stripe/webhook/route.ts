@@ -1,249 +1,160 @@
 import { NextRequest, NextResponse } from "next/server";
-import { stripe, getWebhookSecret } from "@/lib/stripe";
+import { stripe, getWebhookSecret, getPlanFromPriceId } from "@/lib/stripe";
 import { createClient } from "@supabase/supabase-js";
 
-// Tipo para eventos do Stripe que tratamos
-type StripeEvent = {
-  id: string;
-  type: string;
-  data: {
-    object: any;
-  };
-};
-
-// Cria um cliente Supabase com a chave de serviço
-// Isso permite atualizar dados do usuário sem necessidade de autenticação
-function createSupabaseServiceClient() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
-  const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
-
-  if (!supabaseUrl || !supabaseServiceRoleKey) {
-    throw new Error("Variáveis de ambiente do Supabase não configuradas");
-  }
-
-  return createClient(supabaseUrl, supabaseServiceRoleKey, {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false,
-    },
-  });
+// Service-role Supabase client for server-side mutations
+function createSupabaseAdmin() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
+  if (!url || !key) throw new Error("Supabase env vars not configured");
+  return createClient(url, key, { auth: { autoRefreshToken: false, persistSession: false } });
 }
 
 export async function POST(request: NextRequest) {
   try {
-    // Obtém o corpo da requisição como texto para validar a assinatura
     const rawBody = await request.text();
-
-    // Obtém a assinatura do webhook dos headers
     const signature = request.headers.get("stripe-signature");
 
     if (!signature) {
-      return NextResponse.json(
-        { error: "Assinatura do webhook não fornecida" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Missing stripe-signature" }, { status: 400 });
     }
 
-    // Obtém a chave secreta do webhook
     const webhookSecret = getWebhookSecret();
-
     if (!webhookSecret) {
-      console.error("STRIPE_WEBHOOK_SECRET não configurada");
-      return NextResponse.json(
-        { error: "Configuração do webhook incompleta" },
-        { status: 500 }
-      );
+      console.error("[Aurum Stripe] STRIPE_WEBHOOK_SECRET not set");
+      return NextResponse.json({ error: "Webhook not configured" }, { status: 500 });
     }
 
-    // Valida a assinatura do webhook para garantir que vem do Stripe
-    let event: StripeEvent;
-
+    // Validate signature
+    let event: any;
     try {
-      event = stripe.webhooks.constructEvent(
-        rawBody,
-        signature,
-        webhookSecret
-      ) as StripeEvent;
-    } catch (error) {
-      console.error("Erro ao validar assinatura do webhook:", error);
-      return NextResponse.json(
-        { error: "Assinatura do webhook inválida" },
-        { status: 401 }
-      );
+      event = stripe.webhooks.constructEvent(rawBody, signature, webhookSecret);
+    } catch (err: any) {
+      console.error("[Aurum Stripe] Invalid signature:", err.message);
+      return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
     }
 
-    // Cria o cliente Supabase para atualizar o banco de dados
-    const supabase = createSupabaseServiceClient();
+    const supabase = createSupabaseAdmin();
 
-    // Processa diferentes tipos de eventos do Stripe
     switch (event.type) {
-      // Evento disparado quando uma sessão de checkout é completada com sucesso
+      // ─── Checkout completed ───────────────────────
       case "checkout.session.completed": {
-        const session = event.data.object as any;
-
-        // Extrai as informações do usuário dos metadados
+        const session = event.data.object;
         const userId = session.metadata?.userId;
         const planTier = session.metadata?.planTier;
         const billingPeriod = session.metadata?.billingPeriod;
 
         if (!userId || !planTier) {
-          console.error("Metadados incompletos na sessão de checkout");
+          console.error("[Aurum Stripe] Missing metadata in checkout session");
           break;
         }
 
-        // Atualiza o perfil do usuário com o novo plano
-        const { error: updateError } = await supabase
+        const { error } = await supabase
           .from("profiles")
           .update({
             plan: planTier,
             stripe_customer_id: session.customer,
             stripe_subscription_id: session.subscription,
-            billing_period: billingPeriod,
+            billing_period: billingPeriod || "monthly",
             subscription_active: true,
+            plan_started_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
           })
           .eq("id", userId);
 
-        if (updateError) {
-          console.error(
-            "Erro ao atualizar plano do usuário após checkout:",
-            updateError
-          );
+        if (error) {
+          console.error("[Aurum Stripe] Failed to update profile after checkout:", error);
         } else {
-          console.log(
-            `Plano do usuário ${userId} atualizado para ${planTier}`
-          );
+          console.log(`[Aurum Stripe] User ${userId} upgraded to ${planTier}`);
         }
         break;
       }
 
-      // Evento disparado quando uma assinatura é atualizada
-      // Pode indicar mudança de plano ou período de cobrança
+      // ─── Subscription updated (plan change, renewal) ──
       case "customer.subscription.updated": {
-        const subscription = event.data.object as any;
-
-        // Extrai o ID do cliente do Stripe
+        const subscription = event.data.object;
         const customerId = subscription.customer;
 
-        // Busca o usuário pelo ID do cliente do Stripe
-        const { data: profiles, error: fetchError } = await supabase
+        const { data: profiles } = await supabase
           .from("profiles")
           .select("id, plan")
           .eq("stripe_customer_id", customerId)
           .limit(1);
 
-        if (fetchError || !profiles || profiles.length === 0) {
-          console.error(
-            "Usuário não encontrado para customer ID:",
-            customerId
-          );
+        if (!profiles?.length) {
+          console.error("[Aurum Stripe] No profile for customer:", customerId);
           break;
         }
 
         const userId = profiles[0].id;
 
-        // Extrai o novo plano baseado no item de preço
-        // O Stripe armazena o plano nos metadados ou podemos derivar da estrutura
+        // Try to detect plan change from the price ID
         const priceId = subscription.items?.data?.[0]?.price?.id;
-        let newPlan = profiles[0].plan; // Mantém o plano atual se não conseguir determinar o novo
+        const detectedPlan = priceId ? getPlanFromPriceId(priceId) : null;
 
-        // Aqui você pode adicionar lógica para mapear priceId para planTier
-        // Por enquanto, apenas registra o evento
-        console.log(
-          `Assinatura atualizada para usuário ${userId}, preço: ${priceId}`
-        );
+        const updateData: Record<string, any> = {
+          subscription_active: subscription.status === "active",
+          updated_at: new Date().toISOString(),
+        };
 
-        // Atualiza o status da assinatura
-        const { error: updateError } = await supabase
-          .from("profiles")
-          .update({
-            updated_at: new Date().toISOString(),
-          })
-          .eq("id", userId);
-
-        if (updateError) {
-          console.error(
-            "Erro ao atualizar status da assinatura:",
-            updateError
-          );
+        if (detectedPlan) {
+          updateData.plan = detectedPlan;
         }
+
+        await supabase.from("profiles").update(updateData).eq("id", userId);
+        console.log(`[Aurum Stripe] Subscription updated for user ${userId}`);
         break;
       }
 
-      // Evento disparado quando uma assinatura é cancelada
-      // Faz downgrade do usuário para o plano gratuito
+      // ─── Subscription cancelled ───────────────────
       case "customer.subscription.deleted": {
-        const subscription = event.data.object as any;
-
+        const subscription = event.data.object;
         const customerId = subscription.customer;
 
-        // Busca o usuário pelo ID do cliente do Stripe
-        const { data: profiles, error: fetchError } = await supabase
+        const { data: profiles } = await supabase
           .from("profiles")
           .select("id")
           .eq("stripe_customer_id", customerId)
           .limit(1);
 
-        if (fetchError || !profiles || profiles.length === 0) {
-          console.error(
-            "Usuário não encontrado para customer ID:",
-            customerId
-          );
+        if (!profiles?.length) {
+          console.error("[Aurum Stripe] No profile for customer:", customerId);
           break;
         }
 
         const userId = profiles[0].id;
 
-        // Faz downgrade do usuário para o plano gratuito
-        const { error: updateError } = await supabase
+        await supabase
           .from("profiles")
           .update({
             plan: "free",
             subscription_active: false,
+            stripe_subscription_id: null,
             updated_at: new Date().toISOString(),
           })
           .eq("id", userId);
 
-        if (updateError) {
-          console.error("Erro ao fazer downgrade para plano gratuito:", updateError);
-        } else {
-          console.log(`Usuário ${userId} foi feito downgrade para plano gratuito`);
-        }
+        console.log(`[Aurum Stripe] User ${userId} downgraded to free`);
         break;
       }
 
-      // Casos adicionais que podem ser úteis
-      case "invoice.payment_succeeded": {
-        console.log("Pagamento de fatura bem-sucedido");
-        break;
-      }
-
+      // ─── Payment failed ───────────────────────────
       case "invoice.payment_failed": {
-        console.log("Falha no pagamento da fatura");
+        const invoice = event.data.object;
+        console.warn(`[Aurum Stripe] Payment failed for invoice ${invoice.id}`);
+        // Could send an email notification here
         break;
       }
 
       default:
-        // Apenas registra eventos não tratados
-        console.log(`Evento do Stripe não tratado: ${event.type}`);
+        console.log(`[Aurum Stripe] Unhandled event: ${event.type}`);
     }
 
-    // Retorna 200 para confirmar que o webhook foi recebido e processado
-    // Stripe considerará qualquer resposta 2xx como sucesso
     return NextResponse.json({ received: true });
   } catch (error) {
-    console.error("Erro ao processar webhook do Stripe:", error);
-
-    // Retorna erro apropriado
-    if (error instanceof Error) {
-      return NextResponse.json(
-        { error: `Erro ao processar webhook: ${error.message}` },
-        { status: 500 }
-      );
-    }
-
+    console.error("[Aurum Stripe] Webhook error:", error);
     return NextResponse.json(
-      { error: "Erro desconhecido ao processar webhook" },
+      { error: error instanceof Error ? error.message : "Unknown error" },
       { status: 500 }
     );
   }

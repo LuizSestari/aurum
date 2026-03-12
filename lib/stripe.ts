@@ -1,73 +1,82 @@
 // ─────────────────────────────────────────────
 // Stripe Integration - Aurum
-// Só funciona quando STRIPE_SECRET_KEY está configurada
-// e o pacote 'stripe' está instalado (npm install stripe)
+// Uses dynamic require so builds don't break without the stripe package
 // ─────────────────────────────────────────────
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let stripe: any = null;
 
-// Inicializa Stripe apenas se a chave estiver configurada
 const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
 
 if (stripeSecretKey) {
   try {
-    // Dynamic import para não quebrar build sem o pacote stripe
     const Stripe = require("stripe");
     stripe = new Stripe(stripeSecretKey, {
       apiVersion: "2024-11-20",
     });
   } catch {
-    console.warn("Pacote 'stripe' não instalado. Execute: npm install stripe");
+    console.warn("[Aurum] Stripe package not installed. Run: npm install stripe");
   }
 }
 
 export { stripe };
 
-// Interface para mapear tiers de plano para IDs de preço no Stripe
-export interface PriceIds {
-  pro_monthly: string;
-  pro_yearly: string;
-  max_monthly: string;
-  max_yearly: string;
-  teams_monthly: string;
-  teams_yearly: string;
+// ─────────────────────────────────────────────
+// Price ID Mapping
+// Each env var maps a plan+period to a Stripe Price ID
+// Create these in Stripe Dashboard → Products → Prices
+// ─────────────────────────────────────────────
+
+const PRICE_MAP: Record<string, Record<string, string>> = {
+  starter: {
+    monthly: process.env.STRIPE_PRICE_STARTER_MONTHLY || "",
+    yearly: process.env.STRIPE_PRICE_STARTER_YEARLY || "",
+  },
+  pro: {
+    monthly: process.env.STRIPE_PRICE_PRO_MONTHLY || "",
+    yearly: process.env.STRIPE_PRICE_PRO_YEARLY || "",
+  },
+  max: {
+    monthly: process.env.STRIPE_PRICE_MAX_MONTHLY || "",
+    yearly: process.env.STRIPE_PRICE_MAX_YEARLY || "",
+  },
+};
+
+// Reverse mapping: Stripe Price ID → plan tier
+const PRICE_TO_PLAN: Record<string, string> = {};
+for (const [plan, periods] of Object.entries(PRICE_MAP)) {
+  for (const [, priceId] of Object.entries(periods)) {
+    if (priceId) PRICE_TO_PLAN[priceId] = plan;
+  }
 }
 
-// Carrega os IDs de preço do Stripe a partir das variáveis de ambiente
-export function getPriceIds(): PriceIds {
-  return {
-    pro_monthly: process.env.STRIPE_PRICE_PRO_MONTHLY || "",
-    pro_yearly: process.env.STRIPE_PRICE_PRO_YEARLY || "",
-    max_monthly: process.env.STRIPE_PRICE_MAX_MONTHLY || "",
-    max_yearly: process.env.STRIPE_PRICE_MAX_YEARLY || "",
-    teams_monthly: process.env.STRIPE_PRICE_TEAMS_MONTHLY || "",
-    teams_yearly: process.env.STRIPE_PRICE_TEAMS_YEARLY || "",
-  };
-}
-
-// Mapa de tiers de plano para IDs de preço
+/**
+ * Get Stripe Price ID for a plan tier + billing period
+ */
 export function getPriceIdForPlan(
   planTier: string,
   billingPeriod: "monthly" | "yearly"
 ): string | null {
-  const priceIds = getPriceIds();
-
-  const priceMap: Record<string, Record<string, string>> = {
-    pro: { monthly: priceIds.pro_monthly, yearly: priceIds.pro_yearly },
-    max: { monthly: priceIds.max_monthly, yearly: priceIds.max_yearly },
-    teams: { monthly: priceIds.teams_monthly, yearly: priceIds.teams_yearly },
-  };
-
-  return priceMap[planTier]?.[billingPeriod] || null;
+  return PRICE_MAP[planTier]?.[billingPeriod] || null;
 }
 
-// Chave pública do Stripe (usada no frontend)
+/**
+ * Get plan tier from a Stripe Price ID (used by webhooks)
+ */
+export function getPlanFromPriceId(priceId: string): string | null {
+  return PRICE_TO_PLAN[priceId] || null;
+}
+
+/**
+ * Publishable key for frontend (Stripe.js / checkout redirect)
+ */
 export function getPublishableKey(): string {
   return process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || "";
 }
 
-// Secret do webhook para validação
+/**
+ * Webhook secret for signature validation
+ */
 export function getWebhookSecret(): string {
   return process.env.STRIPE_WEBHOOK_SECRET || "";
 }

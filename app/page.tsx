@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/aurum-auth";
 import AurumShell from "@/components/aurum/AurumShell";
 import ConfigLoader from "@/components/aurum/ConfigLoader";
@@ -13,6 +13,7 @@ type AppView = "app" | "login" | "pricing" | "landing";
 export default function Home() {
   const {
     session,
+    user,
     profile,
     loading,
     plan,
@@ -20,9 +21,31 @@ export default function Home() {
     signInWithEmail,
     signUpWithEmail,
     signOut,
+    refreshProfile,
   } = useAuth();
 
   const [view, setView] = useState<AppView>(!session && !profile ? "landing" : "app");
+  const [checkoutMessage, setCheckoutMessage] = useState<string | null>(null);
+
+  // Handle checkout success/cancel query params
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+
+    if (params.get("checkout") === "success") {
+      setCheckoutMessage("Assinatura ativada com sucesso!");
+      // Refresh profile to get updated plan
+      refreshProfile();
+      // Clean URL
+      window.history.replaceState({}, "", "/");
+      // Auto-dismiss
+      setTimeout(() => setCheckoutMessage(null), 5000);
+    } else if (params.get("checkout") === "canceled") {
+      setCheckoutMessage("Checkout cancelado.");
+      window.history.replaceState({}, "", "/");
+      setTimeout(() => setCheckoutMessage(null), 4000);
+    }
+  }, [refreshProfile]);
 
   // Loading
   if (loading) {
@@ -46,11 +69,9 @@ export default function Home() {
     return (
       <PricingPage
         currentPlan={plan}
-        onSelectPlan={(selectedPlan) => {
-          // TODO: integrate with Stripe/payment provider
-          console.log("Selected plan:", selectedPlan);
-          setView(session && profile ? "app" : "landing");
-        }}
+        userId={user?.id || profile?.id}
+        userEmail={user?.email || undefined}
+        stripeCustomerId={(profile as any)?.stripeCustomerId || null}
         onBack={() => setView(session && profile ? "app" : "landing")}
       />
     );
@@ -70,7 +91,6 @@ export default function Home() {
       );
     }
 
-    // Landing page (view === "landing")
     return (
       <LandingPage
         onGetStarted={() => setView("login")}
@@ -84,6 +104,12 @@ export default function Home() {
   return (
     <>
       <ConfigLoader />
+      {/* Checkout success/cancel toast */}
+      {checkoutMessage && (
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[9999] px-6 py-3 rounded-xl bg-emerald-500/90 text-white text-sm font-medium shadow-2xl shadow-emerald-500/30 animate-bounce-in">
+          {checkoutMessage}
+        </div>
+      )}
       <AurumShell
         userName={profile?.fullName || session?.user?.email || undefined}
         onSignOut={signOut}
