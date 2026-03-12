@@ -3,7 +3,7 @@
 // Free, Starter (R$49.90), Pro (R$99.90), Max (R$499.90)
 // ─────────────────────────────────────────────
 
-export type PlanTier = "free" | "starter" | "pro" | "max";
+export type PlanTier = "free" | "starter" | "pro" | "max" | "dev";
 
 export interface PlanLimits {
   aiMessagesPerMonth: number;       // -1 = unlimited
@@ -236,6 +236,53 @@ export const PLANS: Record<PlanTier, PlanDefinition> = {
       "Gerente de conta dedicado",
       "100 GB armazenamento",
       "Suporte prioritário 24/7",
+    ],
+  },
+  dev: {
+    id: "dev",
+    name: "Developer",
+    description: "Acesso interno — sem limites, sem restrições.",
+    priceMonthly: 0,
+    priceYearly: 0,
+    limits: {
+      aiMessagesPerMonth: -1,
+      ttsCharactersPerMonth: -1,
+      voiceMinutesPerMonth: -1,
+      maxTasks: -1,
+      maxProjects: -1,
+      maxHabits: -1,
+      maxNotebooks: -1,
+      storageGB: 999,
+      teamMembers: -1,
+    },
+    features: {
+      voiceConversation: true,
+      continuousMode: true,
+      elevenlabsVoice: true,
+      customVoices: true,
+      aiModels: ["groq", "anthropic", "gemini", "openai", "local"],
+      visionAI: true,
+      kanbanBoard: true,
+      financeAnalysis: true,
+      advancedAnalytics: true,
+      n8nAutomations: true,
+      apiAccess: true,
+      customBranding: true,
+      prioritySupport: true,
+      dedicatedAccount: true,
+      sso: true,
+      auditLogs: true,
+      dataExport: true,
+      whiteLabel: true,
+    },
+    highlights: [
+      "Acesso interno do desenvolvedor",
+      "Tudo ilimitado — zero restrições",
+      "Todos os modelos de IA (inclui local)",
+      "Todas as features desbloqueadas",
+      "Storage ilimitado (999 GB)",
+      "Time ilimitado",
+      "White-label, SSO, audit logs",
     ],
   },
 };
