@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { setVoiceConfig } from "@/lib/aurum-voice";
 
 interface Props {
   userName?: string;
@@ -22,6 +23,11 @@ export default function SettingsPage({ userName, currentPlan, onNavigatePricing 
     if (typeof window === "undefined") return "dark";
     return localStorage.getItem("aurum_theme") || "dark";
   });
+  const [voiceSpeed, setVoiceSpeed] = useState(() => {
+    if (typeof window === "undefined") return 1.0;
+    return parseFloat(localStorage.getItem("aurum_voice_speed") || "1.0");
+  });
+  const [savedFeedback, setSavedFeedback] = useState<string | null>(null);
 
   const tabs = [
     { id: "profile" as const, label: "Perfil", icon: "👤" },
@@ -31,6 +37,8 @@ export default function SettingsPage({ userName, currentPlan, onNavigatePricing 
 
   const savePref = (key: string, value: string) => {
     localStorage.setItem(key, value);
+    setSavedFeedback(key);
+    setTimeout(() => setSavedFeedback(null), 1500);
   };
 
   const getStorageSize = () => {
@@ -125,7 +133,12 @@ export default function SettingsPage({ userName, currentPlan, onNavigatePricing 
         {activeTab === "preferences" && (
           <div className="space-y-4">
             <div className="rounded-xl border border-white/10 bg-white/5 p-6 space-y-5">
-              <h3 className="text-sm font-semibold text-white/70 uppercase tracking-wider">Geral</h3>
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-semibold text-white/70 uppercase tracking-wider">Geral</h3>
+                {savedFeedback && (
+                  <span className="text-xs text-emerald-400 animate-pulse">✓ Salvo</span>
+                )}
+              </div>
 
               <div className="flex items-center justify-between">
                 <div>
@@ -150,6 +163,49 @@ export default function SettingsPage({ userName, currentPlan, onNavigatePricing 
                   />
                 </button>
               </div>
+
+              {/* Voice Speed Slider */}
+              {voiceEnabled && (
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-white">Velocidade da Voz</p>
+                    <p className="text-xs text-white/40">Ajuste a velocidade de fala do assistente</p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs text-white/40 w-8 text-right">{voiceSpeed.toFixed(1)}x</span>
+                    <input
+                      type="range"
+                      min="0.5"
+                      max="2.0"
+                      step="0.1"
+                      value={voiceSpeed}
+                      onChange={(e) => {
+                        const val = parseFloat(e.target.value);
+                        setVoiceSpeed(val);
+                        savePref("aurum_voice_speed", val.toString());
+                        setVoiceConfig({ ttsRate: val });
+                      }}
+                      className="w-32 accent-cyan-500"
+                    />
+                    <button
+                      onClick={() => {
+                        // Preview the speed
+                        if (typeof window !== "undefined" && window.speechSynthesis) {
+                          window.speechSynthesis.cancel();
+                          const utt = new SpeechSynthesisUtterance("Essa é a velocidade selecionada.");
+                          utt.lang = "pt-BR";
+                          utt.rate = voiceSpeed;
+                          window.speechSynthesis.speak(utt);
+                        }
+                      }}
+                      className="rounded-lg bg-white/5 border border-white/10 px-2 py-1 text-xs text-white/50 hover:text-white hover:bg-white/10 transition-all"
+                      title="Testar velocidade"
+                    >
+                      ▶
+                    </button>
+                  </div>
+                </div>
+              )}
 
               <div className="flex items-center justify-between">
                 <div>

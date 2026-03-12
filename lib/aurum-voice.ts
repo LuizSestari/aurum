@@ -28,6 +28,17 @@ const DEFAULT_CONFIG: VoiceConfig = {
 
 let config: VoiceConfig = { ...DEFAULT_CONFIG };
 
+// Read user's preferred voice speed from localStorage
+if (typeof window !== "undefined") {
+  const savedSpeed = localStorage.getItem("aurum_voice_speed");
+  if (savedSpeed) {
+    const parsed = parseFloat(savedSpeed);
+    if (!isNaN(parsed) && parsed >= 0.5 && parsed <= 2.0) {
+      config.ttsRate = parsed;
+    }
+  }
+}
+
 // Pre-load voices so they're ready when needed (Chrome loads them async)
 let voicesLoaded = false;
 if (typeof window !== "undefined" && "speechSynthesis" in window) {
@@ -50,6 +61,16 @@ if (typeof window !== "undefined" && "speechSynthesis" in window) {
 
 export function setVoiceConfig(c: Partial<VoiceConfig>): void {
   config = { ...config, ...c };
+}
+
+// Listen for localStorage changes from Settings page (same-tab via custom event)
+if (typeof window !== "undefined") {
+  window.addEventListener("storage", (e) => {
+    if (e.key === "aurum_voice_speed" && e.newValue) {
+      const val = parseFloat(e.newValue);
+      if (!isNaN(val)) config.ttsRate = val;
+    }
+  });
 }
 
 export function getVoiceConfig(): VoiceConfig {
