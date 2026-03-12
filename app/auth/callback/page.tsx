@@ -7,35 +7,70 @@ export default function AuthCallback() {
   const [status, setStatus] = useState("Autenticando...");
 
   useEffect(() => {
-    // With implicit flow, Supabase auto-detects tokens from URL hash
-    // (#access_token=...&refresh_token=...) and establishes the session.
-    // We just listen for the auth state change.
-    const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === "SIGNED_IN" && session) {
-        // Session established — redirect to app
+    let redirected = false;
+
+    const goHome = () => {
+      if (!redirected) {
+        redirected = true;
         window.location.href = "/";
+      }
+    };
+
+    // Listen for auth state changes (works for both implicit and PKCE)
+    const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
+      if ((event === "SIGNED_IN" || event === "TOKEN_REFRESHED") && session) {
+        goHome();
       }
     });
 
-    // Fallback: if tokens were already processed before listener attached
-    const checkExisting = async () => {
-      // Give Supabase a moment to process the hash
-      await new Promise((r) => setTimeout(r, 500));
+    const handleCallback = async () => {
+      const hash = window.location.hash;
+      const search = window.location.search;
 
+      // Case 1: Implicit flow — tokens in URL hash (#access_token=...&refresh_token=...)
+      if (hash && hash.includes("access_token")) {
+        // Supabase client with detectSessionInUrl should handle this automatically.
+        // Wait a moment for it to process.
+        await new Promise((r) => setTimeout(r, 1000));
+        const { data } = await supabase.auth.getSession();
+        if (data.session) {
+          goHome();
+          return;
+        }
+      }
+
+      // Case 2: PKCE flow — code in query params (?code=...)
+      if (search && search.includes("code=")) {
+        const params = new URLSearchParams(search);
+        const code = params.get("code");
+        if (code) {
+          try {
+            const { error } = await supabase.auth.exchangeCodeForSession(code);
+            if (!error) {
+              goHome();
+              return;
+            }
+            console.error("Code exchange error:", error.message);
+          } catch (err) {
+            console.error("Code exchange exception:", err);
+          }
+        }
+      }
+
+      // Case 3: Fallback — check if session was already established
+      await new Promise((r) => setTimeout(r, 1500));
       const { data } = await supabase.auth.getSession();
       if (data.session) {
-        window.location.href = "/";
+        goHome();
         return;
       }
 
-      // Final fallback after 4 seconds
-      setTimeout(() => {
-        setStatus("Redirecionando...");
-        window.location.href = "/";
-      }, 4000);
+      // Final fallback — redirect home after timeout
+      setStatus("Redirecionando...");
+      setTimeout(goHome, 2000);
     };
 
-    checkExisting();
+    handleCallback();
 
     return () => { listener.subscription.unsubscribe(); };
   }, []);

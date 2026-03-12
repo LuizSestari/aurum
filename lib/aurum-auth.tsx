@@ -67,7 +67,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const plan = profile?.plan ?? "free";
 
-  const fetchProfile = useCallback(async (userId: string) => {
+  const fetchProfile = useCallback(async (userId: string, user?: User | null) => {
     try {
       const { data, error } = await supabase
         .from("profiles")
@@ -75,7 +75,40 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .eq("id", userId)
         .single();
 
-      if (error || !data) return null;
+      if (error || !data) {
+        // Profile doesn't exist yet — auto-create it (backup for trigger)
+        const meta = user?.user_metadata ?? {};
+        const newProfile = {
+          id: userId,
+          full_name: meta.full_name ?? meta.name ?? user?.email?.split("@")[0] ?? "",
+          avatar_url: meta.avatar_url ?? meta.picture ?? "",
+          plan: "free",
+        };
+
+        const { data: created } = await supabase
+          .from("profiles")
+          .upsert(newProfile)
+          .select()
+          .single();
+
+        if (created) {
+          const p: UserProfile = {
+            id: created.id,
+            fullName: created.full_name ?? "",
+            avatarUrl: created.avatar_url ?? "",
+            plan: created.plan ?? "free",
+            planStartedAt: created.plan_started_at,
+            planExpiresAt: created.plan_expires_at,
+            teamId: created.team_id,
+            isTeamAdmin: created.is_team_admin ?? false,
+            language: created.language ?? "pt-BR",
+            onboardingCompleted: created.onboarding_completed ?? false,
+          };
+          setProfile(p);
+          return p;
+        }
+        return null;
+      }
 
       const p: UserProfile = {
         id: data.id,
@@ -152,7 +185,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setSession(sess);
 
       if (sess?.user?.id) {
-        await fetchProfile(sess.user.id);
+        await fetchProfile(sess.user.id, sess.user);
         await fetchUsage(sess.user.id);
       }
       setLoading(false);
@@ -162,7 +195,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { data: sub } = supabase.auth.onAuthStateChange(async (_event, sess) => {
       setSession(sess);
       if (sess?.user?.id) {
-        await fetchProfile(sess.user.id);
+        await fetchProfile(sess.user.id, sess.user);
         await fetchUsage(sess.user.id);
       } else {
         setProfile(null);
