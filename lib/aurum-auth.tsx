@@ -207,62 +207,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    // Two-pronged approach:
-    // 1) onAuthStateChange listens for session changes (including INITIAL_SESSION)
-    // 2) Fallback: after 3s, if onAuthStateChange hasn't fired, manually
-    //    call getSession() so the app never stays stuck on loading.
-    let resolved = false;
+    // Simple pattern: getSession() for initial load, onAuthStateChange for updates.
+    // React Strict Mode is disabled (next.config.ts) to prevent lock orphaning.
+    const init = async () => {
+      try {
+        const { data } = await supabase.auth.getSession();
+        const sess = data.session;
+        setSession(sess);
 
-    const resolve = async (sess: Session | null, user?: User | null) => {
-      if (resolved) return;
-      resolved = true;
+        if (sess?.user?.id) {
+          await fetchProfile(sess.user.id, sess.user);
+          await fetchUsage(sess.user.id);
+        }
+      } catch (err) {
+        console.error("[Aurum Auth] init error:", err);
+      }
+      setLoading(false);
+    };
+    init();
 
+    const { data: sub } = supabase.auth.onAuthStateChange(async (_event, sess) => {
       setSession(sess);
       if (sess?.user?.id) {
-        await fetchProfile(sess.user.id, sess.user ?? undefined);
+        await fetchProfile(sess.user.id, sess.user);
         await fetchUsage(sess.user.id);
       } else {
         setProfile(null);
         setUsage({ aiMessages: 0, ttsCharacters: 0, voiceMinutes: 0, storageMb: 0, apiCalls: 0 });
       }
-      setLoading(false);
-    };
-
-    const { data: sub } = supabase.auth.onAuthStateChange(async (_event, sess) => {
-      if (!resolved) {
-        // First event — resolve loading
-        await resolve(sess, sess?.user);
-      } else {
-        // Subsequent events (sign-in, sign-out, token refresh)
-        setSession(sess);
-        if (sess?.user?.id) {
-          await fetchProfile(sess.user.id, sess.user);
-          await fetchUsage(sess.user.id);
-        } else {
-          setProfile(null);
-          setUsage({ aiMessages: 0, ttsCharacters: 0, voiceMinutes: 0, storageMb: 0, apiCalls: 0 });
-        }
-      }
     });
 
-    // Safety fallback — if onAuthStateChange doesn't fire within 3s,
-    // manually check session so the app is never stuck loading.
-    const fallbackTimer = setTimeout(async () => {
-      if (!resolved) {
-        try {
-          const { data } = await supabase.auth.getSession();
-          await resolve(data.session, data.session?.user);
-        } catch {
-          // Even if getSession fails, release loading
-          await resolve(null);
-        }
-      }
-    }, 3000);
-
-    return () => {
-      clearTimeout(fallbackTimer);
-      sub.subscription.unsubscribe();
-    };
+    return () => sub.subscription.unsubscribe();
   }, [fetchProfile, fetchUsage]);
 
   const signInWithGoogle = async () => {
