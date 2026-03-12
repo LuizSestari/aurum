@@ -207,15 +207,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    // Simple pattern: getSession() for initial load, onAuthStateChange for updates.
-    // React Strict Mode is disabled (next.config.ts) to prevent lock orphaning.
+    // On init, check if this is a fresh browser session.
+    // sessionStorage is cleared when the browser closes, so if our marker
+    // is missing, the user closed the browser → sign them out.
     const init = async () => {
       try {
         const { data } = await supabase.auth.getSession();
         const sess = data.session;
+
+        if (sess && !sessionStorage.getItem("aurum_active")) {
+          // Browser was closed and reopened — force logout
+          await supabase.auth.signOut();
+          setSession(null);
+          setLoading(false);
+          return;
+        }
+
         setSession(sess);
 
         if (sess?.user?.id) {
+          sessionStorage.setItem("aurum_active", "1");
           await fetchProfile(sess.user.id, sess.user);
           await fetchUsage(sess.user.id);
         }
@@ -229,9 +240,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { data: sub } = supabase.auth.onAuthStateChange(async (_event, sess) => {
       setSession(sess);
       if (sess?.user?.id) {
+        sessionStorage.setItem("aurum_active", "1");
         await fetchProfile(sess.user.id, sess.user);
         await fetchUsage(sess.user.id);
       } else {
+        sessionStorage.removeItem("aurum_active");
         setProfile(null);
         setUsage({ aiMessages: 0, ttsCharacters: 0, voiceMinutes: 0, storageMb: 0, apiCalls: 0 });
       }
@@ -284,6 +297,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signOut = async () => {
     window.speechSynthesis?.cancel();
+    sessionStorage.removeItem("aurum_active");
     if (hasSupabaseConfig) await supabase.auth.signOut();
     setSession(null);
     setProfile(null);
