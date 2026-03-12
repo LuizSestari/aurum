@@ -45,6 +45,7 @@ export function UpgradeModal({
     starter: "from-amber-500 to-orange-500",
     pro: "from-cyan-500 to-blue-500",
     max: "from-purple-500 to-pink-500",
+    dev: "from-emerald-500 to-teal-500",
   };
 
   const accentMap: Record<PlanTier, string> = {
@@ -52,6 +53,7 @@ export function UpgradeModal({
     starter: "amber",
     pro: "cyan",
     max: "pink",
+    dev: "emerald",
   };
 
   const gradient = gradientMap[requiredPlan];

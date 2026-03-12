@@ -73,6 +73,7 @@ export default function LandingPage({ onGetStarted, onViewPricing }: LandingPage
     starter: { border: "border-amber-500/30", glow: "", badge: "bg-amber-500/10 text-amber-400", btn: "bg-amber-500 hover:bg-amber-400 text-white" },
     pro: { border: "border-cyan-500/40", glow: "shadow-[0_0_40px_rgba(0,217,255,0.15)]", badge: "bg-cyan-500/10 text-cyan-400", btn: "bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-white" },
     max: { border: "border-purple-500/30", glow: "", badge: "bg-purple-500/10 text-purple-400", btn: "bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-400 hover:to-pink-400 text-white" },
+    dev: { border: "border-emerald-500/40", glow: "shadow-[0_0_40px_rgba(16,185,129,0.15)]", badge: "bg-emerald-500/10 text-emerald-400", btn: "bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white" },
   };
 
   return (

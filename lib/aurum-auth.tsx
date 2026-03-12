@@ -207,31 +207,62 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    // Use ONLY onAuthStateChange — it fires INITIAL_SESSION on startup.
-    // Calling getSession() alongside onAuthStateChange() causes a lock
-    // deadlock in @supabase/gotrue-js (both try to acquire the same
-    // "lock:sb-...-auth-token" lock simultaneously).
-    let initialised = false;
+    // Two-pronged approach:
+    // 1) onAuthStateChange listens for session changes (including INITIAL_SESSION)
+    // 2) Fallback: after 3s, if onAuthStateChange hasn't fired, manually
+    //    call getSession() so the app never stays stuck on loading.
+    let resolved = false;
 
-    const { data: sub } = supabase.auth.onAuthStateChange(async (event, sess) => {
+    const resolve = async (sess: Session | null, user?: User | null) => {
+      if (resolved) return;
+      resolved = true;
+
       setSession(sess);
-
       if (sess?.user?.id) {
-        await fetchProfile(sess.user.id, sess.user);
+        await fetchProfile(sess.user.id, sess.user ?? undefined);
         await fetchUsage(sess.user.id);
       } else {
         setProfile(null);
         setUsage({ aiMessages: 0, ttsCharacters: 0, voiceMinutes: 0, storageMb: 0, apiCalls: 0 });
       }
+      setLoading(false);
+    };
 
-      // Only flip loading to false once (on the initial event)
-      if (!initialised) {
-        initialised = true;
-        setLoading(false);
+    const { data: sub } = supabase.auth.onAuthStateChange(async (_event, sess) => {
+      if (!resolved) {
+        // First event — resolve loading
+        await resolve(sess, sess?.user);
+      } else {
+        // Subsequent events (sign-in, sign-out, token refresh)
+        setSession(sess);
+        if (sess?.user?.id) {
+          await fetchProfile(sess.user.id, sess.user);
+          await fetchUsage(sess.user.id);
+        } else {
+          setProfile(null);
+          setUsage({ aiMessages: 0, ttsCharacters: 0, voiceMinutes: 0, storageMb: 0, apiCalls: 0 });
+        }
       }
     });
 
-    return () => sub.subscription.unsubscribe();
+    // Safety fallback — if onAuthStateChange doesn't fire within 3s,
+    // manually check session so the app is never stuck loading.
+    const fallbackTimer = setTimeout(async () => {
+      if (!resolved) {
+        try {
+          const { data } = await supabase.auth.getSession();
+          await resolve(data.session, data.session?.user);
+        } catch {
+          // Even if getSession fails, release loading
+          await resolve(null);
+        }
+      }
+    }, 3000);
+
+    return () => {
+      clearTimeout(fallbackTimer);
+      sub.subscription.unsubscribe();
+    };
   }, [fetchProfile, fetchUsage]);
 
   const signInWithGoogle = async () => {

@@ -22,6 +22,7 @@ export function PlanBadge({
     starter: "from-amber-500 to-orange-500",
     pro: "from-cyan-500 to-blue-500",
     max: "from-purple-500 to-pink-500",
+    dev: "from-emerald-500 to-teal-500",
   };
 
   // Text color map
@@ -30,6 +31,7 @@ export function PlanBadge({
     starter: "text-amber-100",
     pro: "text-cyan-100",
     max: "text-purple-100",
+    dev: "text-emerald-100",
   };
 
   // Border color map
@@ -38,6 +40,7 @@ export function PlanBadge({
     starter: "border-amber-500/30",
     pro: "border-cyan-500/30",
     max: "border-purple-500/30",
+    dev: "border-emerald-500/30",
   };
 
   // Shadow map for glow
@@ -46,6 +49,7 @@ export function PlanBadge({
     starter: "shadow-amber-500/50",
     pro: "shadow-cyan-500/50",
     max: "shadow-purple-500/50",
+    dev: "shadow-emerald-500/50",
   };
 
   const gradient = gradientMap[plan];
