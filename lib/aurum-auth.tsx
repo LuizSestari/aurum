@@ -6,11 +6,14 @@ import type { Session, User } from "@supabase/supabase-js";
 import type { PlanTier } from "@/lib/aurum-plans";
 import { PLANS, hasFeature, isWithinLimit } from "@/lib/aurum-plans";
 
+export type UserRole = "user" | "admin" | "dev";
+
 export interface UserProfile {
   id: string;
   fullName: string;
   avatarUrl: string;
   plan: PlanTier;
+  role: UserRole;
   planStartedAt: string | null;
   planExpiresAt: string | null;
   teamId: string | null;
@@ -34,6 +37,9 @@ interface AuthContextType {
   usage: UsageData;
   loading: boolean;
   plan: PlanTier;
+  role: UserRole;
+  isAdmin: boolean;
+  isDev: boolean;
   // Auth actions
   signInWithGoogle: () => Promise<void>;
   signInWithEmail: (email: string, password: string) => Promise<{ error: string | null }>;
@@ -66,6 +72,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   const plan = profile?.plan ?? "free";
+  const role: UserRole = profile?.role ?? "user";
+  const isAdmin = role === "admin";
+  const isDev = role === "dev" || role === "admin";
 
   const fetchProfile = useCallback(async (userId: string, user?: User | null) => {
     try {
@@ -97,6 +106,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             fullName: created.full_name ?? "",
             avatarUrl: created.avatar_url ?? "",
             plan: created.plan ?? "free",
+            role: (created.role as UserRole) ?? "user",
             planStartedAt: created.plan_started_at,
             planExpiresAt: created.plan_expires_at,
             teamId: created.team_id,
@@ -115,6 +125,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         fullName: data.full_name ?? "",
         avatarUrl: data.avatar_url ?? "",
         plan: data.plan ?? "free",
+        role: (data.role as UserRole) ?? "user",
         planStartedAt: data.plan_started_at,
         planExpiresAt: data.plan_expires_at,
         teamId: data.team_id,
@@ -168,6 +179,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         fullName: "Luiz",
         avatarUrl: "",
         plan: "free",
+        role: "admin",
         planStartedAt: null,
         planExpiresAt: null,
         teamId: null,
@@ -244,10 +256,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const canUseFeature = (feature: string) => {
+    // Admin/dev has access to everything
+    if (isAdmin || isDev) return true;
     return hasFeature(plan, feature as keyof typeof PLANS.free.features);
   };
 
   const isWithinUsageLimitFn = (limitKey: string, current?: number) => {
+    // Admin/dev has no usage limits
+    if (isAdmin || isDev) return true;
     const usageMap: Record<string, number> = {
       aiMessagesPerMonth: usage.aiMessages,
       ttsCharactersPerMonth: usage.ttsCharacters,
@@ -303,6 +319,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       usage,
       loading,
       plan,
+      role,
+      isAdmin,
+      isDev,
       signInWithGoogle,
       signInWithEmail,
       signUpWithEmail,
