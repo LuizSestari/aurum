@@ -13,65 +13,84 @@ export default function AuthCallback() {
       if (!done) {
         done = true;
         setStatus("Entrando no Aurum...");
-        setTimeout(() => window.location.replace("/"), 200);
+        window.location.replace("/");
       }
     };
 
-    const handleAuth = async () => {
-      // Step 1: Check if Supabase auto-detection already established a session
-      // (detectSessionInUrl processes tokens/code during client initialization)
-      const { data: existing } = await supabase.auth.getSession();
-      if (existing.session) {
+    // Listen for auth state changes — Supabase client with
+    // detectSessionInUrl + flowType:"pkce" handles the code exchange
+    // automatically during initialization. We just wait for the result.
+    const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "SIGNED_IN" && session) {
+        goHome();
+      }
+      if (event === "TOKEN_REFRESHED" && session) {
+        goHome();
+      }
+    });
+
+    // Also check if session already exists (e.g. page reload)
+    const checkExisting = async () => {
+      const { data } = await supabase.auth.getSession();
+      if (data.session) {
         goHome();
         return;
       }
 
-      // Step 2: Try PKCE code exchange manually
+      // Manual PKCE exchange as fallback
       const params = new URLSearchParams(window.location.search);
       const code = params.get("code");
       if (code) {
-        const { data, error } = await supabase.auth.exchangeCodeForSession(code);
-        if (!error && data.session) {
-          goHome();
-          return;
-        }
-        if (error) {
-          console.error("[Aurum] Code exchange:", error.message);
+        try {
+          const { data: exchangeData, error } = await supabase.auth.exchangeCodeForSession(code);
+          if (!error && exchangeData.session) {
+            goHome();
+            return;
+          }
+          if (error) {
+            console.error("[Aurum Auth] Code exchange error:", error.message);
+          }
+        } catch (e) {
+          console.error("[Aurum Auth] Code exchange exception:", e);
         }
       }
 
-      // Step 3: Try implicit flow — tokens in hash fragment
+      // Implicit flow fallback — tokens in hash fragment
       const hash = window.location.hash;
       if (hash && hash.includes("access_token")) {
         const hashParams = new URLSearchParams(hash.substring(1));
         const accessToken = hashParams.get("access_token");
         const refreshToken = hashParams.get("refresh_token");
         if (accessToken && refreshToken) {
-          const { data, error } = await supabase.auth.setSession({
+          const { data: sessData, error } = await supabase.auth.setSession({
             access_token: accessToken,
             refresh_token: refreshToken,
           });
-          if (!error && data.session) {
+          if (!error && sessData.session) {
             goHome();
             return;
           }
         }
       }
 
-      // Step 4: Wait and retry — auto-detection might be async
-      await new Promise((r) => setTimeout(r, 2000));
+      // Final fallback: wait and check once more
+      await new Promise((r) => setTimeout(r, 3000));
       const { data: retry } = await supabase.auth.getSession();
       if (retry.session) {
         goHome();
         return;
       }
 
-      // Step 5: Last resort — redirect home anyway
+      // If still nothing, go home anyway (landing page will show)
       setStatus("Redirecionando...");
-      setTimeout(goHome, 1000);
+      setTimeout(goHome, 500);
     };
 
-    handleAuth();
+    checkExisting();
+
+    return () => {
+      listener.subscription.unsubscribe();
+    };
   }, []);
 
   return (
