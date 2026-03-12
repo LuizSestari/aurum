@@ -10,6 +10,7 @@
     "test:coordinator": "node test-coordinator.mjs"
   },
   "dependencies": {
+    "@supabase/ssr": "^0.6.1",
     "@supabase/supabase-js": "^2.99.0",
     "axios": "^1.7.7",
     "dotenv": "^16.4.5",
