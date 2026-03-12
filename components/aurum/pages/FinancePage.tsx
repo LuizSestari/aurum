@@ -87,7 +87,7 @@ export default function FinancePage() {
         <div className="absolute inset-0 flex items-center justify-center z-50">
           <UpgradeModal
             isOpen={true}
-            onClose={() => {}}
+            onClose={() => { window.history.back(); }}
             feature="Análise Financeira é um recurso Pro"
             requiredPlan="pro"
             onUpgrade={() => {

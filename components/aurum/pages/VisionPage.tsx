@@ -252,7 +252,7 @@ export default function VisionPage() {
         <div className="absolute inset-0 flex items-center justify-center z-50">
           <UpgradeModal
             isOpen={true}
-            onClose={() => {}}
+            onClose={() => { window.history.back(); }}
             feature="Vision Board é um recurso Pro"
             requiredPlan="pro"
             onUpgrade={() => {

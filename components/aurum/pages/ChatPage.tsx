@@ -437,7 +437,7 @@ export default function ChatPage({ muted, onMuteToggle, orbState, onOrbState, us
       <div className="absolute top-4 left-4 z-20 w-64">
         <UsageBar
           current={auth.usage.aiMessages}
-          limit={auth.plan === "starter" ? 500 : auth.plan === "pro" ? 3000 : auth.plan === "max" ? -1 : 30}
+          limit={auth.plan === "dev" || auth.plan === "max" ? -1 : auth.plan === "pro" ? 3000 : auth.plan === "starter" ? 500 : 30}
           label="Mensagens IA"
           color="from-cyan-500 to-blue-500"
         />

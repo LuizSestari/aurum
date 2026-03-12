@@ -385,7 +385,7 @@ export default function DeveloperPage() {
         <div className="absolute inset-0 flex items-center justify-center z-50">
           <UpgradeModal
             isOpen={true}
-            onClose={() => {}}
+            onClose={() => { window.history.back(); }}
             feature="Developer Console is a Max feature"
             requiredPlan="max"
             onUpgrade={() => {
