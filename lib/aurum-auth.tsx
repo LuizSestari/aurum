@@ -207,27 +207,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    const init = async () => {
-      const { data } = await supabase.auth.getSession();
-      const sess = data.session;
+    // Use ONLY onAuthStateChange — it fires INITIAL_SESSION on startup.
+    // Calling getSession() alongside onAuthStateChange() causes a lock
+    // deadlock in @supabase/gotrue-js (both try to acquire the same
+    // "lock:sb-...-auth-token" lock simultaneously).
+    let initialised = false;
+
+    const { data: sub } = supabase.auth.onAuthStateChange(async (event, sess) => {
       setSession(sess);
 
-      if (sess?.user?.id) {
-        await fetchProfile(sess.user.id, sess.user);
-        await fetchUsage(sess.user.id);
-      }
-      setLoading(false);
-    };
-    init();
-
-    const { data: sub } = supabase.auth.onAuthStateChange(async (_event, sess) => {
-      setSession(sess);
       if (sess?.user?.id) {
         await fetchProfile(sess.user.id, sess.user);
         await fetchUsage(sess.user.id);
       } else {
         setProfile(null);
         setUsage({ aiMessages: 0, ttsCharacters: 0, voiceMinutes: 0, storageMb: 0, apiCalls: 0 });
+      }
+
+      // Only flip loading to false once (on the initial event)
+      if (!initialised) {
+        initialised = true;
+        setLoading(false);
       }
     });
 
