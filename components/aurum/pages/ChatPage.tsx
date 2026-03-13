@@ -26,6 +26,16 @@ import {
   updateTask,
 } from "@/lib/aurum-store";
 
+interface WeatherData {
+  location: string;
+  temp: string;
+  feelsLike: string;
+  description: string;
+  humidity: string;
+  wind: string;
+  icon: string;
+}
+
 interface Props {
   muted: boolean;
   onMuteToggle: () => void;
@@ -147,6 +157,27 @@ export default function ChatPage({ muted, onMuteToggle, orbState, onOrbState, us
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+
+  const [weather, setWeather] = useState<WeatherData | null>(null);
+  const [currentTime, setCurrentTime] = useState(() => new Date());
+
+  // Fetch weather on mount
+  useEffect(() => {
+    fetch("/api/weather")
+      .then((r) => r.ok ? r.json() : null)
+      .then((data) => { if (data && !data.error) setWeather(data); })
+      .catch(() => {});
+    // Refresh weather every 30 min
+    const wInterval = setInterval(() => {
+      fetch("/api/weather")
+        .then((r) => r.ok ? r.json() : null)
+        .then((data) => { if (data && !data.error) setWeather(data); })
+        .catch(() => {});
+    }, 30 * 60 * 1000);
+    // Update clock every minute
+    const tInterval = setInterval(() => setCurrentTime(new Date()), 60000);
+    return () => { clearInterval(wInterval); clearInterval(tInterval); };
+  }, []);
 
   const stopListenRef = useRef<(() => void) | null>(null);
   const spaceDown = useRef(false);
@@ -441,6 +472,27 @@ export default function ChatPage({ muted, onMuteToggle, orbState, onOrbState, us
           label="Mensagens IA"
           color="from-cyan-500 to-blue-500"
         />
+      </div>
+
+      {/* ── CONTEXT BAR (TOP CENTER) ── */}
+      <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 pointer-events-none">
+        <div className="flex items-center gap-3 rounded-full bg-white/[0.04] backdrop-blur-xl border border-white/[0.06] px-4 py-1.5">
+          <span className="text-[11px] text-white/30">
+            {currentTime.toLocaleDateString("pt-BR", { weekday: "short", day: "numeric", month: "short" })}
+          </span>
+          <span className="text-white/10">|</span>
+          <span className="text-[11px] text-white/40 font-medium tabular-nums">
+            {currentTime.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+          </span>
+          {weather && (
+            <>
+              <span className="text-white/10">|</span>
+              <span className="text-[11px] text-white/30">
+                {weather.icon} {weather.temp} {weather.location}
+              </span>
+            </>
+          )}
+        </div>
       </div>
 
       {/* ── FULLSCREEN ORB FIELD ── */}

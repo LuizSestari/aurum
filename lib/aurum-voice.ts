@@ -288,6 +288,10 @@ interface ListenOptions {
   onEnd?: () => void;
   onAudioLevel?: (level: number) => void;
   continuous?: boolean;
+  /** Auto-stop after this many ms of silence (default: 2500) */
+  silenceTimeout?: number;
+  /** Auto-stop after this many ms total (default: 30000) */
+  maxDuration?: number;
 }
 
 export function isSpeechRecognitionSupported(): boolean {
@@ -308,11 +312,36 @@ export function startListening(opts: ListenOptions): () => void {
   const recognition = new SRConstructor();
   recognition.lang = config.language;
   recognition.interimResults = true;
-  recognition.continuous = opts.continuous ?? false;
+  // Always use continuous mode — we handle stop ourselves via silence detection
+  recognition.continuous = true;
   recognition.maxAlternatives = 1;
 
   let stopped = false;
   let audioLevelRaf: number | null = null;
+  let silenceTimer: ReturnType<typeof setTimeout> | null = null;
+  let maxTimer: ReturnType<typeof setTimeout> | null = null;
+  let accumulatedFinal = "";
+  let lastSpeechAt = Date.now();
+
+  const silenceMs = opts.silenceTimeout ?? 2500;
+  const maxMs = opts.maxDuration ?? 30000;
+
+  // Reset silence timer whenever speech is detected
+  function resetSilenceTimer() {
+    lastSpeechAt = Date.now();
+    if (silenceTimer) clearTimeout(silenceTimer);
+    silenceTimer = setTimeout(() => {
+      // Silence detected — if we have accumulated text, send it
+      if (!stopped && accumulatedFinal.trim()) {
+        stopped = true;
+        try { recognition.stop(); } catch { /* ok */ }
+      } else if (!stopped) {
+        // No speech at all — just end
+        stopped = true;
+        try { recognition.stop(); } catch { /* ok */ }
+      }
+    }, silenceMs);
+  }
 
   // Connect mic for audio analysis
   connectMic().then(() => {
@@ -327,42 +356,82 @@ export function startListening(opts: ListenOptions): () => void {
   });
 
   recognition.onresult = (event: SpeechRecognitionEvent) => {
-    let final = "";
+    let newFinal = "";
     let interim = "";
     for (let i = event.resultIndex; i < event.results.length; i++) {
       const transcript = event.results[i][0].transcript;
       if (event.results[i].isFinal) {
-        final += transcript;
+        newFinal += transcript;
       } else {
         interim += transcript;
       }
     }
-    if (interim) opts.onPartial?.(interim);
-    if (final) opts.onResult(final.trim());
+    if (interim) {
+      resetSilenceTimer();
+      opts.onPartial?.(accumulatedFinal + interim);
+    }
+    if (newFinal) {
+      accumulatedFinal += newFinal;
+      resetSilenceTimer();
+      opts.onPartial?.(accumulatedFinal);
+    }
   };
 
   recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
-    if (event.error !== "aborted" && event.error !== "no-speech") {
+    if (event.error === "no-speech") {
+      // No speech detected — keep waiting (silence timer will handle stop)
+      return;
+    }
+    if (event.error !== "aborted") {
       opts.onError?.(event.error);
     }
   };
 
   recognition.onend = () => {
+    clearTimers();
+    if (accumulatedFinal.trim()) {
+      opts.onResult(accumulatedFinal.trim());
+    }
     if (!stopped) opts.onEnd?.();
+    stopped = true;
     cleanup();
   };
 
+  // Start
   recognition.start();
+  resetSilenceTimer();
+
+  // Max duration safety
+  maxTimer = setTimeout(() => {
+    if (!stopped) {
+      stopped = true;
+      try { recognition.stop(); } catch { /* ok */ }
+    }
+  }, maxMs);
+
+  function clearTimers() {
+    if (silenceTimer) { clearTimeout(silenceTimer); silenceTimer = null; }
+    if (maxTimer) { clearTimeout(maxTimer); maxTimer = null; }
+  }
 
   function cleanup() {
     stopped = true;
+    clearTimers();
     disconnectMic();
     if (audioLevelRaf) cancelAnimationFrame(audioLevelRaf);
   }
 
   return () => {
-    stopped = true;
-    try { recognition.stop(); } catch { /* already stopped */ }
+    if (!stopped) {
+      stopped = true;
+      // If manually stopped, still deliver accumulated text
+      if (accumulatedFinal.trim()) {
+        try { recognition.stop(); } catch { /* ok */ }
+        // onend will fire and deliver the result
+        return;
+      }
+      try { recognition.stop(); } catch { /* ok */ }
+    }
     cleanup();
   };
 }

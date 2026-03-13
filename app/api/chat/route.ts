@@ -1,9 +1,82 @@
 import { NextRequest, NextResponse } from "next/server";
 import { chatLimiter } from "@/lib/rate-limit";
 
-const TODAY = new Date().toISOString().split("T")[0];
+// ── Dynamic context helpers ──
 
-const SYSTEM_PROMPT = `Você é Aurum, um assistente pessoal de elite com personalidade inspirada no JARVIS. Voz confiante, tom direto, eficiente. Fala português brasileiro.
+function getDateContext(): { text: string; isoDate: string } {
+  const now = new Date();
+  const opts: Intl.DateTimeFormatOptions = {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    timeZone: "America/Sao_Paulo",
+  };
+  const dateStr = now.toLocaleDateString("pt-BR", opts);
+  const timeStr = now.toLocaleTimeString("pt-BR", {
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: "America/Sao_Paulo",
+  });
+  const isoDate = now.toLocaleDateString("en-CA", { timeZone: "America/Sao_Paulo" }); // YYYY-MM-DD
+
+  // Notable Brazilian dates / holidays
+  const month = now.getMonth() + 1;
+  const day = now.getDate();
+  const holidays: Record<string, string> = {
+    "1-1": "Ano Novo",
+    "2-14": "Carnaval (aprox.)",
+    "3-8": "Dia Internacional da Mulher",
+    "4-21": "Tiradentes",
+    "5-1": "Dia do Trabalhador",
+    "5-11": "Dia das Mães (aprox.)",
+    "6-12": "Dia dos Namorados",
+    "8-10": "Dia dos Pais (aprox.)",
+    "9-7": "Independência do Brasil",
+    "10-12": "Nossa Sra. Aparecida / Dia das Crianças",
+    "11-2": "Finados",
+    "11-15": "Proclamação da República",
+    "11-20": "Consciência Negra",
+    "12-25": "Natal",
+    "12-31": "Véspera de Ano Novo",
+  };
+  const holidayKey = `${month}-${day}`;
+  const holiday = holidays[holidayKey];
+
+  const text = `Hoje: ${dateStr}, ${timeStr} (horário de Brasília).${holiday ? ` Hoje é ${holiday}.` : ""}`;
+  return { text, isoDate };
+}
+
+// Weather cache (avoid calling every chat message)
+let weatherCache: { text: string; fetchedAt: number } | null = null;
+const WEATHER_CACHE_TTL = 30 * 60 * 1000; // 30 min
+
+async function getWeatherContext(): Promise<string> {
+  if (weatherCache && Date.now() - weatherCache.fetchedAt < WEATHER_CACHE_TTL) {
+    return weatherCache.text;
+  }
+  try {
+    const res = await fetch("https://wttr.in/?format=j1&lang=pt", {
+      headers: { "User-Agent": "Aurum/1.0" },
+      signal: AbortSignal.timeout(4000),
+    });
+    if (!res.ok) return "";
+    const data = await res.json();
+    const current = data.current_condition?.[0];
+    const area = data.nearest_area?.[0];
+    if (!current) return "";
+    const loc = area?.areaName?.[0]?.value || "Local";
+    const desc = current.lang_pt?.[0]?.value || current.weatherDesc?.[0]?.value || "";
+    const text = `Clima em ${loc}: ${current.temp_C}°C (sensação ${current.FeelsLikeC}°C), ${desc}, umidade ${current.humidity}%, vento ${current.windspeedKmph} km/h.`;
+    weatherCache = { text, fetchedAt: Date.now() };
+    return text;
+  } catch {
+    return weatherCache?.text || "";
+  }
+}
+
+function buildSystemPrompt(dateContext: string, isoDate: string, weather: string): string {
+  return `Você é Aurum, um assistente pessoal de elite com personalidade inspirada no JARVIS. Voz confiante, tom direto, eficiente. Fala português brasileiro.
 
 PERSONALIDADE:
 - Tom confiante e decidido, como um assistente executivo de alto nível
@@ -20,7 +93,12 @@ REGRA DE OURO: Se o usuário menciona qualquer coisa que pareça uma tarefa, há
 - "gastei 50 reais no almoço" → adiciona transação de despesa
 - "tenho um projeto novo de app" → cria projeto
 
-Hoje é ${TODAY}. O usuário se chama Luiz.
+CONTEXTO ATUAL:
+${dateContext}
+${weather ? weather : "Clima: indisponível no momento."}
+O usuário se chama Luiz.
+
+Quando o usuário perguntar sobre hora, data, dia da semana, clima ou tempo, use as informações acima para responder com dados reais e atualizados.
 
 SISTEMA DE AÇÕES — OBRIGATÓRIO para qualquer pedido de criar/modificar/deletar:
 
@@ -29,7 +107,7 @@ Inclua o bloco :::action NO FINAL da resposta. O sistema executa automaticamente
 Formatos disponíveis:
 
 :::action
-{"type":"add_task","data":{"title":"...","priority":"média","description":"...","tags":[],"dueDate":"${TODAY}"}}
+{"type":"add_task","data":{"title":"...","priority":"média","description":"...","tags":[],"dueDate":"${isoDate}"}}
 :::
 
 :::action
@@ -37,11 +115,11 @@ Formatos disponíveis:
 :::
 
 :::action
-{"type":"add_reminder","data":{"title":"...","description":"...","dateTime":"${TODAY}T10:00:00","priority":"média","recurring":"nunca"}}
+{"type":"add_reminder","data":{"title":"...","description":"...","dateTime":"${isoDate}T10:00:00","priority":"média","recurring":"nunca"}}
 :::
 
 :::action
-{"type":"add_transaction","data":{"title":"...","amount":0,"type":"despesa","category":"Outros","date":"${TODAY}"}}
+{"type":"add_transaction","data":{"title":"...","amount":0,"type":"despesa","category":"Outros","date":"${isoDate}"}}
 :::
 
 :::action
@@ -63,6 +141,7 @@ REGRAS:
 - Ícones para hábitos: 🧘 meditar, 💪 exercício, 📚 ler, 💧 água, 🏃 correr, 💤 dormir cedo, 🥗 comer saudável
 - Categorias financeiras: Salário, Freelance, Investimentos, Alimentação, Transporte, Moradia, Saúde, Educação, Lazer, Outros
 - type de transação: "receita" ou "despesa"`;
+}
 
 // Provider configs — all can be overridden with env vars
 const OLLAMA_URL = process.env.OLLAMA_URL ?? "http://localhost:11434";
@@ -106,13 +185,18 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Message is required" }, { status: 400 });
     }
 
+    // Build dynamic system prompt with date/time/weather
+    const dateCtx = getDateContext();
+    const weatherCtx = await getWeatherContext();
+    const SYSTEM_PROMPT = buildSystemPrompt(dateCtx.text, dateCtx.isoDate, weatherCtx);
+
     // Priority: Groq (free cloud, 70B smart) → Ollama (local) → Anthropic → Gemini
     const errors: string[] = [];
 
     // 1. Try Groq first (free, cloud, llama-3.3-70b = muito inteligente)
     if (GROQ_API_KEY) {
       try {
-        return await handleGroq(GROQ_API_KEY, message, history, stream);
+        return await handleGroq(GROQ_API_KEY, message, history, stream, SYSTEM_PROMPT);
       } catch (groqErr) {
         const msg = groqErr instanceof Error ? groqErr.message : String(groqErr);
         console.warn("[API /chat] Groq failed:", msg);
@@ -122,7 +206,7 @@ export async function POST(request: NextRequest) {
 
     // 2. Try Ollama (free, local, unlimited)
     try {
-      return await handleOllama(message, history, stream);
+      return await handleOllama(message, history, stream, SYSTEM_PROMPT);
     } catch (ollamaErr) {
       const msg = ollamaErr instanceof Error ? ollamaErr.message : String(ollamaErr);
       console.warn("[API /chat] Ollama failed:", msg);
@@ -133,7 +217,7 @@ export async function POST(request: NextRequest) {
     const anthropicKey = process.env.ANTHROPIC_API_KEY;
     if (anthropicKey) {
       try {
-        return await handleAnthropic(anthropicKey, message, history, stream);
+        return await handleAnthropic(anthropicKey, message, history, stream, SYSTEM_PROMPT);
       } catch (anthropicErr) {
         const msg = anthropicErr instanceof Error ? anthropicErr.message : String(anthropicErr);
         console.warn("[API /chat] Anthropic failed:", msg);
@@ -145,7 +229,7 @@ export async function POST(request: NextRequest) {
     const geminiKey = process.env.GEMINI_API_KEY;
     if (geminiKey) {
       try {
-        return await handleGemini(geminiKey, message, history);
+        return await handleGemini(geminiKey, message, history, SYSTEM_PROMPT);
       } catch (geminiErr) {
         const msg = geminiErr instanceof Error ? geminiErr.message : String(geminiErr);
         console.warn("[API /chat] Gemini failed:", msg);
@@ -172,7 +256,9 @@ async function handleGroq(
   message: string,
   history?: { role: string; content: string }[],
   stream?: boolean,
+  systemPrompt?: string,
 ) {
+  const SYSTEM_PROMPT = systemPrompt!;
   const messages = [
     { role: "system", content: SYSTEM_PROMPT },
     ...(history ?? []).map((m) => ({
@@ -268,7 +354,9 @@ async function handleOllama(
   message: string,
   history?: { role: string; content: string }[],
   stream?: boolean,
+  systemPrompt?: string,
 ) {
+  const SYSTEM_PROMPT = systemPrompt!;
   const ollamaBase = OLLAMA_URL;
 
   const controller = new AbortController();
@@ -373,7 +461,9 @@ async function handleAnthropic(
   message: string,
   history?: { role: string; content: string }[],
   stream?: boolean,
+  systemPrompt?: string,
 ) {
+  const SYSTEM_PROMPT = systemPrompt!;
   const messages = [
     ...(history ?? []).map((m) => ({
       role: m.role === "aurum" ? "assistant" : m.role === "user" ? "user" : "assistant",
@@ -415,7 +505,9 @@ async function handleGemini(
   apiKey: string,
   message: string,
   history?: { role: string; content: string }[],
+  systemPrompt?: string,
 ) {
+  const SYSTEM_PROMPT = systemPrompt!;
   const contents = [
     ...(history ?? []).map((m) => ({
       role: m.role === "aurum" ? "model" : "user",
