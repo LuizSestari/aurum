@@ -204,9 +204,13 @@ function speakWebSpeech(text: string, opts?: SpeakOptions): void {
     return;
   }
 
+  // Always read the latest speed from localStorage (survives module re-init)
+  const savedSpeed = localStorage.getItem("aurum_voice_speed");
+  const liveRate = savedSpeed ? parseFloat(savedSpeed) : config.ttsRate;
+
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.lang = config.language;
-  utterance.rate = config.ttsRate;
+  utterance.rate = !isNaN(liveRate) ? liveRate : config.ttsRate;
   utterance.pitch = config.ttsPitch;
 
   const voices = speechSynthesis.getVoices();
