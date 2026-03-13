@@ -143,6 +143,86 @@ function executeActions(text: string): string {
   return text.replace(/:::action\s*\n?[\s\S]*?\n?:::/g, "").trim();
 }
 
+// ── Build daily briefing text from user data ──
+function buildDailyBriefing(weather: WeatherData | null, userName?: string): string | null {
+  const data = loadData();
+  const now = new Date();
+  const todayStr = now.toISOString().split("T")[0];
+  const hour = now.getHours();
+
+  const pendingTasks = data.tasks.filter((t) => t.status === "pendente" || t.status === "em_andamento");
+  const todayTasks = pendingTasks.filter((t) => t.dueDate === todayStr);
+  const overdueTasks = pendingTasks.filter((t) => t.dueDate && t.dueDate < todayStr);
+  const todayReminders = data.reminders.filter((r) => !r.done && r.dateTime.startsWith(todayStr));
+  const habits = data.habits;
+  const completedHabitsToday = habits.filter((h) => h.completedDates.includes(todayStr));
+
+  // Transactions this month
+  const monthStart = todayStr.slice(0, 7);
+  const monthTransactions = data.transactions.filter((t) => t.date.startsWith(monthStart));
+  const monthExpenses = monthTransactions.filter((t) => t.type === "despesa").reduce((s, t) => s + t.amount, 0);
+  const monthIncome = monthTransactions.filter((t) => t.type === "receita").reduce((s, t) => s + t.amount, 0);
+
+  const greetingWord = hour < 12 ? "Bom dia" : hour < 18 ? "Boa tarde" : "Boa noite";
+  const parts: string[] = [];
+  parts.push(`${greetingWord}, ${userName || "Luiz"}! Aqui está seu resumo:`);
+
+  // Weather
+  if (weather) {
+    parts.push(`**Clima:** ${weather.icon} ${weather.temp} em ${weather.location} — ${weather.description}`);
+  }
+
+  // Tasks
+  if (todayTasks.length > 0) {
+    parts.push(`**Tarefas para hoje:** ${todayTasks.length} (${todayTasks.slice(0, 3).map((t) => t.title).join(", ")}${todayTasks.length > 3 ? "..." : ""})`);
+  }
+  if (overdueTasks.length > 0) {
+    parts.push(`**Atrasadas:** ${overdueTasks.length} tarefa${overdueTasks.length > 1 ? "s" : ""}`);
+  }
+
+  // Reminders
+  if (todayReminders.length > 0) {
+    parts.push(`**Lembretes hoje:** ${todayReminders.map((r) => `${r.title} às ${new Date(r.dateTime).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`).join(", ")}`);
+  }
+
+  // Habits
+  if (habits.length > 0) {
+    parts.push(`**Hábitos:** ${completedHabitsToday.length}/${habits.length} concluídos hoje`);
+  }
+
+  // Finance summary
+  if (monthTransactions.length > 0) {
+    parts.push(`**Finanças do mês:** R$${monthIncome.toFixed(0)} entrada, R$${monthExpenses.toFixed(0)} saída`);
+  }
+
+  if (parts.length <= 1) return null; // Nothing interesting to report
+  return parts.join("\n\n");
+}
+
+// ── Smart suggestions based on context ──
+function getSmartSuggestions(weather: WeatherData | null): string[] {
+  const data = loadData();
+  const now = new Date();
+  const hour = now.getHours();
+  const todayStr = now.toISOString().split("T")[0];
+  const suggestions: string[] = [];
+
+  const pendingTasks = data.tasks.filter((t) => t.status === "pendente");
+  const overdue = pendingTasks.filter((t) => t.dueDate && t.dueDate < todayStr);
+  const todayHabits = data.habits.filter((h) => !h.completedDates.includes(todayStr));
+
+  if (hour < 10 && pendingTasks.length > 0) suggestions.push("O que tenho para fazer hoje?");
+  if (overdue.length > 0) suggestions.push(`Tenho ${overdue.length} tarefa${overdue.length > 1 ? "s" : ""} atrasada${overdue.length > 1 ? "s" : ""}`);
+  if (todayHabits.length > 0) suggestions.push("Quais hábitos faltam hoje?");
+  if (weather) suggestions.push("Como está o tempo?");
+  if (hour >= 17) suggestions.push("Resumo do meu dia");
+  suggestions.push("Que dia é hoje?");
+  if (data.transactions.length > 0) suggestions.push("Quanto gastei esse mês?");
+  suggestions.push("Me dê uma motivação");
+
+  return suggestions.slice(0, 4);
+}
+
 export default function ChatPage({ muted, onMuteToggle, orbState, onOrbState, userName }: Props) {
   const auth = useAuth();
   const [text, setText] = useState("");
@@ -157,16 +237,23 @@ export default function ChatPage({ muted, onMuteToggle, orbState, onOrbState, us
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [briefingShown, setBriefingShown] = useState(false);
+  const [suggestions, setSuggestions] = useState<string[]>([]);
 
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [currentTime, setCurrentTime] = useState(() => new Date());
 
-  // Fetch weather on mount
+  // Fetch weather on mount and show daily briefing
   useEffect(() => {
     fetch("/api/weather")
       .then((r) => r.ok ? r.json() : null)
-      .then((data) => { if (data && !data.error) setWeather(data); })
-      .catch(() => {});
+      .then((data) => {
+        if (data && !data.error) {
+          setWeather(data);
+          setSuggestions(getSmartSuggestions(data));
+        }
+      })
+      .catch(() => { setSuggestions(getSmartSuggestions(null)); });
     // Refresh weather every 30 min
     const wInterval = setInterval(() => {
       fetch("/api/weather")
@@ -178,6 +265,24 @@ export default function ChatPage({ muted, onMuteToggle, orbState, onOrbState, us
     const tInterval = setInterval(() => setCurrentTime(new Date()), 60000);
     return () => { clearInterval(wInterval); clearInterval(tInterval); };
   }, []);
+
+  // Show daily briefing once per session
+  useEffect(() => {
+    if (briefingShown || transcript.length > 0) return;
+    const briefingKey = `aurum_briefing_${new Date().toISOString().split("T")[0]}`;
+    if (sessionStorage.getItem(briefingKey)) return;
+
+    // Wait a moment for weather to load, then show briefing
+    const timer = setTimeout(() => {
+      const briefing = buildDailyBriefing(weather, userName);
+      if (briefing) {
+        setTranscript([{ role: "aurum", text: briefing, timestamp: Date.now() }]);
+        sessionStorage.setItem(briefingKey, "1");
+      }
+      setBriefingShown(true);
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, [weather, briefingShown, transcript.length, userName]);
 
   const stopListenRef = useRef<(() => void) | null>(null);
   const spaceDown = useRef(false);
@@ -567,12 +672,17 @@ export default function ChatPage({ muted, onMuteToggle, orbState, onOrbState, us
       {/* ── CENTER STATUS ── */}
       <div className="pointer-events-none absolute inset-0 z-10 flex flex-col items-center justify-center">
         {/* Status / Greeting */}
-        <div className="mb-4 h-16 flex flex-col items-center justify-end">
+        <div className="mb-4 flex flex-col items-center justify-end">
           {statusText ? (
             <p className="max-w-lg text-center text-sm text-white/40 truncate px-8">{statusText}</p>
-          ) : transcript.length === 0 ? (
+          ) : transcript.length === 0 && !briefingShown ? (
             <>
               <p className="text-2xl font-extralight tracking-wider text-white/50">{greeting}</p>
+              <p className="mt-2 text-xs text-white/15">Preparando seu briefing...</p>
+            </>
+          ) : orbState === "idle" && !statusText && transcript.length <= 1 ? (
+            <>
+              <p className="text-lg font-extralight tracking-wider text-white/40">{greeting}</p>
               <p className="mt-2 text-xs text-white/15">Toque em qualquer lugar ou segure Espaço</p>
             </>
           ) : null}
@@ -612,6 +722,23 @@ export default function ChatPage({ muted, onMuteToggle, orbState, onOrbState, us
           )}
         </div>
       </div>
+
+      {/* ── SMART SUGGESTIONS ── */}
+      {suggestions.length > 0 && transcript.length <= 1 && orbState === "idle" && (
+        <div className="absolute bottom-24 left-0 right-0 z-20 px-6 pointer-events-none" onClick={(e) => e.stopPropagation()}>
+          <div className="mx-auto max-w-lg flex flex-wrap justify-center gap-2 pointer-events-auto">
+            {suggestions.map((s, i) => (
+              <button
+                key={i}
+                onClick={() => { setText(""); setSuggestions([]); processMessageDirect(s); }}
+                className="rounded-full border border-white/[0.08] bg-white/[0.04] px-3 py-1.5 text-[11px] text-white/40 backdrop-blur-xl hover:bg-white/[0.08] hover:text-white/60 transition-all"
+              >
+                {s}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* ── BOTTOM CONTROLS ── */}
       <div className="absolute bottom-5 left-0 right-0 z-20 px-6" onClick={(e) => e.stopPropagation()}>

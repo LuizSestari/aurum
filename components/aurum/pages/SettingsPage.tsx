@@ -1,7 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { setVoiceConfig } from "@/lib/aurum-voice";
+import { getSyncStatus, syncNow } from "@/lib/aurum-sync";
+import { useAuth } from "@/lib/aurum-auth";
 
 interface Props {
   userName?: string;
@@ -10,7 +12,20 @@ interface Props {
 }
 
 export default function SettingsPage({ userName, currentPlan, onNavigatePricing }: Props) {
+  const auth = useAuth();
   const [activeTab, setActiveTab] = useState<"profile" | "preferences" | "data">("profile");
+  const [syncing, setSyncing] = useState(false);
+  const [syncResult, setSyncResult] = useState<string | null>(null);
+
+  const handleSync = useCallback(async () => {
+    if (!auth.user?.id) { setSyncResult("Faça login primeiro"); return; }
+    setSyncing(true);
+    setSyncResult(null);
+    const result = await syncNow(auth.user.id);
+    setSyncing(false);
+    setSyncResult(result.success ? "Sincronizado!" : `Erro: ${result.error}`);
+    setTimeout(() => setSyncResult(null), 3000);
+  }, [auth.user?.id]);
   const [voiceEnabled, setVoiceEnabled] = useState(() => {
     if (typeof window === "undefined") return true;
     return localStorage.getItem("aurum_voice_enabled") !== "false";
@@ -289,6 +304,36 @@ export default function SettingsPage({ userName, currentPlan, onNavigatePricing 
                     <span className="text-white/40">{getItemCount(key)} itens</span>
                   </div>
                 ))}
+              </div>
+            </div>
+
+            {/* Cloud Sync */}
+            <div className="rounded-xl border border-cyan-500/20 bg-cyan-500/5 p-6">
+              <h3 className="text-sm font-semibold text-cyan-400/70 uppercase tracking-wider mb-3">Sincronização na Nuvem</h3>
+              <p className="text-xs text-white/40 mb-4">
+                Seus dados são sincronizados automaticamente com a nuvem a cada 5 minutos.
+                Isso permite acessar suas tarefas, hábitos e finanças de qualquer dispositivo.
+              </p>
+              <div className="flex items-center gap-3 mb-3">
+                <div className={`h-2 w-2 rounded-full ${getSyncStatus().autoSyncActive ? "bg-green-400 animate-pulse" : "bg-white/20"}`} />
+                <span className="text-xs text-white/50">
+                  {getSyncStatus().autoSyncActive ? "Auto-sync ativo" : "Auto-sync inativo"}
+                  {getSyncStatus().lastSync > 0 && ` • Último: ${new Date(getSyncStatus().lastSync).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`}
+                </span>
+              </div>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={handleSync}
+                  disabled={syncing}
+                  className="rounded-lg bg-cyan-500/20 border border-cyan-500/30 px-4 py-2 text-sm text-cyan-400 hover:bg-cyan-500/30 transition-all disabled:opacity-50"
+                >
+                  {syncing ? "Sincronizando..." : "Sincronizar Agora"}
+                </button>
+                {syncResult && (
+                  <span className={`text-xs ${syncResult.startsWith("Erro") ? "text-red-400" : "text-green-400"}`}>
+                    {syncResult}
+                  </span>
+                )}
               </div>
             </div>
 

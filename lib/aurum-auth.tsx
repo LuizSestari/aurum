@@ -5,6 +5,7 @@ import { supabase, hasSupabaseConfig } from "@/lib/supabase";
 import type { Session, User } from "@supabase/supabase-js";
 import type { PlanTier } from "@/lib/aurum-plans";
 import { PLANS, hasFeature, isWithinLimit } from "@/lib/aurum-plans";
+import { startAutoSync, stopAutoSync, syncNow } from "@/lib/aurum-sync";
 
 export type UserRole = "user" | "admin" | "dev";
 
@@ -229,6 +230,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           sessionStorage.setItem("aurum_active", "1");
           await fetchProfile(sess.user.id, sess.user);
           await fetchUsage(sess.user.id);
+          // Start cloud sync
+          startAutoSync(sess.user.id);
         }
       } catch (err) {
         console.error("[Aurum Auth] init error:", err);
@@ -243,8 +246,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         sessionStorage.setItem("aurum_active", "1");
         await fetchProfile(sess.user.id, sess.user);
         await fetchUsage(sess.user.id);
+        startAutoSync(sess.user.id);
       } else {
         sessionStorage.removeItem("aurum_active");
+        stopAutoSync();
         setProfile(null);
         setUsage({ aiMessages: 0, ttsCharacters: 0, voiceMinutes: 0, storageMb: 0, apiCalls: 0 });
       }
@@ -298,6 +303,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signOut = async () => {
     window.speechSynthesis?.cancel();
     sessionStorage.removeItem("aurum_active");
+    stopAutoSync();
+    // Push final sync before logging out
+    if (hasSupabaseConfig && session?.user?.id) {
+      await syncNow(session.user.id).catch(() => {});
+    }
     if (hasSupabaseConfig) await supabase.auth.signOut();
     setSession(null);
     setProfile(null);

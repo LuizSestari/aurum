@@ -340,6 +340,87 @@ export default function DashboardPage({ orbState, userName }: Props) {
             ))}
           </div>
 
+          {/* ── Weekly Activity Chart ── */}
+          {(() => {
+            const data = loadData();
+            const days = [];
+            for (let i = 6; i >= 0; i--) {
+              const d = new Date();
+              d.setDate(d.getDate() - i);
+              const iso = d.toISOString().split("T")[0];
+              const label = d.toLocaleDateString("pt-BR", { weekday: "short" }).slice(0, 3);
+              const tasksCompleted = data.tasks.filter((t) => t.completedAt && t.completedAt.startsWith(iso)).length;
+              const habitsCompleted = data.habits.filter((h) => h.completedDates.includes(iso)).length;
+              days.push({ label, tasksCompleted, habitsCompleted, total: tasksCompleted + habitsCompleted });
+            }
+            const maxVal = Math.max(...days.map((d) => d.total), 1);
+            return (
+              <div className="rounded-xl border border-white/8 bg-white/[0.03] p-4">
+                <div className="mb-3 flex items-center justify-between">
+                  <span className="text-sm font-semibold">Atividade Semanal</span>
+                  <div className="flex items-center gap-3 text-[10px] text-white/40">
+                    <span className="flex items-center gap-1"><span className="inline-block h-2 w-2 rounded-sm bg-cyan-500" /> Tarefas</span>
+                    <span className="flex items-center gap-1"><span className="inline-block h-2 w-2 rounded-sm bg-green-500" /> Hábitos</span>
+                  </div>
+                </div>
+                <div className="flex items-end gap-2 h-32">
+                  {days.map((d, i) => (
+                    <div key={i} className="flex-1 flex flex-col items-center gap-1">
+                      <div className="w-full flex flex-col items-center justify-end" style={{ height: "100px" }}>
+                        <div className="w-full max-w-[20px] rounded-t-sm bg-green-500/80 transition-all" style={{ height: `${(d.habitsCompleted / maxVal) * 100}px` }} />
+                        <div className="w-full max-w-[20px] rounded-b-sm bg-cyan-500/80 transition-all" style={{ height: `${(d.tasksCompleted / maxVal) * 100}px` }} />
+                      </div>
+                      <span className="text-[9px] text-white/30">{d.label}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })()}
+
+          {/* ── Finance Chart (monthly) ── */}
+          {(() => {
+            const data = loadData();
+            if (data.transactions.length === 0) return null;
+            const months: Record<string, { income: number; expense: number }> = {};
+            for (const t of data.transactions) {
+              const m = t.date.slice(0, 7); // YYYY-MM
+              if (!months[m]) months[m] = { income: 0, expense: 0 };
+              if (t.type === "receita") months[m].income += t.amount;
+              else months[m].expense += t.amount;
+            }
+            const sortedMonths = Object.entries(months).sort(([a], [b]) => a.localeCompare(b)).slice(-6);
+            const maxAmount = Math.max(...sortedMonths.map(([, v]) => Math.max(v.income, v.expense)), 1);
+            return (
+              <div className="rounded-xl border border-white/8 bg-white/[0.03] p-4">
+                <div className="mb-3 flex items-center justify-between">
+                  <span className="text-sm font-semibold">Finanças</span>
+                  <div className="flex items-center gap-3 text-[10px] text-white/40">
+                    <span className="flex items-center gap-1"><span className="inline-block h-2 w-2 rounded-sm bg-green-500" /> Receita</span>
+                    <span className="flex items-center gap-1"><span className="inline-block h-2 w-2 rounded-sm bg-red-500" /> Despesa</span>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  {sortedMonths.map(([month, vals]) => {
+                    const label = new Date(month + "-01").toLocaleDateString("pt-BR", { month: "short" });
+                    return (
+                      <div key={month} className="flex items-center gap-3">
+                        <span className="w-8 text-[10px] text-white/40 text-right">{label}</span>
+                        <div className="flex-1 flex gap-1">
+                          <div className="h-4 rounded-sm bg-green-500/70 transition-all" style={{ width: `${(vals.income / maxAmount) * 100}%` }} />
+                          <div className="h-4 rounded-sm bg-red-500/70 transition-all" style={{ width: `${(vals.expense / maxAmount) * 100}%` }} />
+                        </div>
+                        <span className="text-[10px] text-white/30 w-24 text-right">
+                          +{vals.income.toFixed(0)} / -{vals.expense.toFixed(0)}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })()}
+
           {/* Orb status */}
           <div className="rounded-xl border border-white/8 bg-white/[0.03] p-4">
             <div className="mb-3 text-sm font-semibold">Status do Orb</div>
