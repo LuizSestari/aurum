@@ -41,8 +41,8 @@ export function PWAInstall() {
 
   return (
     <div className="fixed bottom-20 left-1/2 -translate-x-1/2 z-50 animate-in slide-in-from-bottom-4">
-      <div className="flex items-center gap-3 rounded-2xl border border-cyan-500/20 bg-[#0a0f1a]/95 backdrop-blur-xl px-4 py-3 shadow-[0_0_30px_rgba(0,217,255,0.1)]">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-500/10">
+      <div className="flex items-center gap-3 rounded-2xl border border-amber-500/20 bg-[#0a0f1a]/95 backdrop-blur-xl px-4 py-3 shadow-[0_0_30px_rgba(0,217,255,0.1)]">
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500/10">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00d9ff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
             <polyline points="7 10 12 15 17 10"/>
@@ -55,7 +55,7 @@ export function PWAInstall() {
         </div>
         <button
           onClick={handleInstall}
-          className="ml-2 rounded-lg bg-cyan-500/20 px-3 py-1.5 text-xs font-medium text-cyan-300 hover:bg-cyan-500/30 transition-colors"
+          className="ml-2 rounded-lg bg-amber-500/20 px-3 py-1.5 text-xs font-medium text-amber-300 hover:bg-amber-500/30 transition-colors"
         >
           Instalar
         </button>

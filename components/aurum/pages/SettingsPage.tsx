@@ -94,7 +94,7 @@ export default function SettingsPage({ userName, currentPlan, onNavigatePricing 
               onClick={() => setActiveTab(tab.id)}
               className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all ${
                 activeTab === tab.id
-                  ? "bg-cyan-500/20 text-cyan-400 border border-cyan-500/30"
+                  ? "bg-amber-500/20 text-amber-400 border border-amber-500/30"
                   : "text-white/50 hover:text-white/70 hover:bg-white/5"
               }`}
             >
@@ -108,7 +108,7 @@ export default function SettingsPage({ userName, currentPlan, onNavigatePricing 
           <div className="space-y-6">
             <div className="rounded-xl border border-white/10 bg-white/5 p-6">
               <div className="flex items-center gap-4 mb-6">
-                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-cyan-500 to-indigo-600 text-2xl font-bold text-white">
+                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-amber-500 to-orange-600 text-2xl font-bold text-white">
                   {userName?.charAt(0)?.toUpperCase() || "A"}
                 </div>
                 <div>
@@ -121,7 +121,7 @@ export default function SettingsPage({ userName, currentPlan, onNavigatePricing 
                 <div>
                   <label className="text-xs text-white/40 uppercase tracking-wider">Plano Atual</label>
                   <div className="mt-1 flex items-center gap-3">
-                    <span className="rounded-full bg-gradient-to-r from-cyan-500/20 to-indigo-500/20 px-3 py-1 text-sm font-medium text-cyan-400 border border-cyan-500/30">
+                    <span className="rounded-full bg-gradient-to-r from-amber-500/20 to-orange-500/20 px-3 py-1 text-sm font-medium text-amber-400 border border-amber-500/30">
                       {currentPlan || "Free"}
                     </span>
                     {onNavigatePricing && (
@@ -167,7 +167,7 @@ export default function SettingsPage({ userName, currentPlan, onNavigatePricing 
                     savePref("aurum_voice_enabled", String(next));
                   }}
                   className={`relative h-6 w-11 rounded-full transition-colors ${
-                    voiceEnabled ? "bg-cyan-500" : "bg-white/20"
+                    voiceEnabled ? "bg-amber-500" : "bg-white/20"
                   }`}
                 >
                   <div
@@ -200,7 +200,7 @@ export default function SettingsPage({ userName, currentPlan, onNavigatePricing 
                         savePref("aurum_voice_speed", val.toString());
                         setVoiceConfig({ ttsRate: val });
                       }}
-                      className="w-32 accent-cyan-500"
+                      className="w-32 accent-amber-500"
                     />
                     <button
                       onClick={() => {
@@ -233,7 +233,7 @@ export default function SettingsPage({ userName, currentPlan, onNavigatePricing 
                     setLanguage(e.target.value);
                     savePref("aurum_language", e.target.value);
                   }}
-                  className="rounded-lg bg-white/10 border border-white/10 px-3 py-1.5 text-sm text-white outline-none focus:border-cyan-500/50"
+                  className="rounded-lg bg-white/10 border border-white/10 px-3 py-1.5 text-sm text-white outline-none focus:border-amber-500/50"
                 >
                   <option value="pt-BR">Português (BR)</option>
                   <option value="en-US">English (US)</option>
@@ -252,7 +252,7 @@ export default function SettingsPage({ userName, currentPlan, onNavigatePricing 
                     setTheme(e.target.value);
                     savePref("aurum_theme", e.target.value);
                   }}
-                  className="rounded-lg bg-white/10 border border-white/10 px-3 py-1.5 text-sm text-white outline-none focus:border-cyan-500/50"
+                  className="rounded-lg bg-white/10 border border-white/10 px-3 py-1.5 text-sm text-white outline-none focus:border-amber-500/50"
                 >
                   <option value="dark">Escuro</option>
                   <option value="midnight">Meia-noite</option>
@@ -272,7 +272,7 @@ export default function SettingsPage({ userName, currentPlan, onNavigatePricing 
                 ].map(([key, desc]) => (
                   <div key={key} className="flex items-center justify-between">
                     <span className="text-white/60">{desc}</span>
-                    <kbd className="rounded bg-white/10 px-2 py-0.5 text-xs text-cyan-400 font-mono">{key}</kbd>
+                    <kbd className="rounded bg-white/10 px-2 py-0.5 text-xs text-amber-400 font-mono">{key}</kbd>
                   </div>
                 ))}
               </div>
@@ -288,7 +288,7 @@ export default function SettingsPage({ userName, currentPlan, onNavigatePricing 
               <div className="space-y-3">
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-white/60">Total usado</span>
-                  <span className="text-cyan-400 font-medium">{getStorageSize()}</span>
+                  <span className="text-amber-400 font-medium">{getStorageSize()}</span>
                 </div>
                 {[
                   ["aurum_tasks", "Tarefas"],
@@ -308,8 +308,8 @@ export default function SettingsPage({ userName, currentPlan, onNavigatePricing 
             </div>
 
             {/* Cloud Sync */}
-            <div className="rounded-xl border border-cyan-500/20 bg-cyan-500/5 p-6">
-              <h3 className="text-sm font-semibold text-cyan-400/70 uppercase tracking-wider mb-3">Sincronização na Nuvem</h3>
+            <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-6">
+              <h3 className="text-sm font-semibold text-amber-400/70 uppercase tracking-wider mb-3">Sincronização na Nuvem</h3>
               <p className="text-xs text-white/40 mb-4">
                 Seus dados são sincronizados automaticamente com a nuvem a cada 5 minutos.
                 Isso permite acessar suas tarefas, hábitos e finanças de qualquer dispositivo.
@@ -325,7 +325,7 @@ export default function SettingsPage({ userName, currentPlan, onNavigatePricing 
                 <button
                   onClick={handleSync}
                   disabled={syncing}
-                  className="rounded-lg bg-cyan-500/20 border border-cyan-500/30 px-4 py-2 text-sm text-cyan-400 hover:bg-cyan-500/30 transition-all disabled:opacity-50"
+                  className="rounded-lg bg-amber-500/20 border border-amber-500/30 px-4 py-2 text-sm text-amber-400 hover:bg-amber-500/30 transition-all disabled:opacity-50"
                 >
                   {syncing ? "Sincronizando..." : "Sincronizar Agora"}
                 </button>

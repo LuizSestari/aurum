@@ -138,7 +138,7 @@ export default function HabitsPage() {
               {last7.map((d) => {
                 const date = new Date(d + "T12:00:00");
                 return (
-                  <div key={d} className={`text-center text-[10px] ${d === today ? "font-medium text-cyan-400" : "text-white/30"}`}>
+                  <div key={d} className={`text-center text-[10px] ${d === today ? "font-medium text-amber-400" : "text-white/30"}`}>
                     {date.toLocaleDateString("pt-BR", { weekday: "short" }).slice(0, 3)}
                   </div>
                 );

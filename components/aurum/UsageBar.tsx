@@ -23,7 +23,7 @@ export function UsageBar({
   let barColor = color;
   if (!barColor) {
     if (isUnlimited) {
-      barColor = "from-cyan-500 to-blue-500";
+      barColor = "from-amber-500 to-blue-500";
     } else if (percentage >= 85) {
       barColor = "from-red-500 to-rose-500";
     } else if (percentage >= 60) {
@@ -116,7 +116,7 @@ export function UsageBar({
 
         {/* Status text for unlimited */}
         {isUnlimited && (
-          <div className="h-2 w-full rounded-full bg-gradient-to-r from-cyan-500/30 to-blue-500/30 border border-cyan-500/30" />
+          <div className="h-2 w-full rounded-full bg-gradient-to-r from-amber-500/30 to-blue-500/30 border border-amber-500/30" />
         )}
       </div>
     </>

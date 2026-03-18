@@ -53,7 +53,7 @@ export function VoicePage() {
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-indigo-600 mb-2">
+          <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-orange-600 mb-2">
             🎤 Aurum Voice
           </h1>
           <p className="text-gray-400">Assistente de IA com Voz Real e Coordinator Agent</p>
@@ -88,7 +88,7 @@ export function VoicePage() {
                         }}
                       />
                     </div>
-                    <span className="text-cyan-400 font-bold">
+                    <span className="text-amber-400 font-bold">
                       {claudeTokensRemaining}%
                     </span>
                   </div>
@@ -98,13 +98,13 @@ export function VoicePage() {
                   <div className="text-gray-400 mb-1">Status</div>
                   <div className="flex items-center gap-2">
                     <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                    <span className="text-cyan-400">Pronto</span>
+                    <span className="text-amber-400">Pronto</span>
                   </div>
                 </div>
 
                 <div className="bg-gray-900 rounded p-3">
                   <div className="text-gray-400 mb-1">Modo</div>
-                  <span className="text-cyan-400">
+                  <span className="text-amber-400">
                     {claudeTokensRemaining > 0 ? '🔵 Claude Code' : '🤖 Manus'}
                   </span>
                 </div>
@@ -135,7 +135,7 @@ export function VoicePage() {
                       <div
                         className={`max-w-xs lg:max-w-md px-4 py-3 rounded-lg ${
                           entry.type === 'user'
-                            ? 'bg-cyan-600 text-white'
+                            ? 'bg-amber-600 text-white'
                             : 'bg-gray-700 text-gray-100'
                         }`}
                       >
@@ -168,19 +168,19 @@ export function VoicePage() {
         <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="bg-gray-800/50 backdrop-blur rounded-lg p-4 border border-gray-700">
             <div className="text-2xl mb-2">🎤</div>
-            <h3 className="font-semibold text-cyan-400 mb-1">Speech-to-Text</h3>
+            <h3 className="font-semibold text-amber-400 mb-1">Speech-to-Text</h3>
             <p className="text-sm text-gray-400">Transcrição com Whisper + Web Speech API</p>
           </div>
 
           <div className="bg-gray-800/50 backdrop-blur rounded-lg p-4 border border-gray-700">
             <div className="text-2xl mb-2">🤖</div>
-            <h3 className="font-semibold text-cyan-400 mb-1">Coordinator Agent</h3>
+            <h3 className="font-semibold text-amber-400 mb-1">Coordinator Agent</h3>
             <p className="text-sm text-gray-400">Gerencia Claude Code + Manus automaticamente</p>
           </div>
 
           <div className="bg-gray-800/50 backdrop-blur rounded-lg p-4 border border-gray-700">
             <div className="text-2xl mb-2">🔊</div>
-            <h3 className="font-semibold text-cyan-400 mb-1">Text-to-Speech</h3>
+            <h3 className="font-semibold text-amber-400 mb-1">Text-to-Speech</h3>
             <p className="text-sm text-gray-400">Síntese com Google TTS + Web Speech API</p>
           </div>
         </div>

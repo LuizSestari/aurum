@@ -73,11 +73,11 @@ export default function LoginPage({
   };
 
   return (
-    <div className="min-h-screen bg-[#050810] relative overflow-hidden flex items-center justify-center p-4">
+    <div className="min-h-screen bg-[#0C0A09] relative overflow-hidden flex items-center justify-center p-4">
       {/* Background */}
       <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-[-20%] left-[-10%] w-[500px] h-[500px] bg-cyan-500/[0.04] rounded-full blur-[120px]" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[400px] h-[400px] bg-indigo-500/[0.04] rounded-full blur-[100px]" />
+        <div className="absolute top-[-20%] left-[-10%] w-[500px] h-[500px] bg-amber-500/[0.04] rounded-full blur-[120px]" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[400px] h-[400px] bg-orange-500/[0.04] rounded-full blur-[100px]" />
       </div>
 
       <div className="relative z-10 w-full max-w-md">
@@ -94,7 +94,7 @@ export default function LoginPage({
 
         {/* Logo */}
         <div className="text-center mb-10">
-          <div className="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-500 to-indigo-600 text-2xl font-bold mb-4">
+          <div className="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 text-2xl font-bold mb-4">
             A
           </div>
           <h1 className="text-3xl font-bold text-white mb-1">Aurum</h1>
@@ -172,7 +172,7 @@ export default function LoginPage({
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Seu nome"
-                  className="w-full px-4 py-3 bg-white/[0.04] border border-white/10 rounded-xl text-white placeholder:text-white/20 transition-all focus:border-cyan-500/50 focus:outline-none focus:ring-1 focus:ring-cyan-500/20"
+                  className="w-full px-4 py-3 bg-white/[0.04] border border-white/10 rounded-xl text-white placeholder:text-white/20 transition-all focus:border-amber-500/50 focus:outline-none focus:ring-1 focus:ring-amber-500/20"
                 />
               </div>
             )}
@@ -184,7 +184,7 @@ export default function LoginPage({
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="voce@exemplo.com"
-                className="w-full px-4 py-3 bg-white/[0.04] border border-white/10 rounded-xl text-white placeholder:text-white/20 transition-all focus:border-cyan-500/50 focus:outline-none focus:ring-1 focus:ring-cyan-500/20"
+                className="w-full px-4 py-3 bg-white/[0.04] border border-white/10 rounded-xl text-white placeholder:text-white/20 transition-all focus:border-amber-500/50 focus:outline-none focus:ring-1 focus:ring-amber-500/20"
               />
             </div>
 
@@ -192,7 +192,7 @@ export default function LoginPage({
               <div className="flex justify-between items-center mb-1.5">
                 <label className="text-sm text-white/50">Senha</label>
                 {mode === "login" && (
-                  <button type="button" className="text-xs text-cyan-400/70 hover:text-cyan-400 transition">
+                  <button type="button" className="text-xs text-amber-400/70 hover:text-amber-400 transition">
                     Esqueceu?
                   </button>
                 )}
@@ -203,7 +203,7 @@ export default function LoginPage({
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Minimo 6 caracteres"
-                  className="w-full px-4 py-3 bg-white/[0.04] border border-white/10 rounded-xl text-white placeholder:text-white/20 transition-all focus:border-cyan-500/50 focus:outline-none focus:ring-1 focus:ring-cyan-500/20 pr-20"
+                  className="w-full px-4 py-3 bg-white/[0.04] border border-white/10 rounded-xl text-white placeholder:text-white/20 transition-all focus:border-amber-500/50 focus:outline-none focus:ring-1 focus:ring-amber-500/20 pr-20"
                 />
                 <button
                   type="button"
@@ -218,7 +218,7 @@ export default function LoginPage({
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3.5 mt-2 rounded-xl bg-gradient-to-r from-cyan-500 to-indigo-600 text-white font-semibold hover:from-cyan-400 hover:to-indigo-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full py-3.5 mt-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 text-white font-semibold hover:from-amber-400 hover:to-orange-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? "Processando..." : mode === "login" ? "Entrar" : "Criar Conta"}
             </button>
@@ -229,14 +229,14 @@ export default function LoginPage({
         <div className="mt-6 text-center space-y-3">
           <p className="text-[11px] text-white/20 px-4 leading-relaxed">
             Ao continuar, voce concorda com os{" "}
-            <button className="text-cyan-400/50 hover:text-cyan-400/70 transition">Termos de Uso</button>
+            <button className="text-amber-400/50 hover:text-amber-400/70 transition">Termos de Uso</button>
             {" "}e{" "}
-            <button className="text-cyan-400/50 hover:text-cyan-400/70 transition">Privacidade</button>
+            <button className="text-amber-400/50 hover:text-amber-400/70 transition">Privacidade</button>
           </p>
           {onNavigatePricing && (
             <button
               onClick={onNavigatePricing}
-              className="text-xs text-white/30 hover:text-cyan-400/70 transition"
+              className="text-xs text-white/30 hover:text-amber-400/70 transition"
             >
               Ver planos disponiveis →
             </button>

@@ -162,15 +162,15 @@ export default function TasksPage() {
             ))}
             <div className="ml-auto flex items-center gap-2">
               <span className="text-xs text-white/30">Ordenar:</span>
-              <button onClick={() => setSortBy("prioridade")} className={`text-xs ${sortBy === "prioridade" ? "text-cyan-400" : "text-white/40"}`}>Prioridade</button>
-              <button onClick={() => setSortBy("data")} className={`text-xs ${sortBy === "data" ? "text-cyan-400" : "text-white/40"}`}>Data</button>
+              <button onClick={() => setSortBy("prioridade")} className={`text-xs ${sortBy === "prioridade" ? "text-amber-400" : "text-white/40"}`}>Prioridade</button>
+              <button onClick={() => setSortBy("data")} className={`text-xs ${sortBy === "data" ? "text-amber-400" : "text-white/40"}`}>Data</button>
             </div>
           </div>
 
           {/* Bulk actions bar */}
           {selectedTasks.size > 0 && (
-            <div className="mt-3 flex items-center gap-2 rounded-lg border border-cyan-500/30 bg-cyan-500/10 px-3 py-2">
-              <span className="text-xs text-cyan-300">{selectedTasks.size} selecionada(s)</span>
+            <div className="mt-3 flex items-center gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2">
+              <span className="text-xs text-amber-300">{selectedTasks.size} selecionada(s)</span>
               <div className="ml-auto flex gap-2">
                 <button onClick={() => {
                   selectedTasks.forEach(id => {
@@ -203,10 +203,10 @@ export default function TasksPage() {
                 <div className="mb-4">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-xs text-white/40">Progresso</span>
-                    <span className="text-xs font-medium text-cyan-400">{analysis.completionRate}%</span>
+                    <span className="text-xs font-medium text-amber-400">{analysis.completionRate}%</span>
                   </div>
                   <div className="h-1.5 rounded-full bg-white/5 overflow-hidden">
-                    <div className="h-full rounded-full bg-gradient-to-r from-cyan-500 to-blue-500 transition-all duration-500 ease-out" style={{ width: `${analysis.completionRate}%` }} />
+                    <div className="h-full rounded-full bg-gradient-to-r from-amber-500 to-blue-500 transition-all duration-500 ease-out" style={{ width: `${analysis.completionRate}%` }} />
                   </div>
                 </div>
               )}
@@ -245,7 +245,7 @@ export default function TasksPage() {
                               </span>
                             )}
                             {t.tags.map((tag) => (
-                              <span key={tag} className="rounded bg-cyan-500/10 px-1.5 py-0.5 text-[10px] text-cyan-400/70">{tag}</span>
+                              <span key={tag} className="rounded bg-amber-500/10 px-1.5 py-0.5 text-[10px] text-amber-400/70">{tag}</span>
                             ))}
                             </div>
                           </div>
@@ -367,7 +367,7 @@ export default function TasksPage() {
                 <div className="space-y-2">
                   {analysis.topTags.map(([tag, count]) => (
                     <div key={tag} className="flex items-center justify-between rounded-lg bg-white/[0.03] px-3 py-2">
-                      <span className="text-xs text-cyan-400">#{tag}</span>
+                      <span className="text-xs text-amber-400">#{tag}</span>
                       <span className="text-xs text-white/40">{count} tarefa(s)</span>
                     </div>
                   ))}
@@ -400,7 +400,7 @@ export default function TasksPage() {
       )}
 
       {/* FAB */}
-      <button onClick={openCreate} className="fixed bottom-6 right-6 z-20 flex h-14 w-14 items-center justify-center rounded-full bg-cyan-500 text-2xl text-white shadow-lg shadow-cyan-500/20 transition-colors hover:bg-cyan-400">+</button>
+      <button onClick={openCreate} className="fixed bottom-6 right-6 z-20 flex h-14 w-14 items-center justify-center rounded-full bg-amber-500 text-2xl text-white shadow-lg shadow-amber-500/20 transition-colors hover:bg-amber-400">+</button>
 
       {/* Modal */}
       <Modal open={showModal} onClose={() => setShowModal(false)} title={editingTask ? "Editar Tarefa" : "Nova Tarefa"}>
@@ -408,12 +408,12 @@ export default function TasksPage() {
           <div>
             <label className="mb-1 block text-xs text-white/50">Título *</label>
             <input value={fTitle} onChange={(e) => setFTitle(e.target.value)} autoFocus
-              className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm outline-none focus:border-cyan-500/50" placeholder="Nome da tarefa" />
+              className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm outline-none focus:border-amber-500/50" placeholder="Nome da tarefa" />
           </div>
           <div>
             <label className="mb-1 block text-xs text-white/50">Descrição</label>
             <textarea value={fDesc} onChange={(e) => setFDesc(e.target.value)} rows={2}
-              className="w-full resize-none rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm outline-none focus:border-cyan-500/50" placeholder="Detalhes..." />
+              className="w-full resize-none rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm outline-none focus:border-amber-500/50" placeholder="Detalhes..." />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
@@ -436,7 +436,7 @@ export default function TasksPage() {
           </div>
           <div className="flex justify-end gap-2 pt-2">
             <button onClick={() => setShowModal(false)} className="rounded-lg px-4 py-2 text-xs text-white/50 hover:bg-white/5">Cancelar</button>
-            <button onClick={handleSave} className="rounded-lg bg-cyan-500 px-4 py-2 text-xs font-medium text-white hover:bg-cyan-400">
+            <button onClick={handleSave} className="rounded-lg bg-amber-500 px-4 py-2 text-xs font-medium text-white hover:bg-amber-400">
               {editingTask ? "Salvar" : "Criar Tarefa"}
             </button>
           </div>

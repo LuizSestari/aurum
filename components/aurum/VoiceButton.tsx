@@ -60,7 +60,7 @@ export function VoiceButton({ onTranscript, onResponse, className = '' }: VoiceB
             ? 'bg-red-500 scale-110 shadow-lg shadow-red-500/50'
             : isProcessing
             ? 'bg-yellow-500 scale-105 shadow-lg shadow-yellow-500/50'
-            : 'bg-cyan-500 hover:scale-105 shadow-lg shadow-cyan-500/50'
+            : 'bg-amber-500 hover:scale-105 shadow-lg shadow-amber-500/50'
           }
           disabled:opacity-50 disabled:cursor-not-allowed
         `}
@@ -102,15 +102,15 @@ export function VoiceButton({ onTranscript, onResponse, className = '' }: VoiceB
         <div className="bg-gray-800 rounded-lg p-3 text-xs space-y-1">
           <div className="flex justify-between">
             <span>STT:</span>
-            <span className="text-cyan-400">{metrics.sttLatency}ms</span>
+            <span className="text-amber-400">{metrics.sttLatency}ms</span>
           </div>
           <div className="flex justify-between">
             <span>LLM:</span>
-            <span className="text-cyan-400">{metrics.llmLatency}ms</span>
+            <span className="text-amber-400">{metrics.llmLatency}ms</span>
           </div>
           <div className="flex justify-between">
             <span>TTS:</span>
-            <span className="text-cyan-400">{metrics.ttsLatency}ms</span>
+            <span className="text-amber-400">{metrics.ttsLatency}ms</span>
           </div>
           <div className="flex justify-between border-t border-gray-700 pt-1 mt-1">
             <span>Total:</span>

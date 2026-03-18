@@ -38,7 +38,7 @@ function getCategoryColor(cat: string): string {
     destaques: "bg-orange-500/20 text-orange-400 border-orange-500/30",
     politica: "bg-red-500/20 text-red-400 border-red-500/30",
     economia: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
-    tecnologia: "bg-cyan-500/20 text-cyan-400 border-cyan-500/30",
+    tecnologia: "bg-amber-500/20 text-amber-400 border-amber-500/30",
     mundo: "bg-blue-500/20 text-blue-400 border-blue-500/30",
     esportes: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30",
   };
@@ -50,7 +50,7 @@ function getCategoryGradient(cat: string): string {
     destaques: "from-orange-600/40 to-orange-900/60",
     politica: "from-red-600/40 to-red-900/60",
     economia: "from-emerald-600/40 to-emerald-900/60",
-    tecnologia: "from-cyan-600/40 to-cyan-900/60",
+    tecnologia: "from-amber-600/40 to-amber-900/60",
     mundo: "from-blue-600/40 to-blue-900/60",
     esportes: "from-yellow-600/40 to-yellow-900/60",
   };
@@ -104,7 +104,7 @@ export function NewsPage() {
   const restItems = news.slice(1);
 
   return (
-    <div className="flex h-full flex-col bg-[#050810]">
+    <div className="flex h-full flex-col bg-[#0C0A09]">
       {/* Header */}
       <div className="shrink-0 border-b border-white/8 px-6 py-4">
         <div className="flex items-center justify-between">
@@ -138,7 +138,7 @@ export function NewsPage() {
             onClick={() => setActiveCategory(cat.id)}
             className={`flex items-center gap-1.5 whitespace-nowrap rounded-t-lg px-4 py-2.5 text-xs font-medium transition-colors ${
               activeCategory === cat.id
-                ? "bg-white/10 text-white border-b-2 border-cyan-400"
+                ? "bg-white/10 text-white border-b-2 border-amber-400"
                 : "text-white/40 hover:text-white/70 hover:bg-white/5"
             }`}
           >
@@ -151,7 +151,7 @@ export function NewsPage() {
       <div className="flex-1 min-h-0 overflow-y-auto p-6 space-y-4">
         {loading ? (
           <div className="flex flex-col items-center justify-center py-20">
-            <div className="h-8 w-8 rounded-full border-2 border-cyan-400 border-t-transparent animate-spin mb-3" />
+            <div className="h-8 w-8 rounded-full border-2 border-amber-400 border-t-transparent animate-spin mb-3" />
             <p className="text-sm text-white/40">
               Carregando {categoryLabel.toLowerCase()}...
             </p>
@@ -162,7 +162,7 @@ export function NewsPage() {
             <p className="text-sm text-white/50">{error}</p>
             <button
               onClick={() => fetchNews(activeCategory)}
-              className="mt-3 rounded-lg bg-cyan-500/20 px-4 py-2 text-xs text-cyan-400 hover:bg-cyan-500/30 transition-colors"
+              className="mt-3 rounded-lg bg-amber-500/20 px-4 py-2 text-xs text-amber-400 hover:bg-amber-500/30 transition-colors"
             >
               Tentar novamente
             </button>
@@ -219,7 +219,7 @@ export function NewsPage() {
                       {timeAgo(heroItem.pubDate)}
                     </span>
                   </div>
-                  <h2 className="text-lg font-semibold text-white leading-snug group-hover:text-cyan-300 transition-colors">
+                  <h2 className="text-lg font-semibold text-white leading-snug group-hover:text-amber-300 transition-colors">
                     {heroItem.title}
                   </h2>
                 </div>

@@ -105,7 +105,7 @@ export function PomodoroTimer() {
     return (
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-24 right-4 z-40 flex h-10 w-10 items-center justify-center rounded-full bg-[#0a0f1a]/80 border border-white/10 backdrop-blur-xl text-white/40 hover:text-cyan-400 hover:border-cyan-500/30 transition-all shadow-lg"
+        className="fixed bottom-24 right-4 z-40 flex h-10 w-10 items-center justify-center rounded-full bg-[#0a0f1a]/80 border border-white/10 backdrop-blur-xl text-white/40 hover:text-amber-400 hover:border-amber-500/30 transition-all shadow-lg"
         title="Pomodoro Timer"
       >
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

@@ -43,7 +43,7 @@ export function UpgradeModal({
   const gradientMap: Record<PlanTier, string> = {
     free: "from-slate-600 to-slate-700",
     starter: "from-amber-500 to-orange-500",
-    pro: "from-cyan-500 to-blue-500",
+    pro: "from-amber-500 to-blue-500",
     max: "from-purple-500 to-pink-500",
     dev: "from-emerald-500 to-teal-500",
   };
@@ -145,7 +145,7 @@ export function UpgradeModal({
         }`}
       >
         {/* Glassmorphism Container */}
-        <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-[#070A0F]/80 via-[#050810]/60 to-[#070A0F]/80 p-8 shadow-2xl">
+        <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-[#0C0A09]/80 via-[#0C0A09]/60 to-[#0C0A09]/80 p-8 shadow-2xl">
           {/* Decorative gradient background */}
           <div className="absolute -inset-0.5 opacity-20 blur-xl">
             <div

@@ -171,7 +171,7 @@ export default function KnowledgePage() {
                           {areaNbs.map((nb) => (
                             <button key={nb.id} onClick={() => selectNotebook(nb)}
                               className={`group flex w-full items-center justify-between rounded-lg px-2 py-1.5 text-left text-xs transition-colors ${
-                                selectedNb?.id === nb.id ? "bg-cyan-500/15 text-cyan-300" : "text-white/60 hover:bg-white/5"}`}>
+                                selectedNb?.id === nb.id ? "bg-amber-500/15 text-amber-300" : "text-white/60 hover:bg-white/5"}`}>
                               <div className="flex items-center gap-1.5 min-w-0">
                                 <span>{nb.favorite ? "⭐" : "📄"}</span>
                                 <span className="truncate">{nb.title}</span>
@@ -199,7 +199,7 @@ export default function KnowledgePage() {
                       <div className="text-[10px] text-white/30">{selectedNb.area} · Atualizado {new Date(selectedNb.updatedAt).toLocaleDateString("pt-BR")}</div>
                     </div>
                     <button onClick={handleSaveContent}
-                      className="rounded-lg bg-cyan-500/20 px-3 py-1.5 text-xs font-medium text-cyan-300 hover:bg-cyan-500/30">💾 Salvar</button>
+                      className="rounded-lg bg-amber-500/20 px-3 py-1.5 text-xs font-medium text-amber-300 hover:bg-amber-500/30">💾 Salvar</button>
                   </div>
                   <textarea value={editorContent} onChange={(e) => setEditorContent(e.target.value)}
                     className="min-h-[300px] flex-1 resize-none rounded-lg border border-white/8 bg-white/[0.02] p-4 text-sm leading-relaxed outline-none placeholder:text-white/20"
@@ -236,7 +236,7 @@ export default function KnowledgePage() {
                 <span className="text-sm font-semibold">Entrada do Diário</span>
               </div>
               <button onClick={handleSaveDiary}
-                className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${diarySaved ? "bg-emerald-500/20 text-emerald-300" : "bg-cyan-500/20 text-cyan-300 hover:bg-cyan-500/30"}`}>
+                className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${diarySaved ? "bg-emerald-500/20 text-emerald-300" : "bg-amber-500/20 text-amber-300 hover:bg-amber-500/30"}`}>
                 {diarySaved ? "✓ Salvo!" : "💾 Salvar"}
               </button>
             </div>
@@ -256,7 +256,7 @@ export default function KnowledgePage() {
                     if (dateMatch) setDiaryDate(dateMatch[1]);
                   }}
                     className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-xs transition-colors ${
-                      nb.title.includes(diaryDate) ? "bg-cyan-500/15 text-cyan-300" : "text-white/50 hover:bg-white/5"}`}>
+                      nb.title.includes(diaryDate) ? "bg-amber-500/15 text-amber-300" : "text-white/50 hover:bg-white/5"}`}>
                     <span>{nb.title.replace("Diário — ", "📅 ")}</span>
                     <span className="text-[10px] text-white/25">{nb.content.length > 0 ? `${nb.content.slice(0, 40)}...` : "vazio"}</span>
                   </button>
@@ -304,21 +304,21 @@ export default function KnowledgePage() {
                 reload();
                 setBrainDump(""); saveBrainDump("");
               }
-            }} className="rounded-lg bg-cyan-500/20 px-4 py-2 text-xs text-cyan-300 hover:bg-cyan-500/30">
+            }} className="rounded-lg bg-amber-500/20 px-4 py-2 text-xs text-amber-300 hover:bg-amber-500/30">
               📓 Salvar como Caderno
             </button>
           </div>
         </div>
       )}
 
-      <button onClick={openCreate} className="fixed bottom-6 right-6 z-20 flex h-14 w-14 items-center justify-center rounded-full bg-cyan-500 text-2xl text-white shadow-lg shadow-cyan-500/20 hover:bg-cyan-400">+</button>
+      <button onClick={openCreate} className="fixed bottom-6 right-6 z-20 flex h-14 w-14 items-center justify-center rounded-full bg-amber-500 text-2xl text-white shadow-lg shadow-amber-500/20 hover:bg-amber-400">+</button>
 
       <Modal open={showModal} onClose={() => setShowModal(false)} title="Novo Caderno">
         <div className="space-y-4">
           <div>
             <label className="mb-1 block text-xs text-white/50">Título *</label>
             <input value={fTitle} onChange={(e) => setFTitle(e.target.value)} autoFocus
-              className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm outline-none focus:border-cyan-500/50" placeholder="Nome do caderno" />
+              className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm outline-none focus:border-amber-500/50" placeholder="Nome do caderno" />
           </div>
           <div>
             <label className="mb-1 block text-xs text-white/50">Área</label>
@@ -329,7 +329,7 @@ export default function KnowledgePage() {
           </div>
           <div className="flex justify-end gap-2 pt-2">
             <button onClick={() => setShowModal(false)} className="rounded-lg px-4 py-2 text-xs text-white/50 hover:bg-white/5">Cancelar</button>
-            <button onClick={handleSave} className="rounded-lg bg-cyan-500 px-4 py-2 text-xs font-medium text-white hover:bg-cyan-400">Criar Caderno</button>
+            <button onClick={handleSave} className="rounded-lg bg-amber-500 px-4 py-2 text-xs font-medium text-white hover:bg-amber-400">Criar Caderno</button>
           </div>
         </div>
       </Modal>

@@ -39,11 +39,11 @@ const STATE_CFG = {
 } as const;
 
 const COLORS = {
-  idle:      { c1: [0, 217, 255], c2: [76, 29, 149] },
-  listening: { c1: [0, 217, 255], c2: [34, 211, 238] },
-  thinking:  { c1: [167, 139, 250], c2: [76, 29, 149] },
-  speaking:  { c1: [52, 211, 153], c2: [0, 217, 255] },
-  muted:     { c1: [100, 116, 139], c2: [71, 85, 105] },
+  idle:      { c1: [245, 158, 11], c2: [180, 83, 9] },     // amber/gold
+  listening: { c1: [251, 191, 36], c2: [245, 158, 11] },    // bright gold
+  thinking:  { c1: [217, 119, 6], c2: [146, 64, 14] },      // deep amber
+  speaking:  { c1: [252, 211, 77], c2: [245, 158, 11] },    // bright warm gold
+  muted:     { c1: [87, 83, 78], c2: [68, 64, 60] },        // warm gray
 } as const;
 
 const TOTAL_PARTICLES = 4000;

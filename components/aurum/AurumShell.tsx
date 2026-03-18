@@ -93,12 +93,12 @@ export default function AurumShell({ userName, onSignOut, onNavigatePricing, cur
   }
 
   return (
-    <div className="flex h-screen w-full bg-[#070A0F] text-white">
+    <div className="flex h-screen w-full bg-[#0C0A09] text-white">
       <Sidebar activePage={activePage} onNavigate={setActivePage} onSignOut={onSignOut} onNavigatePricing={onNavigatePricing} />
       <main className="relative flex-1 flex flex-col min-h-0 overflow-hidden">
         <div className="pointer-events-none absolute inset-0 overflow-hidden z-0">
-          <div className="absolute -top-40 left-1/3 h-[400px] w-[400px] rounded-full bg-cyan-500/5 blur-[100px]" />
-          <div className="absolute -bottom-40 right-0 h-[400px] w-[400px] rounded-full bg-indigo-500/5 blur-[100px]" />
+          <div className="absolute -top-40 left-1/4 h-[500px] w-[500px] rounded-full bg-amber-500/[0.04] blur-[120px]" />
+          <div className="absolute -bottom-40 right-0 h-[400px] w-[400px] rounded-full bg-orange-600/[0.03] blur-[100px]" />
         </div>
         <div className="relative flex-1 min-h-0 z-10">{renderPage()}</div>
       </main>

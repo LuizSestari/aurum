@@ -402,7 +402,7 @@ export default function DeveloperPage() {
   const chartHeight = 40;
 
   return (
-    <div className="flex h-full flex-col bg-[#050810]">
+    <div className="flex h-full flex-col bg-[#0C0A09]">
       {/* Header */}
       <div className="flex items-center justify-between border-b border-white/8 px-6 py-4 backdrop-blur-xl bg-white/5">
         <div className="flex items-center gap-3">
@@ -412,7 +412,7 @@ export default function DeveloperPage() {
         </div>
         <button
           onClick={refreshAll}
-          className="rounded-lg bg-cyan-500/20 px-4 py-2 text-xs font-medium text-cyan-400 hover:bg-cyan-500/30 transition-all border border-cyan-500/30 hover:border-cyan-500/50"
+          className="rounded-lg bg-amber-500/20 px-4 py-2 text-xs font-medium text-amber-400 hover:bg-amber-500/30 transition-all border border-amber-500/30 hover:border-amber-500/50"
         >
           🔄 Refresh All
         </button>
@@ -426,7 +426,7 @@ export default function DeveloperPage() {
             onClick={() => setActiveTab(tab.id)}
             className={`px-4 py-3 text-xs font-medium transition-all whitespace-nowrap border-b-2 ${
               activeTab === tab.id
-                ? "bg-white/8 text-cyan-400 border-b-cyan-400"
+                ? "bg-white/8 text-amber-400 border-b-amber-400"
                 : "text-white/40 border-b-transparent hover:text-white/60 hover:bg-white/4"
             }`}
           >
@@ -453,7 +453,7 @@ export default function DeveloperPage() {
                           <p className={`text-xs font-semibold ${statusColor(p.status)}`}>{p.status.toUpperCase()}</p>
                         </div>
                       </div>
-                      {p.latency && <span className="text-xs font-mono text-cyan-400/80">{p.latency}ms</span>}
+                      {p.latency && <span className="text-xs font-mono text-amber-400/80">{p.latency}ms</span>}
                     </div>
                     {p.details && <p className="text-xs text-white/40">{p.details}</p>}
                     {p.error && <p className="text-xs text-red-400/80">{p.error}</p>}
@@ -475,7 +475,7 @@ export default function DeveloperPage() {
                         <div
                           key={i}
                           className={`flex-1 rounded-t transition-all ${
-                            record.status === "success" ? "bg-cyan-500/60 hover:bg-cyan-500/80" : "bg-red-500/60 hover:bg-red-500/80"
+                            record.status === "success" ? "bg-amber-500/60 hover:bg-amber-500/80" : "bg-red-500/60 hover:bg-red-500/80"
                           }`}
                           style={{ height: `${Math.max(heightPercent, 10)}%` }}
                           title={`${record.endpoint} - ${record.latency}ms`}
@@ -508,7 +508,7 @@ export default function DeveloperPage() {
               <h2 className="mb-4 text-xs font-semibold uppercase tracking-wider text-white/50">AI Statistics</h2>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 {[
-                  { label: "Total Requests", value: aiStats.total, color: "from-cyan-500/20 to-cyan-600/10" },
+                  { label: "Total Requests", value: aiStats.total, color: "from-amber-500/20 to-amber-600/10" },
                   { label: "Errors", value: aiStats.errors, color: "from-red-500/20 to-red-600/10" },
                   { label: "Cache Hits", value: aiStats.cached, color: "from-green-500/20 to-green-600/10" },
                   { label: "Avg Latency", value: `${aiStats.avgDuration}ms`, color: "from-yellow-500/20 to-yellow-600/10" },
@@ -540,7 +540,7 @@ export default function DeveloperPage() {
                         <span className={`text-xs font-bold px-2 py-1 rounded ${log.error ? "bg-red-500/20 text-red-400" : "bg-green-500/20 text-green-400"}`}>
                           {log.error ? "ERROR" : "SUCCESS"}
                         </span>
-                        <span className="text-xs text-cyan-400/80 font-mono">{log.provider}</span>
+                        <span className="text-xs text-amber-400/80 font-mono">{log.provider}</span>
                         <span className="text-xs text-white/40">{log.model}</span>
                         <span className="text-xs text-indigo-400/80 font-mono">{log.durationMs}ms</span>
                         {log.cached && <span className="text-[10px] bg-yellow-500/20 text-yellow-400 px-2 py-1 rounded">CACHED</span>}
@@ -567,7 +567,7 @@ export default function DeveloperPage() {
                   { label: "Notes", value: memStats.totalNotes, icon: "📝" },
                   { label: "Interactions", value: memStats.totalInteractions, icon: "🔄" },
                 ].map((s) => (
-                  <div key={s.label} className="rounded-lg bg-gradient-to-br from-indigo-500/20 to-indigo-600/10 border border-indigo-500/20 backdrop-blur-xl p-4 text-center">
+                  <div key={s.label} className="rounded-lg bg-gradient-to-br from-orange-500/20 to-orange-600/10 border border-orange-500/20 backdrop-blur-xl p-4 text-center">
                     <p className="text-2xl mb-2">{s.icon}</p>
                     <p className="text-xl font-bold text-white/90">{s.value}</p>
                     <p className="text-[10px] text-white/40 mt-1">{s.label}</p>
@@ -582,7 +582,7 @@ export default function DeveloperPage() {
                 <div className="flex flex-wrap gap-2">
                   {memStats.categories.length > 0 ? (
                     memStats.categories.map((cat) => (
-                      <span key={cat} className="rounded-full bg-cyan-500/20 border border-cyan-500/30 px-3 py-1 text-xs text-cyan-400">
+                      <span key={cat} className="rounded-full bg-amber-500/20 border border-amber-500/30 px-3 py-1 text-xs text-amber-400">
                         {cat}
                       </span>
                     ))
@@ -596,7 +596,7 @@ export default function DeveloperPage() {
             <section className="flex gap-3 flex-wrap">
               <button
                 onClick={handleExportMemory}
-                className="rounded-lg bg-cyan-500/20 border border-cyan-500/30 px-4 py-2 text-xs font-medium text-cyan-400 hover:bg-cyan-500/30 transition-all"
+                className="rounded-lg bg-amber-500/20 border border-amber-500/30 px-4 py-2 text-xs font-medium text-amber-400 hover:bg-amber-500/30 transition-all"
               >
                 📥 Export Memory (.md)
               </button>
@@ -663,7 +663,7 @@ export default function DeveloperPage() {
                     updateStorageStats();
                     updateBrowserInfo();
                   }}
-                  className="rounded-lg bg-cyan-500/20 border border-cyan-500/30 px-4 py-2 text-xs font-medium text-cyan-400 hover:bg-cyan-500/30 transition-all"
+                  className="rounded-lg bg-amber-500/20 border border-amber-500/30 px-4 py-2 text-xs font-medium text-amber-400 hover:bg-amber-500/30 transition-all"
                 >
                   🔄 Refresh Info
                 </button>
@@ -683,14 +683,14 @@ export default function DeveloperPage() {
                   <textarea
                     value={chatTestMessage}
                     onChange={(e) => setChatTestMessage(e.target.value)}
-                    className="w-full rounded-lg bg-white/8 border border-white/10 px-3 py-2 text-xs text-white/90 placeholder-white/30 focus:outline-none focus:border-cyan-500/50 focus:bg-white/10"
+                    className="w-full rounded-lg bg-white/8 border border-white/10 px-3 py-2 text-xs text-white/90 placeholder-white/30 focus:outline-none focus:border-amber-500/50 focus:bg-white/10"
                     rows={3}
                   />
                 </div>
                 <button
                   onClick={testChatAPI}
                   disabled={chatTestLoading}
-                  className="rounded-lg bg-cyan-500/20 border border-cyan-500/30 px-4 py-2 text-xs font-medium text-cyan-400 hover:bg-cyan-500/30 disabled:opacity-50 transition-all"
+                  className="rounded-lg bg-amber-500/20 border border-amber-500/30 px-4 py-2 text-xs font-medium text-amber-400 hover:bg-amber-500/30 disabled:opacity-50 transition-all"
                 >
                   {chatTestLoading ? "Testing..." : "🚀 Send Request"}
                 </button>
@@ -701,7 +701,7 @@ export default function DeveloperPage() {
                       <span className="text-xs font-mono text-white/60">Endpoint: {chatTestResult.endpoint}</span>
                       <span className="text-xs font-mono text-white/60">{chatTestResult.responseTime}</span>
                     </div>
-                    {chatTestResult.provider && <p className="text-xs text-cyan-400/80">Provider: {chatTestResult.provider}</p>}
+                    {chatTestResult.provider && <p className="text-xs text-amber-400/80">Provider: {chatTestResult.provider}</p>}
                     {chatTestResult.error && <p className="text-xs text-red-400/80">Error: {chatTestResult.error}</p>}
                     <pre className="font-mono text-[10px] text-white/50 overflow-x-auto bg-black/30 p-3 rounded">
                       {JSON.stringify(chatTestResult.responseBody, null, 2)}
@@ -720,14 +720,14 @@ export default function DeveloperPage() {
                   <textarea
                     value={ttsTestText}
                     onChange={(e) => setTtsTestText(e.target.value)}
-                    className="w-full rounded-lg bg-white/8 border border-white/10 px-3 py-2 text-xs text-white/90 placeholder-white/30 focus:outline-none focus:border-cyan-500/50 focus:bg-white/10"
+                    className="w-full rounded-lg bg-white/8 border border-white/10 px-3 py-2 text-xs text-white/90 placeholder-white/30 focus:outline-none focus:border-amber-500/50 focus:bg-white/10"
                     rows={3}
                   />
                 </div>
                 <button
                   onClick={testTTSAPI}
                   disabled={ttsTestLoading}
-                  className="rounded-lg bg-cyan-500/20 border border-cyan-500/30 px-4 py-2 text-xs font-medium text-cyan-400 hover:bg-cyan-500/30 disabled:opacity-50 transition-all"
+                  className="rounded-lg bg-amber-500/20 border border-amber-500/30 px-4 py-2 text-xs font-medium text-amber-400 hover:bg-amber-500/30 disabled:opacity-50 transition-all"
                 >
                   {ttsTestLoading ? "Testing..." : "🎵 Send Request"}
                 </button>
@@ -738,7 +738,7 @@ export default function DeveloperPage() {
                       <span className="text-xs font-mono text-white/60">Endpoint: {ttsTestResult.endpoint}</span>
                       <span className="text-xs font-mono text-white/60">{ttsTestResult.responseTime}</span>
                     </div>
-                    {ttsTestResult.provider && <p className="text-xs text-cyan-400/80">Provider: {ttsTestResult.provider}</p>}
+                    {ttsTestResult.provider && <p className="text-xs text-amber-400/80">Provider: {ttsTestResult.provider}</p>}
                     {ttsTestResult.error && <p className="text-xs text-red-400/80">Error: {ttsTestResult.error}</p>}
                     <pre className="font-mono text-[10px] text-white/50 overflow-x-auto bg-black/30 p-3 rounded">
                       {JSON.stringify(ttsTestResult.responseBody, null, 2)}
@@ -758,7 +758,7 @@ export default function DeveloperPage() {
                 {/* Image Upload */}
                 <div>
                   <label className="block text-xs font-medium text-white/60 mb-3">Upload Image</label>
-                  <div className="rounded-lg border-2 border-dashed border-white/20 p-6 text-center hover:border-cyan-500/50 transition-all">
+                  <div className="rounded-lg border-2 border-dashed border-white/20 p-6 text-center hover:border-amber-500/50 transition-all">
                     <input
                       type="file"
                       accept="image/*"
@@ -792,7 +792,7 @@ export default function DeveloperPage() {
                   <textarea
                     value={visionTestPrompt}
                     onChange={(e) => setVisionTestPrompt(e.target.value)}
-                    className="w-full rounded-lg bg-white/8 border border-white/10 px-3 py-2 text-xs text-white/90 placeholder-white/30 focus:outline-none focus:border-cyan-500/50 focus:bg-white/10"
+                    className="w-full rounded-lg bg-white/8 border border-white/10 px-3 py-2 text-xs text-white/90 placeholder-white/30 focus:outline-none focus:border-amber-500/50 focus:bg-white/10"
                     rows={3}
                   />
                 </div>
@@ -800,7 +800,7 @@ export default function DeveloperPage() {
                 <button
                   onClick={testVisionAPI}
                   disabled={visionTestLoading || !visionTestImage}
-                  className="rounded-lg bg-cyan-500/20 border border-cyan-500/30 px-4 py-2 text-xs font-medium text-cyan-400 hover:bg-cyan-500/30 disabled:opacity-50 transition-all w-full"
+                  className="rounded-lg bg-amber-500/20 border border-amber-500/30 px-4 py-2 text-xs font-medium text-amber-400 hover:bg-amber-500/30 disabled:opacity-50 transition-all w-full"
                 >
                   {visionTestLoading ? "Analyzing..." : "👁️ Analyze Image"}
                 </button>
@@ -811,7 +811,7 @@ export default function DeveloperPage() {
                       <span className="text-xs font-mono text-white/60">Endpoint: {visionTestResult.endpoint}</span>
                       <span className="text-xs font-mono text-white/60">{visionTestResult.responseTime}</span>
                     </div>
-                    {visionTestResult.provider && <p className="text-xs text-cyan-400/80">Provider: {visionTestResult.provider}</p>}
+                    {visionTestResult.provider && <p className="text-xs text-amber-400/80">Provider: {visionTestResult.provider}</p>}
                     {visionTestResult.error && <p className="text-xs text-red-400/80">Error: {visionTestResult.error}</p>}
                     <pre className="font-mono text-[10px] text-white/50 overflow-x-auto bg-black/30 p-3 rounded max-h-64">
                       {JSON.stringify(visionTestResult.responseBody, null, 2)}

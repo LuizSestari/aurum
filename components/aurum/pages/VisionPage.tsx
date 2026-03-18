@@ -272,7 +272,7 @@ export default function VisionPage() {
       </div>
 
       {/* ═══ VISION AI IMAGE ANALYSIS SECTION ═══ */}
-      <div className="mb-8 rounded-2xl border border-cyan-500/30 bg-gradient-to-br from-cyan-500/10 via-blue-500/5 to-transparent p-6 backdrop-blur-xl">
+      <div className="mb-8 rounded-2xl border border-amber-500/30 bg-gradient-to-br from-amber-500/10 via-blue-500/5 to-transparent p-6 backdrop-blur-xl">
         <div className="mb-4 flex items-center gap-2">
           <span className="text-xl">🤖</span>
           <h2 className="text-lg font-bold text-white">Vision AI Analysis</h2>
@@ -287,8 +287,8 @@ export default function VisionPage() {
             onClick={() => fileInputRef.current?.click()}
             className={`relative rounded-xl border-2 border-dashed transition-all duration-200 cursor-pointer ${
               dragOver
-                ? "border-cyan-400 bg-cyan-500/20"
-                : "border-cyan-500/30 bg-white/[0.02] hover:border-cyan-400/50 hover:bg-cyan-500/10"
+                ? "border-amber-400 bg-amber-500/20"
+                : "border-amber-500/30 bg-white/[0.02] hover:border-amber-400/50 hover:bg-amber-500/10"
             }`}
           >
             <input
@@ -317,7 +317,7 @@ export default function VisionPage() {
                       e.stopPropagation();
                       fileInputRef.current?.click();
                     }}
-                    className="flex-1 rounded-lg bg-cyan-500/20 px-4 py-2 text-sm font-medium text-cyan-300 hover:bg-cyan-500/30 transition-colors"
+                    className="flex-1 rounded-lg bg-amber-500/20 px-4 py-2 text-sm font-medium text-amber-300 hover:bg-amber-500/30 transition-colors"
                   >
                     Trocar Imagem
                   </button>
@@ -354,7 +354,7 @@ export default function VisionPage() {
               value={visionQuestion}
               onChange={(e) => setVisionQuestion(e.target.value)}
               placeholder="Pergunta opcional sobre a imagem (deixe em branco para análise geral)..."
-              className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white placeholder-white/30 outline-none transition-colors hover:border-white/20 focus:border-cyan-400/50 focus:bg-white/[0.05]"
+              className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white placeholder-white/30 outline-none transition-colors hover:border-white/20 focus:border-amber-400/50 focus:bg-white/[0.05]"
               rows={3}
             />
           )}
@@ -404,13 +404,13 @@ export default function VisionPage() {
               disabled={visionLoading}
               className={`w-full rounded-lg px-4 py-3 font-medium transition-all duration-200 ${
                 visionLoading
-                  ? "bg-cyan-500/20 text-cyan-300 cursor-not-allowed"
-                  : "bg-gradient-to-r from-cyan-500/30 to-blue-500/20 text-cyan-200 hover:from-cyan-500/40 hover:to-blue-500/30 hover:shadow-lg hover:shadow-cyan-500/20"
+                  ? "bg-amber-500/20 text-amber-300 cursor-not-allowed"
+                  : "bg-gradient-to-r from-amber-500/30 to-blue-500/20 text-amber-200 hover:from-amber-500/40 hover:to-blue-500/30 hover:shadow-lg hover:shadow-amber-500/20"
               }`}
             >
               {visionLoading ? (
                 <span className="flex items-center justify-center gap-2">
-                  <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-cyan-300 border-t-transparent" />
+                  <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-amber-300 border-t-transparent" />
                   Analisando...
                 </span>
               ) : (

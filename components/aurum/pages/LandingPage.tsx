@@ -71,13 +71,13 @@ export default function LandingPage({ onGetStarted, onViewPricing }: LandingPage
   const planColors: Record<PlanTier, { border: string; glow: string; badge: string; btn: string }> = {
     free: { border: "border-white/10", glow: "", badge: "bg-white/10 text-white/60", btn: "bg-white/10 hover:bg-white/15 text-white border border-white/10" },
     starter: { border: "border-amber-500/30", glow: "", badge: "bg-amber-500/10 text-amber-400", btn: "bg-amber-500 hover:bg-amber-400 text-white" },
-    pro: { border: "border-cyan-500/40", glow: "shadow-[0_0_40px_rgba(0,217,255,0.15)]", badge: "bg-cyan-500/10 text-cyan-400", btn: "bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-white" },
+    pro: { border: "border-amber-500/40", glow: "shadow-[0_0_40px_rgba(0,217,255,0.15)]", badge: "bg-amber-500/10 text-amber-400", btn: "bg-gradient-to-r from-amber-500 to-blue-500 hover:from-amber-400 hover:to-blue-400 text-white" },
     max: { border: "border-purple-500/30", glow: "", badge: "bg-purple-500/10 text-purple-400", btn: "bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-400 hover:to-pink-400 text-white" },
     dev: { border: "border-emerald-500/40", glow: "shadow-[0_0_40px_rgba(16,185,129,0.15)]", badge: "bg-emerald-500/10 text-emerald-400", btn: "bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white" },
   };
 
   return (
-    <div className="relative min-h-screen bg-[#050810] text-white overflow-x-hidden">
+    <div className="relative min-h-screen bg-[#0C0A09] text-white overflow-x-hidden">
       <style>{`
         @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
         @keyframes glow-pulse { 0%,100%{box-shadow:0 0 20px rgba(0,217,255,0.3)} 50%{box-shadow:0 0 50px rgba(0,217,255,0.5)} }
@@ -90,7 +90,7 @@ export default function LandingPage({ onGetStarted, onViewPricing }: LandingPage
         .anim-fade { animation: fade-in 0.6s ease-out forwards; opacity:0; }
         .glow-btn { animation: glow-pulse 2.5s ease-in-out infinite; }
         .gradient-text { background:linear-gradient(135deg,#ffd700 0%,#00d9ff 40%,#a78bfa 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
-        .gradient-text-cyan { background:linear-gradient(135deg,#00d9ff 0%,#a78bfa 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+        .gradient-text-amber { background:linear-gradient(135deg,#00d9ff 0%,#a78bfa 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
         .glass { background:rgba(255,255,255,0.03); backdrop-filter:blur(12px); border:1px solid rgba(255,255,255,0.06); }
         .glass-hover { transition:all 0.4s cubic-bezier(0.4,0,0.2,1); }
         .glass-hover:hover { background:rgba(255,255,255,0.06); border-color:rgba(0,217,255,0.2); transform:translateY(-4px); box-shadow:0 20px 40px rgba(0,0,0,0.3),0 0 30px rgba(0,217,255,0.08); }
@@ -99,7 +99,7 @@ export default function LandingPage({ onGetStarted, onViewPricing }: LandingPage
 
       {/* Background effects */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] bg-cyan-500/[0.03] rounded-full blur-[120px]" />
+        <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] bg-amber-500/[0.03] rounded-full blur-[120px]" />
         <div className="absolute top-[30%] right-[-15%] w-[500px] h-[500px] bg-purple-500/[0.03] rounded-full blur-[120px]" />
         <div className="absolute bottom-[-10%] left-[20%] w-[400px] h-[400px] bg-amber-500/[0.02] rounded-full blur-[100px]" />
         {/* Grid pattern */}
@@ -109,10 +109,10 @@ export default function LandingPage({ onGetStarted, onViewPricing }: LandingPage
       <div className="relative z-10">
 
         {/* ═══════════ NAVBAR ═══════════ */}
-        <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/5 bg-[#050810]/80 backdrop-blur-xl">
+        <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/5 bg-[#0C0A09]/80 backdrop-blur-xl">
           <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-cyan-500 to-indigo-600 text-sm font-bold">A</div>
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 text-sm font-bold">A</div>
               <span className="text-lg font-bold tracking-tight">Aurum</span>
             </div>
             <div className="hidden md:flex items-center gap-8 text-sm text-white/50">
@@ -130,14 +130,14 @@ export default function LandingPage({ onGetStarted, onViewPricing }: LandingPage
         <section className="relative min-h-screen flex items-center justify-center px-6 pt-24 pb-20">
           {/* Orb decoration */}
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] pointer-events-none">
-            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-cyan-500/10 to-purple-500/10 blur-[80px]" />
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 rounded-full bg-gradient-to-br from-cyan-500/20 to-indigo-500/20 blur-xl" style={{ animation: 'float 4s ease-in-out infinite' }} />
+            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-amber-500/10 to-purple-500/10 blur-[80px]" />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 rounded-full bg-gradient-to-br from-amber-500/20 to-orange-500/20 blur-xl" style={{ animation: 'float 4s ease-in-out infinite' }} />
           </div>
 
           <div className="relative max-w-5xl mx-auto text-center">
             {/* Badge */}
-            <div className="anim-slide-up mb-8 inline-flex items-center gap-2 rounded-full border border-cyan-500/20 bg-cyan-500/5 px-4 py-2 text-sm text-cyan-400">
-              <span className="h-2 w-2 rounded-full bg-cyan-400 animate-pulse" />
+            <div className="anim-slide-up mb-8 inline-flex items-center gap-2 rounded-full border border-amber-500/20 bg-amber-500/5 px-4 py-2 text-sm text-amber-400">
+              <span className="h-2 w-2 rounded-full bg-amber-400 animate-pulse" />
               Powered by AI Multi-Model
             </div>
 
@@ -153,7 +153,7 @@ export default function LandingPage({ onGetStarted, onViewPricing }: LandingPage
             </p>
 
             <div className="anim-slide-up flex flex-col sm:flex-row gap-4 justify-center mb-16" style={{ animationDelay: '0.3s' }}>
-              <button onClick={onGetStarted} className="group flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 px-8 py-4 text-lg font-bold text-white transition-all hover:from-cyan-400 hover:to-blue-400 glow-btn">
+              <button onClick={onGetStarted} className="group flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-blue-500 px-8 py-4 text-lg font-bold text-white transition-all hover:from-amber-400 hover:to-blue-400 glow-btn">
                 Comecar Gratis
                 <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
               </button>
@@ -166,7 +166,7 @@ export default function LandingPage({ onGetStarted, onViewPricing }: LandingPage
             <div className="anim-slide-up flex flex-wrap justify-center gap-8 md:gap-16 text-sm" style={{ animationDelay: '0.4s' }}>
               {[["Multi-AI", "Groq + Gemini + GPT"], ["PWA", "Instale como app"], ["Gratis", "Para sempre"]].map(([label, desc]) => (
                 <div key={label} className="flex items-center gap-3">
-                  <div className="h-2 w-2 rounded-full bg-cyan-400" />
+                  <div className="h-2 w-2 rounded-full bg-amber-400" />
                   <div>
                     <span className="font-semibold text-white">{label}</span>
                     <span className="text-white/40 ml-2">{desc}</span>
@@ -190,9 +190,9 @@ export default function LandingPage({ onGetStarted, onViewPricing }: LandingPage
         <section id="features" data-animate className="py-28 px-6">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-20">
-              <p className="text-cyan-400 text-sm font-semibold tracking-wider uppercase mb-4">Recursos</p>
+              <p className="text-amber-400 text-sm font-semibold tracking-wider uppercase mb-4">Recursos</p>
               <h2 className="text-4xl md:text-5xl font-black text-white mb-4">Tudo que voce precisa.</h2>
-              <h2 className="text-4xl md:text-5xl font-black gradient-text-cyan">Nada que voce nao precisa.</h2>
+              <h2 className="text-4xl md:text-5xl font-black gradient-text-amber">Nada que voce nao precisa.</h2>
             </div>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -206,7 +206,7 @@ export default function LandingPage({ onGetStarted, onViewPricing }: LandingPage
                   }}
                 >
                   <div className="text-4xl mb-5" style={{ animation: 'float 3s ease-in-out infinite', animationDelay: `${i * 0.3}s` }}>{f.icon}</div>
-                  <h3 className="text-lg font-bold mb-2 text-white group-hover:text-cyan-400 transition">{f.title}</h3>
+                  <h3 className="text-lg font-bold mb-2 text-white group-hover:text-amber-400 transition">{f.title}</h3>
                   <p className="text-sm text-white/45 leading-relaxed">{f.desc}</p>
                 </div>
               ))}
@@ -216,10 +216,10 @@ export default function LandingPage({ onGetStarted, onViewPricing }: LandingPage
 
         {/* ═══════════ HOW IT WORKS ═══════════ */}
         <section id="how" data-animate className="py-28 px-6 relative">
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-cyan-500/[0.02] to-transparent pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-amber-500/[0.02] to-transparent pointer-events-none" />
           <div className="max-w-5xl mx-auto relative">
             <div className="text-center mb-20">
-              <p className="text-cyan-400 text-sm font-semibold tracking-wider uppercase mb-4">Como funciona</p>
+              <p className="text-amber-400 text-sm font-semibold tracking-wider uppercase mb-4">Como funciona</p>
               <h2 className="text-4xl md:text-5xl font-black text-white">3 passos. Zero friccao.</h2>
             </div>
 
@@ -250,7 +250,7 @@ export default function LandingPage({ onGetStarted, onViewPricing }: LandingPage
         <section id="social" data-animate className="py-28 px-6">
           <div className="max-w-5xl mx-auto">
             <div className="text-center mb-16">
-              <p className="text-cyan-400 text-sm font-semibold tracking-wider uppercase mb-4">Depoimentos</p>
+              <p className="text-amber-400 text-sm font-semibold tracking-wider uppercase mb-4">Depoimentos</p>
               <h2 className="text-4xl md:text-5xl font-black text-white">Amado por profissionais.</h2>
             </div>
             <div className="grid md:grid-cols-3 gap-6">
@@ -265,7 +265,7 @@ export default function LandingPage({ onGetStarted, onViewPricing }: LandingPage
                 >
                   <p className="text-white/60 text-sm leading-relaxed mb-6">&ldquo;{t.text}&rdquo;</p>
                   <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-full bg-gradient-to-br from-cyan-500/30 to-purple-500/30 flex items-center justify-center text-xs font-bold text-white/70">{t.avatar}</div>
+                    <div className="h-10 w-10 rounded-full bg-gradient-to-br from-amber-500/30 to-purple-500/30 flex items-center justify-center text-xs font-bold text-white/70">{t.avatar}</div>
                     <div>
                       <p className="text-sm font-semibold text-white">{t.name}</p>
                       <p className="text-xs text-white/40">{t.role}</p>
@@ -282,7 +282,7 @@ export default function LandingPage({ onGetStarted, onViewPricing }: LandingPage
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-purple-500/[0.02] to-transparent pointer-events-none" />
           <div className="max-w-7xl mx-auto relative">
             <div className="text-center mb-16">
-              <p className="text-cyan-400 text-sm font-semibold tracking-wider uppercase mb-4">Precos</p>
+              <p className="text-amber-400 text-sm font-semibold tracking-wider uppercase mb-4">Precos</p>
               <h2 className="text-4xl md:text-5xl font-black text-white mb-4">Simples e transparente.</h2>
               <p className="text-white/45 text-lg max-w-xl mx-auto">Comece gratis. Escale quando precisar.</p>
             </div>
@@ -325,7 +325,7 @@ export default function LandingPage({ onGetStarted, onViewPricing }: LandingPage
                   >
                     {isPopular && (
                       <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                        <div className="rounded-full bg-gradient-to-r from-cyan-500 to-blue-500 px-4 py-1 text-xs font-bold text-white whitespace-nowrap">
+                        <div className="rounded-full bg-gradient-to-r from-amber-500 to-blue-500 px-4 py-1 text-xs font-bold text-white whitespace-nowrap">
                           Mais Popular
                         </div>
                       </div>
@@ -360,7 +360,7 @@ export default function LandingPage({ onGetStarted, onViewPricing }: LandingPage
                     <div className="space-y-3 flex-1">
                       {plan.highlights.map((h, hIdx) => (
                         <div key={hIdx} className="flex items-start gap-3">
-                          <Check className="w-4 h-4 text-cyan-400/60 flex-shrink-0 mt-0.5" />
+                          <Check className="w-4 h-4 text-amber-400/60 flex-shrink-0 mt-0.5" />
                           <span className="text-sm text-white/50">{h}</span>
                         </div>
                       ))}
@@ -390,7 +390,7 @@ export default function LandingPage({ onGetStarted, onViewPricing }: LandingPage
         <section id="faq" data-animate className="py-28 px-6">
           <div className="max-w-3xl mx-auto">
             <div className="text-center mb-16">
-              <p className="text-cyan-400 text-sm font-semibold tracking-wider uppercase mb-4">FAQ</p>
+              <p className="text-amber-400 text-sm font-semibold tracking-wider uppercase mb-4">FAQ</p>
               <h2 className="text-4xl md:text-5xl font-black text-white">Perguntas frequentes</h2>
             </div>
 
@@ -431,7 +431,7 @@ export default function LandingPage({ onGetStarted, onViewPricing }: LandingPage
             <p className="text-white/40 text-lg mb-10 max-w-xl mx-auto">
               Junte-se a profissionais que ja transformaram sua produtividade com o Aurum.
             </p>
-            <button onClick={onGetStarted} className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 px-10 py-5 text-lg font-bold text-white transition-all hover:from-cyan-400 hover:to-blue-400 glow-btn">
+            <button onClick={onGetStarted} className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-blue-500 px-10 py-5 text-lg font-bold text-white transition-all hover:from-amber-400 hover:to-blue-400 glow-btn">
               Comecar Gratis Agora
               <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
             </button>
@@ -445,7 +445,7 @@ export default function LandingPage({ onGetStarted, onViewPricing }: LandingPage
             <div className="grid md:grid-cols-4 gap-12 mb-12">
               <div>
                 <div className="flex items-center gap-2 mb-4">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-cyan-500 to-indigo-600 text-xs font-bold">A</div>
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 text-xs font-bold">A</div>
                   <span className="font-bold">Aurum</span>
                 </div>
                 <p className="text-sm text-white/30 leading-relaxed">Assistente pessoal com IA e voz. Organiza sua vida automaticamente.</p>

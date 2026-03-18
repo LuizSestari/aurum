@@ -39,7 +39,7 @@ export default function TypingEffect({ text, speed = 18, onComplete }: Props) {
     <span className="whitespace-pre-wrap">
       {displayed}
       {displayed.length < text.length && (
-        <span className="inline-block h-4 w-0.5 animate-pulse bg-cyan-400/60 ml-0.5" />
+        <span className="inline-block h-4 w-0.5 animate-pulse bg-amber-400/60 ml-0.5" />
       )}
     </span>
   );

@@ -76,7 +76,7 @@ export default function PricingPage({
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#070A0F] via-[#0a0d15] to-[#070A0F] relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-[#0C0A09] via-[#0a0d15] to-[#0C0A09] relative overflow-hidden">
       <style>{`
         @keyframes fadeInUp {
           from { opacity: 0; transform: translateY(20px); }
@@ -116,15 +116,15 @@ export default function PricingPage({
 
       {/* Background orbs */}
       <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-[-150px] right-[-150px] w-[500px] h-[500px] bg-cyan-500/[0.06] rounded-full blur-[120px]" />
-        <div className="absolute bottom-[-100px] left-[-100px] w-[400px] h-[400px] bg-indigo-500/[0.06] rounded-full blur-[100px]" />
+        <div className="absolute top-[-150px] right-[-150px] w-[500px] h-[500px] bg-amber-500/[0.06] rounded-full blur-[120px]" />
+        <div className="absolute bottom-[-100px] left-[-100px] w-[400px] h-[400px] bg-orange-500/[0.06] rounded-full blur-[100px]" />
       </div>
 
       {/* Header */}
       <div className="relative z-20 pt-8 px-4">
         <button
           onClick={onBack}
-          className="inline-flex items-center gap-2 text-gray-400 hover:text-cyan-300 transition-colors mb-8"
+          className="inline-flex items-center gap-2 text-gray-400 hover:text-amber-300 transition-colors mb-8"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -137,7 +137,7 @@ export default function PricingPage({
         {/* Title */}
         <div className="text-center mb-14 animate-fadeInUp">
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-3">
-            Planos <span className="bg-gradient-to-r from-cyan-400 to-indigo-400 bg-clip-text text-transparent">Aurum</span>
+            Planos <span className="bg-gradient-to-r from-amber-400 to-indigo-400 bg-clip-text text-transparent">Aurum</span>
           </h1>
           <p className="text-lg text-white/50 mb-8">
             Escolha o plano ideal para o seu uso
@@ -150,7 +150,7 @@ export default function PricingPage({
                 onClick={() => setBillingMode("monthly")}
                 className={`px-6 py-2.5 rounded-lg text-sm font-medium transition-all ${
                   billingMode === "monthly"
-                    ? "bg-gradient-to-r from-cyan-500 to-indigo-600 text-white shadow-lg"
+                    ? "bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow-lg"
                     : "text-white/40 hover:text-white/60"
                 }`}
               >
@@ -160,7 +160,7 @@ export default function PricingPage({
                 onClick={() => setBillingMode("yearly")}
                 className={`px-6 py-2.5 rounded-lg text-sm font-medium transition-all ${
                   billingMode === "yearly"
-                    ? "bg-gradient-to-r from-cyan-500 to-indigo-600 text-white shadow-lg"
+                    ? "bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow-lg"
                     : "text-white/40 hover:text-white/60"
                 }`}
               >
@@ -177,7 +177,7 @@ export default function PricingPage({
             <button
               onClick={handleManageSubscription}
               disabled={checkoutLoading}
-              className="text-sm text-cyan-400/70 hover:text-cyan-400 transition underline underline-offset-4"
+              className="text-sm text-amber-400/70 hover:text-amber-400 transition underline underline-offset-4"
             >
               Gerenciar assinatura existente
             </button>
@@ -202,13 +202,13 @@ export default function PricingPage({
             return (
               <div
                 key={planId}
-                className={`animate-fadeInUp ${isPopular ? "glass-card-popular lg:scale-105" : "glass-card"} rounded-2xl p-7 relative transition-all hover:border-cyan-400/30 ${
-                  isPopular ? "lg:shadow-xl lg:shadow-cyan-500/10" : ""
+                className={`animate-fadeInUp ${isPopular ? "glass-card-popular lg:scale-105" : "glass-card"} rounded-2xl p-7 relative transition-all hover:border-amber-400/30 ${
+                  isPopular ? "lg:shadow-xl lg:shadow-amber-500/10" : ""
                 }`}
                 style={{ animationDelay: `${idx * 80}ms` }}
               >
                 {isPopular && (
-                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1 bg-gradient-to-r from-cyan-500 to-indigo-600 text-white text-xs font-bold rounded-full shadow-lg">
+                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1 bg-gradient-to-r from-amber-500 to-orange-600 text-white text-xs font-bold rounded-full shadow-lg">
                     Mais Popular
                   </div>
                 )}
@@ -248,7 +248,7 @@ export default function PricingPage({
                     isCurrent
                       ? "bg-white/5 text-white/30 cursor-not-allowed border border-white/5"
                       : isPopular
-                      ? "bg-gradient-to-r from-cyan-500 to-indigo-600 text-white hover:from-cyan-400 hover:to-indigo-500 shadow-lg shadow-cyan-500/20"
+                      ? "bg-gradient-to-r from-amber-500 to-orange-600 text-white hover:from-amber-400 hover:to-orange-500 shadow-lg shadow-amber-500/20"
                       : "bg-white/[0.08] border border-white/15 text-white hover:bg-white/15"
                   }`}
                 >
@@ -265,7 +265,7 @@ export default function PricingPage({
                 <div className="space-y-2.5 pt-5 border-t border-white/[0.06]">
                   {plan.highlights.map((highlight, i) => (
                     <div key={i} className="flex items-start gap-2.5">
-                      <svg className="w-4 h-4 text-cyan-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                      <svg className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                       </svg>
                       <span className="text-xs text-white/50 leading-relaxed">{highlight}</span>
@@ -286,7 +286,7 @@ export default function PricingPage({
                 <tr className="border-b border-white/10">
                   <th className="text-left py-3 px-4 text-white/50 font-semibold text-xs">Recurso</th>
                   {planOrder.map((planId) => (
-                    <th key={planId} className={`text-center py-3 px-4 font-semibold text-xs ${currentPlan === planId ? "text-cyan-400" : "text-white/50"}`}>
+                    <th key={planId} className={`text-center py-3 px-4 font-semibold text-xs ${currentPlan === planId ? "text-amber-400" : "text-white/50"}`}>
                       {PLANS[planId].name}
                     </th>
                   ))}
@@ -316,7 +316,7 @@ export default function PricingPage({
                         <td key={planId} className="py-3 px-4 text-center text-xs">
                           {typeof val === "boolean" ? (
                             val ? (
-                              <svg className="w-4 h-4 text-cyan-400 mx-auto" fill="currentColor" viewBox="0 0 20 20">
+                              <svg className="w-4 h-4 text-amber-400 mx-auto" fill="currentColor" viewBox="0 0 20 20">
                                 <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                               </svg>
                             ) : (
@@ -344,7 +344,7 @@ export default function PricingPage({
             </p>
             <a
               href="mailto:luizsestari2004@gmail.com?subject=Aurum%20Enterprise"
-              className="inline-block px-8 py-3 bg-gradient-to-r from-cyan-500 to-indigo-600 text-white font-semibold rounded-xl hover:from-cyan-400 hover:to-indigo-500 transition-all text-sm"
+              className="inline-block px-8 py-3 bg-gradient-to-r from-amber-500 to-orange-600 text-white font-semibold rounded-xl hover:from-amber-400 hover:to-orange-500 transition-all text-sm"
             >
               Falar com Vendas
             </a>
@@ -363,7 +363,7 @@ export default function PricingPage({
                 >
                   <span className="font-medium text-sm text-white">{item.question}</span>
                   <svg
-                    className={`w-4 h-4 text-cyan-400/60 transition-transform ${expandedFaq === item.id ? "rotate-180" : ""}`}
+                    className={`w-4 h-4 text-amber-400/60 transition-transform ${expandedFaq === item.id ? "rotate-180" : ""}`}
                     fill="currentColor"
                     viewBox="0 0 20 20"
                   >

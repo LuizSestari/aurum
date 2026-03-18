@@ -568,14 +568,14 @@ export default function ChatPage({ muted, onMuteToggle, orbState, onOrbState, us
   }, [orbState, doStopListen, doListen, onOrbState]);
 
   return (
-    <div className="relative h-full w-full overflow-hidden bg-[#050810]">
+    <div className="relative h-full w-full overflow-hidden bg-[#0C0A09]">
       {/* ── USAGE BAR (TOP LEFT) ── */}
       <div className="absolute top-4 left-4 z-20 w-64">
         <UsageBar
           current={auth.usage.aiMessages}
           limit={auth.plan === "dev" || auth.plan === "max" ? -1 : auth.plan === "pro" ? 3000 : auth.plan === "starter" ? 500 : 30}
           label="Mensagens IA"
-          color="from-cyan-500 to-blue-500"
+          color="from-amber-500 to-orange-500"
         />
       </div>
 
@@ -620,7 +620,7 @@ export default function ChatPage({ muted, onMuteToggle, orbState, onOrbState, us
 
       {/* ── TRANSCRIPT SIDEBAR ── */}
       {showTranscript && (
-        <div className="absolute right-0 top-0 z-30 h-full w-80 border-l border-white/6 bg-[#050810]/90 backdrop-blur-2xl" onClick={(e) => e.stopPropagation()}>
+        <div className="absolute right-0 top-0 z-30 h-full w-80 border-l border-white/6 bg-[#0C0A09]/90 backdrop-blur-2xl" onClick={(e) => e.stopPropagation()}>
           <div className="flex items-center justify-between border-b border-white/6 px-4 py-3">
             <span className="text-xs font-medium text-white/40">Transcrição</span>
             <button onClick={() => setShowTranscript(false)} className="text-white/25 hover:text-white/50">✕</button>
@@ -632,7 +632,7 @@ export default function ChatPage({ muted, onMuteToggle, orbState, onOrbState, us
                 <div key={i} className={entry.role === "user" ? "text-right" : "text-left"}>
                   <div className={[
                     "inline-block max-w-[90%] rounded-xl px-3 py-2 text-xs leading-relaxed group relative",
-                    entry.role === "user" ? "bg-cyan-500/10 text-white/70" : "bg-white/5 text-white/50",
+                    entry.role === "user" ? "bg-amber-500/10 text-white/70" : "bg-white/5 text-white/50",
                   ].join(" ")}>
                     <div>{entry.text}</div>
                     <div className="text-[10px] text-white/30 mt-0.5">{time}</div>
@@ -649,7 +649,7 @@ export default function ChatPage({ muted, onMuteToggle, orbState, onOrbState, us
             {aiPartial && (
               <div className="text-left">
                 <div className="inline-block max-w-[90%] rounded-xl bg-white/5 px-3 py-2 text-xs text-white/30">
-                  {aiPartial}<span className="ml-1 inline-block h-3 w-0.5 animate-pulse bg-cyan-400/50" />
+                  {aiPartial}<span className="ml-1 inline-block h-3 w-0.5 animate-pulse bg-amber-400/50" />
                 </div>
               </div>
             )}
@@ -657,9 +657,9 @@ export default function ChatPage({ muted, onMuteToggle, orbState, onOrbState, us
               <div className="text-left">
                 <div className="inline-block rounded-xl bg-white/5 px-3 py-2">
                   <span className="inline-flex items-center gap-1">
-                    <span className="h-2 w-2 rounded-full bg-violet-400/70 animate-bounce" style={{ animationDelay: "0ms" }} />
-                    <span className="h-2 w-2 rounded-full bg-violet-400/70 animate-bounce" style={{ animationDelay: "150ms" }} />
-                    <span className="h-2 w-2 rounded-full bg-violet-400/70 animate-bounce" style={{ animationDelay: "300ms" }} />
+                    <span className="h-2 w-2 rounded-full bg-amber-600/70 animate-bounce" style={{ animationDelay: "0ms" }} />
+                    <span className="h-2 w-2 rounded-full bg-amber-600/70 animate-bounce" style={{ animationDelay: "150ms" }} />
+                    <span className="h-2 w-2 rounded-full bg-amber-600/70 animate-bounce" style={{ animationDelay: "300ms" }} />
                   </span>
                 </div>
               </div>
@@ -693,28 +693,28 @@ export default function ChatPage({ muted, onMuteToggle, orbState, onOrbState, us
           {orbState === "listening" && (
             <div className="flex items-center gap-2 rounded-full bg-black/30 px-4 py-1.5 backdrop-blur-xl">
               <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-cyan-400 opacity-75" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-cyan-500" />
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-400 opacity-75" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-amber-500" />
               </span>
-              <span className="text-xs font-medium text-cyan-400/80">Ouvindo...</span>
+              <span className="text-xs font-medium text-amber-400/80">Ouvindo...</span>
             </div>
           )}
           {orbState === "thinking" && (
             <div className="flex items-center gap-2 rounded-full bg-black/30 px-4 py-1.5 backdrop-blur-xl">
               <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-violet-400 opacity-75" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-violet-500" />
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-600 opacity-75" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-amber-700" />
               </span>
-              <span className="text-xs font-medium text-violet-400/80">Pensando...</span>
+              <span className="text-xs font-medium text-amber-500/80">Pensando...</span>
             </div>
           )}
           {orbState === "speaking" && (
             <div className="flex items-center gap-2 rounded-full bg-black/30 px-4 py-1.5 backdrop-blur-xl">
               <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-green-500" />
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-yellow-400 opacity-75" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-yellow-500" />
               </span>
-              <span className="text-xs font-medium text-green-400/80">Falando...</span>
+              <span className="text-xs font-medium text-yellow-400/80">Falando...</span>
             </div>
           )}
           {partialTranscript && orbState === "listening" && (
@@ -744,12 +744,12 @@ export default function ChatPage({ muted, onMuteToggle, orbState, onOrbState, us
       <div className="absolute bottom-5 left-0 right-0 z-20 px-6" onClick={(e) => e.stopPropagation()}>
         <style>{`
           @keyframes borderGlow {
-            0%, 100% { box-shadow: 0 0 0 1px currentColor, 0 0 12px rgba(34, 211, 238, 0.15) inset; }
-            50% { box-shadow: 0 0 0 1px currentColor, 0 0 20px rgba(34, 211, 238, 0.25) inset; }
+            0%, 100% { box-shadow: 0 0 0 1px currentColor, 0 0 12px rgba(245, 158, 11, 0.15) inset; }
+            50% { box-shadow: 0 0 0 1px currentColor, 0 0 20px rgba(245, 158, 11, 0.25) inset; }
           }
           .control-bar-listening { animation: borderGlow 2s ease-in-out infinite; }
-          .control-bar-thinking { border-color: rgba(168, 85, 247, 0.4) !important; box-shadow: 0 0 12px rgba(168, 85, 247, 0.2) inset, 0 0 24px rgba(168, 85, 247, 0.15); }
-          .control-bar-speaking { border-color: rgba(34, 197, 94, 0.4) !important; box-shadow: 0 0 12px rgba(34, 197, 94, 0.2) inset, 0 0 24px rgba(34, 197, 94, 0.15); }
+          .control-bar-thinking { border-color: rgba(217, 119, 6, 0.4) !important; box-shadow: 0 0 12px rgba(217, 119, 6, 0.2) inset, 0 0 24px rgba(217, 119, 6, 0.15); }
+          .control-bar-speaking { border-color: rgba(252, 211, 77, 0.4) !important; box-shadow: 0 0 12px rgba(252, 211, 77, 0.2) inset, 0 0 24px rgba(252, 211, 77, 0.15); }
         `}</style>
         <div className="mx-auto flex max-w-lg flex-col items-center gap-2">
           {/* Hidden file input */}
@@ -778,7 +778,7 @@ export default function ChatPage({ muted, onMuteToggle, orbState, onOrbState, us
           <div className={[
             "flex w-full items-center gap-2 rounded-2xl border transition-all duration-300",
             "bg-white/[0.08] backdrop-blur-3xl",
-            orbState === "listening" ? "control-bar-listening border-cyan-500/60" :
+            orbState === "listening" ? "control-bar-listening border-amber-500/60" :
             orbState === "thinking" ? "control-bar-thinking" :
             orbState === "speaking" ? "control-bar-speaking" :
             "border-white/[0.15]",
@@ -820,7 +820,7 @@ export default function ChatPage({ muted, onMuteToggle, orbState, onOrbState, us
               className={[
                 "flex h-7 items-center gap-1 rounded-lg px-2 text-[10px] font-medium transition-all",
                 continuousMode
-                  ? "bg-cyan-500/25 text-cyan-300 shadow-[0_0_8px_rgba(34,211,238,0.15)]"
+                  ? "bg-amber-500/25 text-amber-300 shadow-[0_0_8px_rgba(245,158,11,0.15)]"
                   : "text-white/25 hover:text-white/40",
               ].join(" ")}
             >
@@ -828,7 +828,7 @@ export default function ChatPage({ muted, onMuteToggle, orbState, onOrbState, us
             </button>
 
             {text.trim() ? (
-              <button onClick={sendText} className="flex h-7 w-7 items-center justify-center rounded-full bg-cyan-500/85 text-white transition-all hover:bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.2)]">
+              <button onClick={sendText} className="flex h-7 w-7 items-center justify-center rounded-full bg-amber-500/85 text-white transition-all hover:bg-amber-400 shadow-[0_0_8px_rgba(245,158,11,0.2)]">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
               </button>
             ) : (
@@ -837,7 +837,7 @@ export default function ChatPage({ muted, onMuteToggle, orbState, onOrbState, us
                 disabled={!sttSupported}
                 className={[
                   "flex h-7 w-7 items-center justify-center rounded-full transition-all",
-                  orbState === "listening" ? "bg-cyan-500 text-white animate-pulse shadow-[0_0_12px_rgba(34,211,238,0.3)]" : "bg-white/8 text-white/30 hover:bg-white/12",
+                  orbState === "listening" ? "bg-amber-500 text-white animate-pulse shadow-[0_0_12px_rgba(245,158,11,0.3)]" : "bg-white/8 text-white/30 hover:bg-white/12",
                   !sttSupported ? "opacity-20" : "",
                 ].join(" ")}
               >

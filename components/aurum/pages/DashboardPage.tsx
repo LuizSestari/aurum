@@ -213,7 +213,7 @@ export default function DashboardPage({ orbState, userName }: Props) {
       `}</style>
       <div className="h-full overflow-y-auto px-6 py-6 pb-24">
       {/* Welcome Banner */}
-      <div className="mb-6 rounded-xl border border-cyan-500/30 bg-gradient-to-r from-cyan-500/10 to-blue-500/10 p-6">
+      <div className="mb-6 rounded-xl border border-amber-500/20 bg-gradient-to-r from-amber-500/10 to-orange-500/5 p-6">
         <div className="flex items-center gap-4">
           <div className="relative h-[60px] w-[60px] shrink-0 overflow-hidden rounded-full"><AurumOrb state={orbState} size={60} /></div>
           <div className="flex-1">
@@ -224,7 +224,7 @@ export default function DashboardPage({ orbState, userName }: Props) {
       </div>
 
       {/* Section tabs - Sticky */}
-      <div className="sticky top-0 z-10 mb-6 -mx-6 -mt-6 flex gap-2 overflow-x-auto border-b border-white/10 bg-black/50 px-6 py-3 backdrop-blur-sm">
+      <div className="sticky top-0 z-10 mb-6 -mx-6 -mt-6 flex gap-2 overflow-x-auto border-b border-white/10 bg-[#0C0A09]/80 px-6 py-3 backdrop-blur-sm">
         {sections.map((s) => (
           <button key={s.id} onClick={() => setActiveSection(s.id)}
             className={`whitespace-nowrap rounded-lg px-4 py-2 text-xs font-medium transition-colors ${
@@ -321,14 +321,14 @@ export default function DashboardPage({ orbState, userName }: Props) {
           {/* Quick stats */}
           <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
             {[
-              { label: "Conversas", value: memStats.totalMessages, icon: "💬", color: "#22d3ee", gradientFrom: "from-cyan-500/15", gradientTo: "to-blue-500/5" },
-              { label: "Interações", value: memStats.totalInteractions, icon: "🔄", color: "#a78bfa", gradientFrom: "from-purple-500/15", gradientTo: "to-pink-500/5" },
-              { label: "Tarefas", value: storeStats.tasks, icon: "✅", color: "#3b82f6", gradientFrom: "from-blue-500/15", gradientTo: "to-cyan-500/5" },
-              { label: "Hábitos", value: storeStats.habits, icon: "🎯", color: "#22c55e", gradientFrom: "from-green-500/15", gradientTo: "to-emerald-500/5" },
-              { label: "Projetos", value: storeStats.projects, icon: "📁", color: "#f97316", gradientFrom: "from-orange-500/15", gradientTo: "to-red-500/5" },
-              { label: "Lembretes", value: storeStats.reminders, icon: "🔔", color: "#eab308", gradientFrom: "from-yellow-500/15", gradientTo: "to-amber-500/5" },
-              { label: "Transações", value: storeStats.transactions, icon: "💲", color: "#22c55e", gradientFrom: "from-green-500/15", gradientTo: "to-teal-500/5" },
-              { label: "Cadernos", value: storeStats.notebooks, icon: "📚", color: "#06b6d4", gradientFrom: "from-cyan-500/15", gradientTo: "to-teal-500/5" },
+              { label: "Conversas", value: memStats.totalMessages, icon: "💬", color: "#F59E0B", gradientFrom: "from-amber-500/15", gradientTo: "to-orange-500/5" },
+              { label: "Interações", value: memStats.totalInteractions, icon: "🔄", color: "#D97706", gradientFrom: "from-amber-600/15", gradientTo: "to-amber-800/5" },
+              { label: "Tarefas", value: storeStats.tasks, icon: "✅", color: "#FBBF24", gradientFrom: "from-yellow-500/15", gradientTo: "to-amber-500/5" },
+              { label: "Hábitos", value: storeStats.habits, icon: "🎯", color: "#F97316", gradientFrom: "from-orange-500/15", gradientTo: "to-amber-500/5" },
+              { label: "Projetos", value: storeStats.projects, icon: "📁", color: "#FB923C", gradientFrom: "from-orange-400/15", gradientTo: "to-orange-600/5" },
+              { label: "Lembretes", value: storeStats.reminders, icon: "🔔", color: "#FCD34D", gradientFrom: "from-yellow-400/15", gradientTo: "to-amber-500/5" },
+              { label: "Transações", value: storeStats.transactions, icon: "💲", color: "#D97706", gradientFrom: "from-amber-600/15", gradientTo: "to-amber-800/5" },
+              { label: "Cadernos", value: storeStats.notebooks, icon: "📚", color: "#F59E0B", gradientFrom: "from-amber-500/15", gradientTo: "to-yellow-500/5" },
             ].map((s) => (
               <div key={s.label} className={`rounded-xl border border-white/8 bg-gradient-to-br ${s.gradientFrom} ${s.gradientTo} p-4`}>
                 <div className="flex items-center gap-2">
@@ -359,7 +359,7 @@ export default function DashboardPage({ orbState, userName }: Props) {
                 <div className="mb-3 flex items-center justify-between">
                   <span className="text-sm font-semibold">Atividade Semanal</span>
                   <div className="flex items-center gap-3 text-[10px] text-white/40">
-                    <span className="flex items-center gap-1"><span className="inline-block h-2 w-2 rounded-sm bg-cyan-500" /> Tarefas</span>
+                    <span className="flex items-center gap-1"><span className="inline-block h-2 w-2 rounded-sm bg-amber-500" /> Tarefas</span>
                     <span className="flex items-center gap-1"><span className="inline-block h-2 w-2 rounded-sm bg-green-500" /> Hábitos</span>
                   </div>
                 </div>
@@ -368,7 +368,7 @@ export default function DashboardPage({ orbState, userName }: Props) {
                     <div key={i} className="flex-1 flex flex-col items-center gap-1">
                       <div className="w-full flex flex-col items-center justify-end" style={{ height: "100px" }}>
                         <div className="w-full max-w-[20px] rounded-t-sm bg-green-500/80 transition-all" style={{ height: `${(d.habitsCompleted / maxVal) * 100}px` }} />
-                        <div className="w-full max-w-[20px] rounded-b-sm bg-cyan-500/80 transition-all" style={{ height: `${(d.tasksCompleted / maxVal) * 100}px` }} />
+                        <div className="w-full max-w-[20px] rounded-b-sm bg-amber-500/80 transition-all" style={{ height: `${(d.tasksCompleted / maxVal) * 100}px` }} />
                       </div>
                       <span className="text-[9px] text-white/30">{d.label}</span>
                     </div>
@@ -427,7 +427,7 @@ export default function DashboardPage({ orbState, userName }: Props) {
             <div className="flex items-center gap-4">
               <div className="relative h-[100px] w-[100px] overflow-hidden rounded-full"><AurumOrb state={orbState} size={100} /></div>
               <div className="space-y-2 text-xs">
-                <div>Estado: <span className="font-medium text-cyan-400">{orbState}</span></div>
+                <div>Estado: <span className="font-medium text-amber-400">{orbState}</span></div>
                 <div>Provedor IA: <span className="font-medium">{aiProvider}</span></div>
                 <div>Modelo: <span className="font-medium">{aiModel || "padrão"}</span></div>
                 <div>Idioma: <span className="font-medium">{voiceLang}</span></div>
@@ -444,7 +444,7 @@ export default function DashboardPage({ orbState, userName }: Props) {
               ) : (
                 getRecentContext(10).map((m, i) => (
                   <div key={i} className="flex gap-2 text-xs">
-                    <span className={m.role === "user" ? "text-cyan-400" : "text-purple-400"}>{m.role === "user" ? "Você:" : "Aurum:"}</span>
+                    <span className={m.role === "user" ? "text-amber-400" : "text-purple-400"}>{m.role === "user" ? "Você:" : "Aurum:"}</span>
                     <span className="truncate text-white/60">{m.content}</span>
                   </div>
                 ))
@@ -481,7 +481,7 @@ export default function DashboardPage({ orbState, userName }: Props) {
                   className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm outline-none"
                   placeholder={aiProvider === "openai" ? "gpt-4o-mini" : aiProvider === "anthropic" ? "claude-sonnet-4-20250514" : "local"} />
               </div>
-              <button onClick={handleSaveAI} className="rounded-lg bg-cyan-500 px-4 py-2 text-xs font-medium text-white hover:bg-cyan-400">Salvar Configuração</button>
+              <button onClick={handleSaveAI} className="rounded-lg bg-amber-500 px-4 py-2 text-xs font-medium text-white hover:bg-amber-400">Salvar Configuração</button>
             </div>
           </div>
 
@@ -489,7 +489,7 @@ export default function DashboardPage({ orbState, userName }: Props) {
           <div className="rounded-xl border border-white/8 bg-white/[0.03] p-4">
             <div className="mb-3 text-sm font-semibold">Estatísticas de IA</div>
             <div className="grid grid-cols-4 gap-3">
-              <div className="text-center"><div className="text-lg font-bold text-cyan-400">{aiStats.total}</div><div className="text-[10px] text-white/40">Requisições</div></div>
+              <div className="text-center"><div className="text-lg font-bold text-amber-400">{aiStats.total}</div><div className="text-[10px] text-white/40">Requisições</div></div>
               <div className="text-center"><div className="text-lg font-bold text-red-400">{aiStats.errors}</div><div className="text-[10px] text-white/40">Erros</div></div>
               <div className="text-center"><div className="text-lg font-bold text-green-400">{aiStats.cached}</div><div className="text-[10px] text-white/40">Cache Hit</div></div>
               <div className="text-center"><div className="text-lg font-bold text-purple-400">{aiStats.avgDuration}ms</div><div className="text-[10px] text-white/40">Latência Média</div></div>
@@ -515,7 +515,7 @@ export default function DashboardPage({ orbState, userName }: Props) {
               <input type="range" min="0.5" max="2" step="0.1" value={voiceRate} onChange={(e) => setVoiceRate(parseFloat(e.target.value))}
                 className="w-full" />
             </div>
-            <button onClick={handleSaveVoice} className="rounded-lg bg-cyan-500 px-4 py-2 text-xs font-medium text-white hover:bg-cyan-400">Salvar</button>
+            <button onClick={handleSaveVoice} className="rounded-lg bg-amber-500 px-4 py-2 text-xs font-medium text-white hover:bg-amber-400">Salvar</button>
           </div>
         </div>
       )}
@@ -526,7 +526,7 @@ export default function DashboardPage({ orbState, userName }: Props) {
           <div className="rounded-xl border border-white/8 bg-white/[0.03] p-4">
             <div className="mb-3 text-sm font-semibold">Memória do Aurum</div>
             <div className="grid grid-cols-3 gap-3">
-              <div className="text-center"><div className="text-lg font-bold text-cyan-400">{memStats.totalMessages}</div><div className="text-[10px] text-white/40">Mensagens</div></div>
+              <div className="text-center"><div className="text-lg font-bold text-amber-400">{memStats.totalMessages}</div><div className="text-[10px] text-white/40">Mensagens</div></div>
               <div className="text-center"><div className="text-lg font-bold text-purple-400">{memStats.totalNotes}</div><div className="text-[10px] text-white/40">Notas</div></div>
               <div className="text-center"><div className="text-lg font-bold text-green-400">{memStats.categories.length}</div><div className="text-[10px] text-white/40">Categorias</div></div>
             </div>
@@ -562,7 +562,7 @@ export default function DashboardPage({ orbState, userName }: Props) {
                   placeholder="eyJ..." />
               </div>
               <button onClick={handleSaveN8n}
-                className="rounded-lg bg-cyan-500 px-4 py-2 text-xs font-medium text-white hover:bg-cyan-400 disabled:opacity-50"
+                className="rounded-lg bg-amber-500 px-4 py-2 text-xs font-medium text-white hover:bg-amber-400 disabled:opacity-50"
                 disabled={n8nChecking}>
                 {n8nChecking ? "Verificando..." : "Conectar"}
               </button>
@@ -618,7 +618,7 @@ export default function DashboardPage({ orbState, userName }: Props) {
                       <div className="text-[10px] text-white/30">{t.description}</div>
                     </div>
                     <button onClick={() => handleInstallTemplate(i)}
-                      className="rounded-lg bg-cyan-500/20 px-3 py-1 text-[10px] font-medium text-cyan-300 hover:bg-cyan-500/30">
+                      className="rounded-lg bg-amber-500/20 px-3 py-1 text-[10px] font-medium text-amber-300 hover:bg-amber-500/30">
                       Instalar
                     </button>
                   </div>
@@ -668,7 +668,7 @@ export default function DashboardPage({ orbState, userName }: Props) {
       {activeSection === "overview" && (
         <>
           <button onClick={() => setShowQuickAdd(!showQuickAdd)}
-            className="fixed bottom-6 right-6 z-20 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-cyan-500 to-blue-500 text-2xl text-white shadow-lg shadow-cyan-500/20 hover:shadow-cyan-500/40 transition-all">
+            className="fixed bottom-6 right-6 z-20 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-amber-500 to-orange-500 text-2xl text-white shadow-lg shadow-amber-500/20 hover:shadow-amber-500/30 transition-all">
             +
           </button>
 
