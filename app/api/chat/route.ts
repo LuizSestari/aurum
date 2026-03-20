@@ -145,7 +145,7 @@ REGRAS:
 
 // Provider configs — all can be overridden with env vars
 const OLLAMA_URL = process.env.OLLAMA_URL ?? "http://localhost:11434";
-const OLLAMA_MODEL = process.env.OLLAMA_MODEL ?? "llama3.2";
+const OLLAMA_MODEL = process.env.OLLAMA_MODEL ?? "llama3.3";
 const GROQ_API_KEY = process.env.GROQ_API_KEY;
 const GROQ_MODEL = process.env.GROQ_MODEL ?? "llama-3.3-70b-versatile";
 
@@ -376,10 +376,10 @@ async function handleOllama(
     const models = tagsData.models?.map((m: { name: string }) => m.name) ?? [];
 
     if (models.length === 0) {
-      throw new Error("Ollama sem modelos. Execute: ollama pull llama3.2");
+      throw new Error("Ollama sem modelos. Execute: ollama pull llama3.3");
     }
 
-    const preferredModels = [OLLAMA_MODEL, "llama3.2", "llama3.1", "llama3", "mistral", "qwen2", "phi3"];
+    const preferredModels = [OLLAMA_MODEL, "llama3.3", "qwen2.5", "llama3.2", "llama3.1", "gemma2", "mistral", "phi3"];
     let selectedModel = models[0];
     for (const preferred of preferredModels) {
       const found = models.find((m: string) => m.startsWith(preferred));
